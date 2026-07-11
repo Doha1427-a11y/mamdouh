@@ -544,21 +544,41 @@
         // Realtime Auth & Dashboards
         let currAccountType = '';
         window.checkAndGoToDashboard = async () => {
-            const u = auth.currentUser; if(!u) return showToast('لا يوجد حساب مسجل', true);
+            const u = auth.currentUser;
+            if(!u) return showToast('يرجى تسجيل الدخول أولاً', true);
+            
             try {
-                let s = await getDoc(doc(db, 'artifacts', appId, 'users', u.uid, 'profile', 'data')); 
-                if(s.exists()) { currAccountType = 'spec'; } else { s = await getDoc(doc(db, 'artifacts', appId, 'users', u.uid, 'profile', 'orgData')); if(s.exists()) currAccountType = 'org'; }
-                
+                // 1. فحص هل الحساب موجود في الأخصائيين
+                let s = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'specialists', u.uid)); 
                 if(s.exists()) {
-                    const d = s.data(); const st = d.status;
-                    if (st === 'approved') { 
-                        if(currAccountType==='spec') {
-                            document.getElementById('cv_name').value = d.fullName||''; document.getElementById('cv_id').value = d.nationalId||''; document.getElementById('cv_email').value = d.email||''; document.getElementById('cv_phone').value = d.phone||''; document.getElementById('cv_edu').value = d.edu||''; document.getElementById('cv_years').value = d.years||''; document.getElementById('cv_license').value = d.license||''; document.getElementById('cv_bio').value = d.bio||''; document.getElementById('cv_exp').value = d.exp||''; document.getElementById('cv_portfolio').value = d.portfolio||'';
-                            navigate('view-specialist-dashboard'); switchSpecTab('home'); 
-                        } else { navigate('view-org-dashboard'); switchOrgTab('home'); }
-                    } else if (st === 'rejected') { showToast('الحساب مرفوض.', true); } else { navigate('view-waiting-room'); listenToStatus(u.uid, currAccountType); }
-                } else showToast('أنشئ حساباً أولاً', true);
-            } catch (e) { showToast('خطأ اتصال', true); }
+                    currAccountType = 'spec';
+                    myProfileData = s.data();
+                    if(myProfileData.status === 'approved') {
+                        navigate('view-specialist-dashboard');
+                        switchSpecTab('home');
+                        listenToRequests(u.uid, 'spec');
+                    } else { navigate('view-waiting-room'); }
+                    return; // خروج من الدالة لأننا وجدنا أخصائي
+                }
+
+                // 2. إذا لم يكن أخصائي، نفحص هل هو جهة
+                s = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'organizations', u.uid)); 
+                if(s.exists()) {
+                    currAccountType = 'org';
+                    myProfileData = s.data();
+                    if(myProfileData.status === 'approved') {
+                        navigate('view-org-dashboard'); // هنا التوجيه الصحيح للجهة
+                        switchOrgTab('home');
+                        listenToRequests(u.uid, 'org');
+                    } else { navigate('view-waiting-room'); }
+                    return;
+                }
+
+                showToast('لم يتم العثور على حساب مسجل، يرجى التسجيل أولاً', true);
+            } catch (e) {
+                console.error("خطأ في التحقق:", e);
+                showToast('خطأ في الاتصال بقاعدة البيانات', true);
+            }
         };
 
         window.listenToStatus = async (uid, type) => {
