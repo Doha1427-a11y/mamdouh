@@ -344,6 +344,7 @@
                 <button onclick="switchSpecTab('home')" id="stab-home" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold"><span class="material-symbols-outlined">home</span> الرئيسية</button>
                 <button onclick="switchSpecTab('cv')" id="stab-cv" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"><span class="material-symbols-outlined">badge</span> الملف المهني</button>
                 <button onclick="switchSpecTab('orgs')" id="stab-orgs" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"><span class="material-symbols-outlined">corporate_fare</span> تصفح الجهات</button>
+                <button onclick="switchSpecTab('requests')" id="stab-requests" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold relative"><span class="material-symbols-outlined">forum</span> الطلبات والمراسلات</button>
             </nav>
             <button onclick="navigate('view-home')" class="mt-auto flex items-center justify-center gap-2 w-full py-3 border border-white/30 rounded-xl font-bold hover:bg-white/10"><span class="material-symbols-outlined rotate-180">logout</span> خروج</button>
         </aside>
@@ -363,6 +364,11 @@
 
             <!-- الملف المهني القابل للتعديل للأخصائي -->
             <div id="scontent-cv" class="hidden">
+                <div id="scontent-requests" class="hidden">
+                     <h2 class="text-3xl font-bold text-primary mb-6">الطلبات الواردة</h2>
+                     <div id="spec-requests-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  </div>
+                </div>
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-3xl font-bold text-primary">تعديل الملف المهني</h2>
                     <div class="flex gap-2">
@@ -731,7 +737,8 @@
                 ss.forEach(d => { 
                     const v=d.data(); if(v.status==='approved'){
                         window.specGlobalData[d.id] = v;
-                        h+=`<div class="bg-white p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all flex flex-col h-full"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-3"><span class="material-symbols-outlined">person</span></div><h4 class="font-bold text-slate-800 text-lg mb-1">${v.fullName||'أخصائي'}</h4><p class="text-sm text-slate-500 mb-2 truncate">${v.edu||'لم يحدد التخصص'}</p><p class="text-xs font-bold text-blue-600 mb-4 bg-blue-50 px-2 py-1 rounded w-fit">${v.years ? v.years+' سنوات خبرة' : 'مبتدئ'}</p><div class="mt-auto"><button onclick="previewCV(true, window.specGlobalData['${d.id}'])" class="w-full py-2 bg-slate-800 text-white font-bold rounded-lg hover:bg-slate-700 transition-colors">عرض الملف المهني</button></div></div>`;
+                     // ابحث عن هذا الجزء داخل دالة loadOrgDirectory وعدله ليكون هكذا:
+                     h += `<div class="bg-white p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all flex flex-col h-full"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-3"><span class="material-symbols-outlined">person</span></div><h4 class="font-bold text-slate-800 text-lg mb-1">${v.fullName||'أخصائي'}</h4><p class="text-sm text-slate-500 mb-4">${v.edu||'لم يحدد التخصص'}</p><div class="mt-auto flex gap-2"><button onclick="previewCV(true, window.specGlobalData['${d.id}'])" class="flex-1 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 text-xs">الملف</button><button onclick="sendRequestToSpec('${d.id}', '${v.fullName}')" class="flex-[2] py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 text-xs flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">send</span> طلب تواصل</button></div></div>`;
                     }
                 });
                 list.innerHTML = h || '<div class="col-span-full text-center p-4">لا يوجد أخصائيين معتمدين بعد.</div>';
