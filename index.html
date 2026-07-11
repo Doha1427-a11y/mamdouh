@@ -452,6 +452,9 @@
                 <h2 class="text-3xl font-bold text-slate-800 mb-6">دليل الكفاءات والأخصائيين</h2>
                 <div id="org-specialists-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="col-span-full text-center p-8 text-slate-500">جاري جلب بيانات الأخصائيين المعتمدين...</div>
+                    <button onclick="sendRequestToSpec('${d.id}', '${v.fullName}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors">
+    إرسال طلب تواصل
+</button>
                 </div>
             </div>
         </section>
@@ -716,6 +719,38 @@
         };
 
         window.addEventListener('load', () => setTimeout(() => { const s=document.getElementById('splash-screen'); if(s){ s.style.opacity='0'; setTimeout(()=>s.style.display='none', 700); } }, 1000));
+        // ==========================================
+        // نظام الطلبات والدردشة (القبول، الرفض، والرسائل)
+        // ==========================================
+
+        // إرسال الطلب من المنشأة للأخصائي
+        window.sendRequestToSpec = async (specId, specName) => {
+            const u = auth.currentUser; if(!u || !myProfileData) return;
+            const reqId = u.uid + '_' + specId;
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', reqId), {
+                    orgId: u.uid, orgName: myProfileData.orgName || 'جهة', 
+                    specId: specId, specName: specName,
+                    status: 'pending', chatId: reqId, timestamp: serverTimestamp()
+                });
+                showToast(`تم إرسال الطلب إلى ${specName}`);
+            } catch(e) { showToast('خطأ في الإرسال', true); }
+        };
+
+        // استجابة الأخصائي (قبول/رفض)
+        window.updateReqStatus = async (reqId, status) => {
+            try { 
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', reqId), { status: status }); 
+                showToast(status === 'accepted' ? 'تم القبول!' : 'تم الرفض'); 
+            } catch(e) { showToast('خطأ', true); }
+        };
+
+        // إرسال رسالة في الشات
+        window.sendChatMessage = async (chatId, text) => {
+            await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), {
+                chatId: chatId, senderId: auth.currentUser.uid, text: text, timestamp: serverTimestamp()
+            });
+        };
     </script>
 </body>
 </html>
