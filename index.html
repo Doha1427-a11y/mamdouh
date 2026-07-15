@@ -576,13 +576,24 @@
             }
         };
 
-        window.switchSpecTab = (t) => { ['home','cv','requests'].forEach(x=>{ document.getElementById('scontent-'+x).classList.add('hidden'); document.getElementById('scontent-'+x).classList.remove('block','flex'); document.getElementById('stab-'+x).className="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold relative"; }); document.getElementById('scontent-'+t).classList.remove('hidden'); document.getElementById('scontent-'+t).classList.add(t==='requests'?'flex':'block'); document.getElementById('stab-'+t).className="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold relative"; };
+        window.switchSpecTab = (t) => { ['home','cv','requests','orgs'].forEach(x=>{ document.getElementById('scontent-'+x)?.classList.add('hidden'); document.getElementById('scontent-'+x)?.classList.remove('block','flex'); document.getElementById('stab-'+x)?.classList.remove('bg-white/20'); document.getElementById('stab-'+x)?.classList.add('text-white/70', 'hover:bg-white/10'); }); document.getElementById('scontent-'+t)?.classList.remove('hidden'); document.getElementById('scontent-'+t)?.classList.add(t==='requests'?'flex':'block'); document.getElementById('stab-'+t)?.classList.remove('text-white/70', 'hover:bg-white/10'); document.getElementById('stab-'+t)?.classList.add('bg-white/20'); };
+        window.switchOrgTab = (t) => { ['home','specialists','messages'].forEach(x=>{ document.getElementById('ocontent-'+x)?.classList.add('hidden'); document.getElementById('ocontent-'+x)?.classList.remove('block','flex'); document.getElementById('otab-'+x)?.classList.remove('bg-white/20'); document.getElementById('otab-'+x)?.classList.add('text-white/70', 'hover:bg-white/10'); }); document.getElementById('ocontent-'+t)?.classList.remove('hidden'); document.getElementById('ocontent-'+t)?.classList.add(t==='messages'?'flex':'block'); document.getElementById('otab-'+t)?.classList.remove('text-white/70', 'hover:bg-white/10'); document.getElementById('otab-'+t)?.classList.add('bg-white/20'); };
+        window.switchAdminTab = (t) => { document.getElementById('admin-spec-sec').classList.toggle('hidden', t!=='specialists'); document.getElementById('admin-org-sec').classList.toggle('hidden', t!=='organizations'); document.getElementById('atab-spec').className = t==='specialists' ? "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold" : "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"; document.getElementById('atab-org').className = t==='organizations' ? "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold" : "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"; };
+
+        let currAccountType = ''; let myProfileData = null;
+        
+        window.checkAndGoToDashboard = async () => {
+            const u = auth.currentUser;
+            if(!u) return showToast('يرجى تسجيل الدخول أولاً', true);
+            
+            try {
+                const prefRole = localStorage.getItem('preferredRole');
+                let targetRole = null;
                 let profileData = null;
 
                 const specDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'specialists', u.uid)); 
                 const orgDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'organizations', u.uid)); 
 
-                // التحقق الذكي من التوجيه
                 if(prefRole === 'org' && orgDoc.exists()) {
                     targetRole = 'org'; profileData = orgDoc.data();
                 } else if(prefRole === 'spec' && specDoc.exists()) {
@@ -641,26 +652,19 @@
         // Registration Flow
         let tData = {}; let isOrgReg = false;
         
-        // جلب السجل التجاري التلقائي للمؤسسة
         window.fetchCRData = () => {
             const cr = document.getElementById("cr_number").value;
             const btn = document.getElementById("fetch_cr_btn");
             if(cr.length < 5) return showToast("يرجى إدخال رقم سجل تجاري صحيح للبحث", true);
-            
-            btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-lg">sync</span> جاري...';
-            btn.disabled = true;
-            
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-lg">sync</span> جاري...'; btn.disabled = true;
             setTimeout(() => {
                 document.getElementById("org_name").value = "الشركة البيئية المتقدمة (تم الجلب)";
                 document.getElementById("org_desc").value = "شركة متخصصة في تقديم الاستشارات البيئية ومعالجة التلوث وإدارة المخلفات بطرق مستدامة.";
-                
                 document.getElementById("org_desc").removeAttribute("readonly");
                 document.getElementById("org_desc").classList.remove("bg-surface-container-low", "cursor-not-allowed", "border-0");
                 document.getElementById("org_desc").classList.add("bg-transparent", "border-2", "border-outline-variant", "focus:border-primary");
-                
                 const enhanceBtn = document.getElementById("enhance-org-btn");
                 if(enhanceBtn) enhanceBtn.classList.remove("hidden"); 
-                
                 btn.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span> تم الجلب';
                 btn.classList.add('bg-primary-fixed', 'text-primary');
                 showToast("تم التحقق وجلب بيانات المنشأة بنجاح");
@@ -670,17 +674,11 @@
         document.getElementById("form-step1")?.addEventListener("submit", e => { e.preventDefault(); isOrgReg=false; tData.n = document.getElementById("full_name").value; tData.id = document.getElementById("national_id").value; tData.em = document.getElementById("email").value; tData.ph = document.getElementById("phone").value; tData.bio = document.getElementById("bio").value; navigate('view-step2'); });
         document.getElementById("form-step2")?.addEventListener("submit", e => { e.preventDefault(); tData.lic = document.getElementById("license").value; navigate('view-otp'); showToast("استخدم 123456"); });
         
-        // حفظ بيانات المؤسسة المحدثة
         document.getElementById("form-org-step1")?.addEventListener("submit", e => { 
             e.preventDefault(); 
             if(!document.getElementById("org_name").value) return showToast("يرجى جلب بيانات السجل التجاري أولاً!", true);
-            isOrgReg=true; 
-            tData.on = document.getElementById("org_name").value; 
-            tData.cr = document.getElementById("cr_number").value; 
-            tData.ph = document.getElementById("org_phone").value; 
-            tData.desc = document.getElementById("org_desc").value; 
-            navigate('view-otp'); 
-            showToast("استخدم 123456 للتحقق"); 
+            isOrgReg=true; tData.on = document.getElementById("org_name").value; tData.cr = document.getElementById("cr_number").value; tData.ph = document.getElementById("org_phone").value; tData.desc = document.getElementById("org_desc").value; 
+            navigate('view-otp'); showToast("استخدم 123456 للتحقق"); 
         });
         
         document.getElementById("form-otp")?.addEventListener("submit", async e => { 
@@ -690,13 +688,13 @@
                     const od = {status:'pending', orgName:tData.on, crNumber:tData.cr, phone:tData.ph, orgDesc:tData.desc, createdAt: serverTimestamp()}; 
                     await setDoc(doc(db,'artifacts',appId,'users',u.uid,'profile','orgData'), od); 
                     await setDoc(doc(db,'artifacts',appId,'public','data','organizations',u.uid), od); 
-                    localStorage.setItem('preferredRole', 'org'); // حفظ الدور للتوجيه الصحيح
+                    localStorage.setItem('preferredRole', 'org');
                 }
                 else { 
                     const pd = {status:'pending', fullName:tData.n, nationalId:tData.id, email:tData.em, phone:tData.ph, bio:tData.bio||'', license:tData.lic, createdAt: serverTimestamp()}; 
                     await setDoc(doc(db,'artifacts',appId,'users',u.uid,'profile','data'), pd); 
                     await setDoc(doc(db,'artifacts',appId,'public','data','specialists',u.uid), pd); 
-                    localStorage.setItem('preferredRole', 'spec'); // حفظ الدور للتوجيه الصحيح
+                    localStorage.setItem('preferredRole', 'spec');
                 }
                 navigate('view-waiting-room'); listenToStatus(u.uid, isOrgReg?'org':'spec'); b.innerHTML='تأكيد'; b.disabled=false;
             } 
@@ -736,14 +734,6 @@
             printWindow.document.close(); printWindow.focus(); setTimeout(() => printWindow.print(), 800);
         };
 
-        // Form Submit Simulation
-        window.submitApp = (n, b) => { 
-            showToast('تم التقديم على '+n); b.innerHTML='تم التقديم'; b.disabled=true; b.classList.add('opacity-50','cursor-not-allowed');
-            const list = document.getElementById('applications-list');
-            if(list.innerText.includes('لا توجد')) list.innerHTML = '';
-            list.innerHTML += `<div class="flex items-center justify-between p-3 border rounded-xl bg-surface/50"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary">domain</span><span class="font-bold text-sm">${n}</span></div><span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-lg text-xs font-bold">قيد المراجعة</span></div>`;
-        };
-
         // File UI Events
         document.getElementById('profile_pic_upload')?.addEventListener('change', e => { if(e.target.files[0]){ const r=new FileReader(); r.onload=ev=>{ document.getElementById('profile_pic_preview').src=ev.target.result; document.getElementById('profile_pic_preview').classList.remove('hidden'); document.getElementById('profile_pic_icon').classList.add('hidden'); }; r.readAsDataURL(e.target.files[0]); }});
         document.getElementById('certs_upload')?.addEventListener('change', function() { document.getElementById('certs_upload_label').innerHTML = `<span class="bg-primary/10 text-primary px-3 py-1 rounded-full font-bold">تم إرفاق ${this.files.length} ملفات</span>`; });
@@ -770,8 +760,7 @@
                 ss.forEach(d => { 
                     const v=d.data(); if(v.status==='approved'){
                         window.specGlobalData[d.id] = v;
-                     // ابحث عن هذا الجزء داخل دالة loadOrgDirectory وعدله ليكون هكذا:
-                     h += `<div class="bg-white p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all flex flex-col h-full"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-3"><span class="material-symbols-outlined">person</span></div><h4 class="font-bold text-slate-800 text-lg mb-1">${v.fullName||'أخصائي'}</h4><p class="text-sm text-slate-500 mb-4">${v.edu||'لم يحدد التخصص'}</p><div class="mt-auto flex gap-2"><button onclick="previewCV(true, window.specGlobalData['${d.id}'])" class="flex-1 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 text-xs">الملف</button><button onclick="sendRequestToSpec('${d.id}', '${v.fullName}')" class="flex-[2] py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 text-xs flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">send</span> طلب تواصل</button></div></div>`;
+                        h += `<div class="bg-white p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all flex flex-col h-full"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-3"><span class="material-symbols-outlined">person</span></div><h4 class="font-bold text-slate-800 text-lg mb-1">${v.fullName||'أخصائي'}</h4><p class="text-sm text-slate-500 mb-4">${v.edu||'لم يحدد التخصص'}</p><div class="mt-auto flex gap-2"><button onclick="previewCV(true, window.specGlobalData['${d.id}'])" class="flex-1 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 text-xs">الملف</button><button onclick="sendRequestToSpec('${d.id}', '${v.fullName}')" class="flex-[2] py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 text-xs flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">send</span> طلب تواصل</button></div></div>`;
                     }
                 });
                 list.innerHTML = h || '<div class="col-span-full text-center p-4">لا يوجد أخصائيين معتمدين بعد.</div>';
@@ -780,26 +769,18 @@
 
         window.addEventListener('load', () => setTimeout(() => { const s=document.getElementById('splash-screen'); if(s){ s.style.opacity='0'; setTimeout(()=>s.style.display='none', 700); } }, 1000));
         
-        // ==========================================
-        // نظام الطلبات والدردشة (القبول، الرفض، والرسائل)
-        // ==========================================
-
-        // مراقبة الطلبات الواردة/المرسلة وعرضها
         let isInitialReqLoad = true;
         window.listenToRequests = (uid, role) => {
             const reqRef = collection(db, 'artifacts', appId, 'public', 'data', 'requests');
             onSnapshot(reqRef, (snapshot) => {
                 
-                // --- نظام الإشعارات المنبثقة والصوتية اللحظية ---
                 snapshot.docChanges().forEach((change) => {
                     if (!isInitialReqLoad) {
                         const updatedReq = change.doc.data();
-                        // 1. إشعار للأخصائي عند وصول طلب جديد
                         if (change.type === "added" && role === 'spec' && updatedReq.specId === uid && updatedReq.status === 'pending') {
                             showToast(`🔔 تنبيه: طلب تواصل جديد من "${updatedReq.orgName}"`);
                             try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play(); } catch(e){}
                         }
-                        // 2. إشعار للمنشأة عند قبول الأخصائي للطلب
                         if (change.type === "modified" && role === 'org' && updatedReq.orgId === uid && updatedReq.status === 'accepted') {
                             showToast(`🎉 وافق ${updatedReq.specName} على طلب التواصل!`);
                             try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play(); } catch(e){}
@@ -807,7 +788,6 @@
                     }
                 });
                 isInitialReqLoad = false;
-                // ------------------------------------------------
 
                 let html = ''; let pendingCount = 0;
                 snapshot.forEach(docSnap => {
@@ -858,22 +838,20 @@
             });
         };
 
-        // إرسال الطلب من المنشأة للأخصائي
         window.sendRequestToSpec = async (specId, specName) => {
             const u = auth.currentUser; if(!u || !myProfileData) return;
             const reqId = u.uid + '_' + specId;
             try {
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', reqId), {
-                    orgId: u.uid, orgName: myProfileData.orgName || 'جهة', 
+                    orgId: u.uid, orgName: myProfileData.orgName || 'جهة', orgDesc: myProfileData.orgDesc || '',
                     specId: specId, specName: specName,
                     status: 'pending', chatId: reqId, timestamp: serverTimestamp()
                 });
                 showToast(`تم إرسال الطلب إلى ${specName}`);
-                switchOrgTab('messages'); // يوجه المنشأة فورا للمراسلات لمتابعة الطلب
+                switchOrgTab('messages'); 
             } catch(e) { showToast('خطأ في الإرسال', true); }
         };
 
-        // استجابة الأخصائي (قبول/رفض)
         window.updateReqStatus = async (reqId, status) => {
             try { 
                 await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', reqId), { status: status }); 
@@ -881,7 +859,6 @@
             } catch(e) { showToast('خطأ', true); }
         };
 
-        // إرسال رسالة في الشات
         document.getElementById('spec-chat-form')?.addEventListener('submit', async (e) => { e.preventDefault(); if(!activeChatId || activeChatRole !== 'spec') return; const input = document.getElementById('spec-chat-input'); const text = input.value.trim(); if(!text) return; input.value = ''; try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { chatId: activeChatId, senderId: auth.currentUser.uid, text: text, timestamp: serverTimestamp() }); } catch(err) { showToast('لم يتم الإرسال', true); } });
         document.getElementById('org-chat-form')?.addEventListener('submit', async (e) => { e.preventDefault(); if(!activeChatId || activeChatRole !== 'org') return; const input = document.getElementById('org-chat-input'); const text = input.value.trim(); if(!text) return; input.value = ''; try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { chatId: activeChatId, senderId: auth.currentUser.uid, text: text, timestamp: serverTimestamp() }); } catch(err) { showToast('لم يتم الإرسال', true); } });
 
