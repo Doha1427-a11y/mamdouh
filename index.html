@@ -561,11 +561,28 @@
             if(!u) return showToast('يرجى تسجيل الدخول أولاً', true);
             
             try {
-                // 1. فحص هل الحساب موجود في الأخصائيين
-                let s = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'specialists', u.uid)); 
-                if(s.exists()) {
+                // الاعتماد على الذاكرة المحلية لمعرفة آخر دور تم التسجيل به لمنع التداخل
+                const prefRole = localStorage.getItem('preferredRole');
+                let targetRole = null;
+                let profileData = null;
+
+                const specDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'specialists', u.uid)); 
+                const orgDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'organizations', u.uid)); 
+
+                // التحقق الذكي من التوجيه
+                if(prefRole === 'org' && orgDoc.exists()) {
+                    targetRole = 'org'; profileData = orgDoc.data();
+                } else if(prefRole === 'spec' && specDoc.exists()) {
+                    targetRole = 'spec'; profileData = specDoc.data();
+                } else if(specDoc.exists()) {
+                    targetRole = 'spec'; profileData = specDoc.data();
+                } else if(orgDoc.exists()) {
+                    targetRole = 'org'; profileData = orgDoc.data();
+                }
+
+                if(targetRole === 'spec') {
                     currAccountType = 'spec';
-                    myProfileData = s.data();
+                    myProfileData = profileData;
                     if(myProfileData.status === 'approved') {
                         document.getElementById('cv_name').value = myProfileData.fullName||''; 
                         document.getElementById('cv_id').value = myProfileData.nationalId||''; 
@@ -581,16 +598,14 @@
                         switchSpecTab('home');
                         listenToRequests(u.uid, 'spec');
                     } else { navigate('view-waiting-room'); listenToStatus(u.uid, 'spec'); }
-                    return; // خروج من الدالة لأننا وجدنا أخصائي
+                    return; 
                 }
 
-                // 2. إذا لم يكن أخصائي، نفحص هل هو جهة
-                s = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'organizations', u.uid)); 
-                if(s.exists()) {
+                if(targetRole === 'org') {
                     currAccountType = 'org';
-                    myProfileData = s.data();
+                    myProfileData = profileData;
                     if(myProfileData.status === 'approved') {
-                        navigate('view-org-dashboard'); // هنا التوجيه الصحيح للجهة
+                        navigate('view-org-dashboard'); 
                         switchOrgTab('home');
                         listenToRequests(u.uid, 'org');
                     } else { navigate('view-waiting-room'); listenToStatus(u.uid, 'org'); }
@@ -662,11 +677,13 @@
                     const od = {status:'pending', orgName:tData.on, crNumber:tData.cr, phone:tData.ph, orgDesc:tData.desc, createdAt: serverTimestamp()}; 
                     await setDoc(doc(db,'artifacts',appId,'users',u.uid,'profile','orgData'), od); 
                     await setDoc(doc(db,'artifacts',appId,'public','data','organizations',u.uid), od); 
+                    localStorage.setItem('preferredRole', 'org'); // حفظ الدور للتوجيه الصحيح
                 }
                 else { 
                     const pd = {status:'pending', fullName:tData.n, nationalId:tData.id, email:tData.em, phone:tData.ph, bio:tData.bio||'', license:tData.lic, createdAt: serverTimestamp()}; 
                     await setDoc(doc(db,'artifacts',appId,'users',u.uid,'profile','data'), pd); 
                     await setDoc(doc(db,'artifacts',appId,'public','data','specialists',u.uid), pd); 
+                    localStorage.setItem('preferredRole', 'spec'); // حفظ الدور للتوجيه الصحيح
                 }
                 navigate('view-waiting-room'); listenToStatus(u.uid, isOrgReg?'org':'spec'); b.innerHTML='تأكيد'; b.disabled=false;
             } 
