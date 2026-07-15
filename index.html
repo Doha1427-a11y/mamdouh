@@ -733,72 +733,47 @@
             </body></html>`);
             printWindow.document.close(); printWindow.focus(); setTimeout(() => printWindow.print(), 800);
         };
-
-        // File UI Events
-        document.getElementById('profile_pic_upload')?.addEventListener('change', e => { if(e.target.files[0]){ const r=new FileReader(); r.onload=ev=>{ document.getElementById('profile_pic_preview').src=ev.target.result; document.getElementById('profile_pic_preview').classList.remove('hidden'); document.getElementById('profile_pic_icon').classList.add('hidden'); }; r.readAsDataURL(e.target.files[0]); }});
-        document.getElementById('certs_upload')?.addEventListener('change', function() { document.getElementById('certs_upload_label').innerHTML = `<span class="bg-primary/10 text-primary px-3 py-1 rounded-full font-bold">تم إرفاق ${this.files.length} ملفات</span>`; });
-        document.getElementById('file_upload')?.addEventListener('change', function() { if(this.files[0]) document.getElementById('upload_label').innerHTML = `<span class="text-sm font-bold text-primary block">${this.files[0].name}</span>`; });
-        document.getElementById('org_file_upload')?.addEventListener('change', function() { if(this.files[0]) document.getElementById('org_upload_label').innerHTML = `<span class="text-sm font-bold text-primary block">${this.files[0].name}</span>`; });
-
-        // Admin & Org Directory
-        window.loadAdminData = async () => { 
-            if(!auth.currentUser) return; const st = document.getElementById('admin-spec-body'), ot = document.getElementById('admin-org-body'); st.innerHTML = '<tr><td colspan="3" class="p-4 text-center">جاري...</td></tr>';
-            try {
-                const ss = await getDocs(collection(db,'artifacts',appId,'public','data','specialists')); let sh='';
-                ss.forEach(d => { const v=d.data(); const acts = v.status==='pending'?`<button onclick="updateRec('specialists','${d.id}','approved')" class="bg-primary text-white px-2 py-1 rounded mx-1">قبول</button>`:'-'; sh+=`<tr class="border-b"><td class="p-4">${v.fullName||'-'}</td><td class="p-4">${v.status==='approved'?'مفعل':(v.status==='rejected'?'مرفوض':'معلق')}</td><td class="p-4 text-center">${acts}</td></tr>`; }); st.innerHTML = sh;
-                const os = await getDocs(collection(db,'artifacts',appId,'public','data','organizations')); let oh='';
-                os.forEach(d => { const v=d.data(); const acts = v.status==='pending'?`<button onclick="updateRec('organizations','${d.id}','approved')" class="bg-primary text-white px-2 py-1 rounded mx-1">قبول</button>`:'-'; oh+=`<tr class="border-b"><td class="p-4">${v.orgName||'-'}</td><td class="p-4">${v.status==='approved'?'مفعل':(v.status==='rejected'?'مرفوض':'معلق')}</td><td class="p-4 text-center">${acts}</td></tr>`; }); ot.innerHTML = oh;
-            } catch(e) {}
-        };
-        window.updateRec = async (c,i,s) => { await updateDoc(doc(db,'artifacts',appId,'public','data',c,i),{status:s}); await updateDoc(doc(db,'artifacts',appId,'users',i,'profile',c==='specialists'?'data':'orgData'),{status:s}); showToast('تم'); loadAdminData(); };
-
-        window.specGlobalData = {};
-        window.loadOrgDirectory = async () => {
-            const list = document.getElementById('org-specialists-list'); list.innerHTML = '<div class="col-span-full text-center p-4">جاري التحميل...</div>';
-            try {
-                const ss = await getDocs(collection(db,'artifacts',appId,'public','data','specialists')); let h=''; window.specGlobalData = {};
-                ss.forEach(d => { 
-                    const v=d.data(); if(v.status==='approved'){
-                        window.specGlobalData[d.id] = v;
-                        h += `<div class="bg-white p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all flex flex-col h-full"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-3"><span class="material-symbols-outlined">person</span></div><h4 class="font-bold text-slate-800 text-lg mb-1">${v.fullName||'أخصائي'}</h4><p class="text-sm text-slate-500 mb-4">${v.edu||'لم يحدد التخصص'}</p><div class="mt-auto flex gap-2"><button onclick="previewCV(true, window.specGlobalData['${d.id}'])" class="flex-1 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 text-xs">الملف</button><button onclick="sendRequestToSpec('${d.id}', '${v.fullName}')" class="flex-[2] py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 text-xs flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[14px]">send</span> طلب تواصل</button></div></div>`;
-                    }
-                });
-                list.innerHTML = h || '<div class="col-span-full text-center p-4">لا يوجد أخصائيين معتمدين بعد.</div>';
-            } catch(e) { list.innerHTML = '<div class="col-span-full text-center p-4">حدث خطأ.</div>'; }
-        };
-
-        window.addEventListener('load', () => setTimeout(() => { const s=document.getElementById('splash-screen'); if(s){ s.style.opacity='0'; setTimeout(()=>s.style.display='none', 700); } }, 1000));
-        
-        let isInitialReqLoad = true;
+        // مراقبة الطلبات الواردة/المرسلة وعرضها
         window.listenToRequests = (uid, role) => {
             const reqRef = collection(db, 'artifacts', appId, 'public', 'data', 'requests');
             onSnapshot(reqRef, (snapshot) => {
-                
-                snapshot.docChanges().forEach((change) => {
-                    if (!isInitialReqLoad) {
-                        const updatedReq = change.doc.data();
-                        if (change.type === "added" && role === 'spec' && updatedReq.specId === uid && updatedReq.status === 'pending') {
-                            showToast(`🔔 تنبيه: طلب تواصل جديد من "${updatedReq.orgName}"`);
-                            try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play(); } catch(e){}
-                        }
-                        if (change.type === "modified" && role === 'org' && updatedReq.orgId === uid && updatedReq.status === 'accepted') {
-                            showToast(`🎉 وافق ${updatedReq.specName} على طلب التواصل!`);
-                            try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play(); } catch(e){}
-                        }
-                    }
-                });
-                isInitialReqLoad = false;
+                let html = ''; 
+                let homeReqHtml = '';
+                let homeProjHtml = '';
+                let pendingCount = 0;
+                let activeProjCount = 0;
 
-                let html = ''; let pendingCount = 0;
                 snapshot.forEach(docSnap => {
                     const req = docSnap.data();
                     if(role === 'spec' && req.specId === uid) {
-                        if(req.status === 'pending') pendingCount++;
-                        let badge='', acts='';
-                        if(req.status === 'pending') { badge = '<span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-[10px] font-bold">طلب جديد</span>'; acts = `<div class="flex gap-1 mt-3"><button onclick="updateReqStatus('${docSnap.id}', 'accepted')" class="flex-1 bg-primary text-white text-xs py-2 rounded-lg hover:bg-[#006d44] font-bold">قبول وبدء محادثة</button><button onclick="updateReqStatus('${docSnap.id}', 'rejected')" class="flex-1 bg-red-50 text-red-600 text-xs py-2 rounded-lg hover:bg-red-100 font-bold">رفض</button></div>`; } 
-                        else if(req.status === 'accepted') { badge = '<span class="bg-primary-fixed text-primary px-2 py-0.5 rounded text-[10px] font-bold">مقبول</span>'; acts = `<button onclick="openChatRoom('${req.chatId}', '${req.orgName}', 'spec')" class="w-full mt-3 bg-surface-container-high text-secondary text-xs py-2 rounded-lg hover:bg-outline-variant font-bold flex items-center justify-center gap-1"><span class="material-symbols-outlined text-sm">chat</span> فتح المحادثة</button>`; } 
-                        else { badge = '<span class="bg-red-50 text-red-500 px-2 py-0.5 rounded text-[10px] font-bold">مرفوض</span>'; }
-                        html += `<div class="p-4 border border-outline-variant/30 rounded-xl bg-white hover:border-primary transition-colors"><div class="flex justify-between items-start mb-2"><h5 class="font-bold text-sm text-on-surface truncate" title="${req.orgName}">${req.orgName}</h5>${badge}</div><p class="text-[11px] text-secondary leading-relaxed line-clamp-2">${req.orgDesc}</p>${acts}</div>`;
+                        if(req.status === 'pending') {
+                            pendingCount++;
+                            let badge = '<span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-[10px] font-bold">طلب جديد</span>'; 
+                            let acts = `<div class="flex gap-1 mt-3"><button onclick="updateReqStatus('${docSnap.id}', 'accepted')" class="flex-1 bg-primary text-white text-xs py-2 rounded-lg hover:bg-[#006d44] font-bold">قبول وبدء محادثة</button><button onclick="updateReqStatus('${docSnap.id}', 'rejected')" class="flex-1 bg-red-50 text-red-600 text-xs py-2 rounded-lg hover:bg-red-100 font-bold">رفض</button></div>`; 
+                            
+                            // للشاشة الرئيسية (قائمة مصغرة)
+                            if(pendingCount <= 5) {
+                                homeReqHtml += `<div class="flex items-center justify-between p-3 border rounded-xl bg-surface-container-lowest"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-lg">mark_email_unread</span></div><div><p class="font-bold text-sm text-primary truncate max-w-[150px]">${req.orgName}</p><p class="text-[11px] text-secondary mt-0.5">بانتظار موافقتك</p></div></div><button onclick="switchSpecTab('requests')" class="bg-white border shadow-sm text-primary text-xs px-3 py-1.5 rounded-lg font-bold hover:bg-surface transition-colors">مراجعة</button></div>`;
+                            }
+
+                            // لتبويب الطلبات الكامل
+                            html += `<div class="p-4 border border-outline-variant/30 rounded-xl bg-white hover:border-primary transition-colors"><div class="flex justify-between items-start mb-2"><h5 class="font-bold text-sm text-on-surface truncate" title="${req.orgName}">${req.orgName}</h5>${badge}</div><p class="text-[11px] text-secondary leading-relaxed line-clamp-2">${req.orgDesc}</p>${acts}</div>`;
+                        } 
+                        else if(req.status === 'accepted') { 
+                            activeProjCount++;
+                            let badge = '<span class="bg-primary-fixed text-primary px-2 py-0.5 rounded text-[10px] font-bold">مقبول</span>'; 
+                            let acts = `<button onclick="openChatRoom('${req.chatId}', '${req.orgName}', 'spec')" class="w-full mt-3 bg-surface-container-high text-secondary text-xs py-2 rounded-lg hover:bg-outline-variant font-bold flex items-center justify-center gap-1"><span class="material-symbols-outlined text-sm">chat</span> فتح المحادثة</button>`; 
+                            
+                            // إضافة للمشاريع النشطة (الشاشة الرئيسية)
+                            homeProjHtml += `<div class="flex items-center justify-between p-4 border rounded-xl bg-white shadow-sm hover:border-primary transition-colors cursor-pointer" onclick="switchSpecTab('requests'); openChatRoom('${req.chatId}', '${req.orgName}', 'spec')"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-lg">rocket_launch</span></div><div><p class="font-bold text-sm text-primary truncate max-w-[140px]">${req.orgName}</p><p class="text-[11px] text-secondary mt-0.5 truncate max-w-[140px]">${req.orgDesc}</p></div></div><span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap">قيد التنفيذ</span></div>`;
+
+                            // لتبويب الطلبات
+                            html += `<div class="p-4 border border-outline-variant/30 rounded-xl bg-white hover:border-primary transition-colors"><div class="flex justify-between items-start mb-2"><h5 class="font-bold text-sm text-on-surface truncate" title="${req.orgName}">${req.orgName}</h5>${badge}</div><p class="text-[11px] text-secondary leading-relaxed line-clamp-2">${req.orgDesc}</p>${acts}</div>`;
+                        } 
+                        else { 
+                            let badge = '<span class="bg-red-50 text-red-500 px-2 py-0.5 rounded text-[10px] font-bold">مرفوض</span>'; 
+                            html += `<div class="p-4 border border-outline-variant/30 rounded-xl bg-white opacity-60"><div class="flex justify-between items-start mb-2"><h5 class="font-bold text-sm text-on-surface truncate" title="${req.orgName}">${req.orgName}</h5>${badge}</div><p class="text-[11px] text-secondary leading-relaxed line-clamp-2">${req.orgDesc}</p></div>`;
+                        }
                     }
                     if(role === 'org' && req.orgId === uid) {
                         let badge='', acts='';
@@ -808,8 +783,33 @@
                         html += `<div class="p-4 border border-slate-200 rounded-xl bg-white"><div class="flex justify-between items-center mb-1"><h5 class="font-bold text-sm text-slate-800 truncate">إلى: ${req.specName}</h5></div><div class="mt-2">${badge}</div>${acts}</div>`;
                     }
                 });
-                if(role === 'spec') { const list = document.getElementById('spec-requests-list'); const badge = document.getElementById('spec-noti-badge'); if(list) list.innerHTML = html || '<div class="text-center p-4 text-secondary text-sm">لا توجد طلبات حالياً.</div>'; if(badge) { if(pendingCount>0) { badge.innerText = pendingCount; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); } } } 
-                else if(role === 'org') { const list = document.getElementById('org-requests-list'); if(list) list.innerHTML = html || '<div class="text-center p-4 text-slate-500 text-sm">لم تقم بإرسال أي طلبات بعد.</div>'; }
+
+                if(role === 'spec') { 
+                    const list = document.getElementById('spec-requests-list'); 
+                    if(list) list.innerHTML = html || '<div class="text-center p-4 text-secondary text-sm">لا توجد طلبات حالياً.</div>'; 
+                    
+                    // تحديث العدادات والإشعارات
+                    const badge = document.getElementById('spec-noti-badge'); 
+                    const homeBadge = document.getElementById('home-noti-badge');
+                    if(badge) { if(pendingCount>0) { badge.innerText = pendingCount; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); } }
+                    if(homeBadge) { if(pendingCount>0) { homeBadge.innerText = pendingCount; homeBadge.classList.remove('hidden'); } else { homeBadge.classList.add('hidden'); } }
+                    
+                    // تحديث إحصائيات الصفحة الرئيسية
+                    const statNew = document.getElementById('stat-new-requests');
+                    const statActive = document.getElementById('stat-active-projects');
+                    if(statNew) statNew.innerText = pendingCount;
+                    if(statActive) statActive.innerText = activeProjCount;
+
+                    // تحديث القوائم في الصفحة الرئيسية
+                    const homeReqList = document.getElementById('home-requests-list');
+                    const homeProjList = document.getElementById('home-projects-list');
+                    if(homeReqList) homeReqList.innerHTML = homeReqHtml || '<div class="text-sm text-secondary text-center py-10 opacity-70">لا توجد طلبات جديدة حالياً.</div>';
+                    if(homeProjList) homeProjList.innerHTML = homeProjHtml || '<div class="text-sm text-secondary text-center py-10 opacity-70">لا توجد مشاريع قيد التنفيذ. اقبل بعض الطلبات لتبدأ!</div>';
+                } 
+                else if(role === 'org') { 
+                    const list = document.getElementById('org-requests-list'); 
+                    if(list) list.innerHTML = html || '<div class="text-center p-4 text-slate-500 text-sm">لم تقم بإرسال أي طلبات بعد.</div>'; 
+                }
             });
         };
 
