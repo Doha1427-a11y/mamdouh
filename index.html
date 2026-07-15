@@ -625,11 +625,11 @@
         const app = initializeApp({ apiKey:"AIzaSyAtnPXcLjEjT1yw0mpO2qw_6_pYHQsUZeA", authDomain:"baeeyen-c7107.firebaseapp.com", projectId:"baeeyen-c7107", appId:"1:289802927952:web:deda8750a6bb6d4ce7b655" });
         const auth = getAuth(app); const db = getFirestore(app); const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         
-        // منع تعليق الصفحة
-        const hideSplash = () => { const s=document.getElementById('splash-screen'); if(s && s.style.display !== 'none'){ s.style.opacity='0'; setTimeout(()=>s.style.display='none', 700); } };
-        window.addEventListener('load', hideSplash);
-        setTimeout(hideSplash, 2500); // إغلاق إجباري لشاشة التحميل بعد 2.5 ثانية
-
+        // تسريع إخفاء شاشة البداية
+        const hideSplash = () => { const s=document.getElementById('splash-screen'); if(s && s.style.display !== 'none'){ s.style.opacity='0'; setTimeout(()=>s.style.display='none', 500); } };
+        window.addEventListener('DOMContentLoaded', hideSplash); // الاستجابة فور تحميل الهيكل بدل انتظار الصور
+        setTimeout(hideSplash, 800); // إغلاق إجباري سريع جداً (أقل من ثانية)
+        
         try { signInAnonymously(auth); } catch(e) { console.error("Auth error", e); showToast('تعذر الاتصال بالخادم، يرجى تحديث الصفحة', true); }
 
         // Navigation
