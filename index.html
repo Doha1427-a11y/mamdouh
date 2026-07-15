@@ -294,13 +294,56 @@
         </aside>
 
         <section class="flex-1 p-6 md:p-10 overflow-y-auto bg-surface-container-low">
+            
+            <!-- الصفحة الرئيسية للأخصائي (مع الإحصائيات والمشاريع) -->
             <div id="scontent-home" class="block">
-                <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4"><h2 class="text-3xl font-bold text-primary">مرحباً بك! 👋</h2><div class="bg-white px-4 py-2 rounded-xl border"><span class="text-sm font-bold text-secondary">الحالة: </span><span class="bg-primary-fixed text-primary px-3 py-1 rounded-full text-xs font-bold">مفعل</span></div></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-2xl border"><h3 class="font-bold text-primary mb-2">الملف المهني</h3><p class="text-sm text-secondary">تأكد من تحديث خبراتك لزيادة فرص قبولك.</p><button onclick="switchSpecTab('cv')" class="mt-4 text-xs font-bold bg-primary/10 text-primary px-4 py-2 rounded-lg">تحديث الملف</button></div>
-                    <div class="bg-white p-6 rounded-2xl border flex flex-col"><h3 class="font-bold text-primary mb-4">سجل التقديمات</h3>
-                        <div id="applications-list" class="flex flex-col gap-3">
-                            <div class="text-sm text-secondary text-center py-4">لا توجد طلبات تقديم حالياً.</div>
+                <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                    <h2 class="text-3xl font-bold text-primary">مرحباً بك! 👋</h2>
+                    <div class="flex items-center gap-4">
+                        <button onclick="switchSpecTab('requests')" class="relative bg-white p-2 rounded-full shadow-sm border hover:bg-surface transition-colors" title="الإشعارات">
+                            <span class="material-symbols-outlined text-secondary">notifications</span>
+                            <span id="home-noti-badge" class="absolute -top-1 -right-1 bg-orange-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+                        </button>
+                        <div class="bg-white px-4 py-2 rounded-xl border">
+                            <span class="text-sm font-bold text-secondary">الحالة: </span>
+                            <span class="bg-primary-fixed text-primary px-3 py-1 rounded-full text-xs font-bold">مفعل</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الإحصائيات -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center"><span class="material-symbols-outlined">mark_email_unread</span></div>
+                        <div><p class="text-secondary text-xs font-bold">طلبات جديدة</p><p id="stat-new-requests" class="text-2xl font-black mt-1">0</p></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><span class="material-symbols-outlined">rocket_launch</span></div>
+                        <div><p class="text-secondary text-xs font-bold">قيد التنفيذ</p><p id="stat-active-projects" class="text-2xl font-black mt-1">0</p></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-[#005232]/10 text-[#005232] flex items-center justify-center"><span class="material-symbols-outlined">task_alt</span></div>
+                        <div><p class="text-secondary text-xs font-bold">مشاريع مكتملة</p><p id="stat-completed-projects" class="text-2xl font-black mt-1">0</p></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- الطلبات الجديدة (في الرئيسية) -->
+                    <div class="bg-white p-6 rounded-2xl border flex flex-col h-[350px]">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-primary">أحدث الطلبات</h3>
+                            <button onclick="switchSpecTab('requests')" class="text-xs text-primary font-bold hover:underline">عرض الكل</button>
+                        </div>
+                        <div id="home-requests-list" class="flex-1 overflow-y-auto space-y-3 pr-1">
+                            <div class="text-sm text-secondary text-center py-10 opacity-70">لا توجد طلبات جديدة حالياً.</div>
+                        </div>
+                    </div>
+
+                    <!-- المشاريع النشطة (في الرئيسية) -->
+                    <div class="bg-white p-6 rounded-2xl border flex flex-col h-[350px]">
+                        <h3 class="font-bold text-primary mb-4">المشاريع قيد التنفيذ</h3>
+                        <div id="home-projects-list" class="flex-1 overflow-y-auto space-y-3 pr-1">
+                            <div class="text-sm text-secondary text-center py-10 opacity-70">لا توجد مشاريع قيد التنفيذ. اقبل بعض الطلبات لتبدأ!</div>
                         </div>
                     </div>
                 </div>
@@ -566,7 +609,7 @@
         // التحقق من الرقم السري للإدارة
         window.verifyAdmin = () => {
             const pass = document.getElementById('admin-password').value;
-            if(pass === '1234') { // رمز الدخول السري
+            if(pass === '1234') { 
                 closeModal('admin-login-modal');
                 document.getElementById('admin-password').value = '';
                 navigate('view-admin');
@@ -861,6 +904,32 @@
 
         document.getElementById('spec-chat-form')?.addEventListener('submit', async (e) => { e.preventDefault(); if(!activeChatId || activeChatRole !== 'spec') return; const input = document.getElementById('spec-chat-input'); const text = input.value.trim(); if(!text) return; input.value = ''; try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { chatId: activeChatId, senderId: auth.currentUser.uid, text: text, timestamp: serverTimestamp() }); } catch(err) { showToast('لم يتم الإرسال', true); } });
         document.getElementById('org-chat-form')?.addEventListener('submit', async (e) => { e.preventDefault(); if(!activeChatId || activeChatRole !== 'org') return; const input = document.getElementById('org-chat-input'); const text = input.value.trim(); if(!text) return; input.value = ''; try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { chatId: activeChatId, senderId: auth.currentUser.uid, text: text, timestamp: serverTimestamp() }); } catch(err) { showToast('لم يتم الإرسال', true); } });
+
+        window.loadAdminData = async () => { 
+            if(!auth.currentUser) return; const st = document.getElementById('admin-spec-body'), ot = document.getElementById('admin-org-body'); st.innerHTML = '<tr><td colspan="3" class="p-4 text-center">جاري...</td></tr>';
+            try {
+                const ss = await getDocs(collection(db,'artifacts',appId,'public','data','specialists')); let sh='';
+                ss.forEach(d => { const v=d.data(); const acts = v.status==='pending'?`<button onclick="updateRec('specialists','${d.id}','approved')" class="bg-primary text-white px-2 py-1 rounded mx-1">قبول</button>`:'-'; sh+=`<tr class="border-b"><td class="p-4">${v.fullName||'-'}</td><td class="p-4">${v.status==='approved'?'مفعل':(v.status==='rejected'?'مرفوض':'معلق')}</td><td class="p-4 text-center">${acts}</td></tr>`; }); st.innerHTML = sh;
+                const os = await getDocs(collection(db,'artifacts',appId,'public','data','organizations')); let oh='';
+                os.forEach(d => { const v=d.data(); const acts = v.status==='pending'?`<button onclick="updateRec('organizations','${d.id}','approved')" class="bg-primary text-white px-2 py-1 rounded mx-1">قبول</button>`:'-'; oh+=`<tr class="border-b"><td class="p-4">${v.orgName||'-'}</td><td class="p-4">${v.status==='approved'?'مفعل':(v.status==='rejected'?'مرفوض':'معلق')}</td><td class="p-4 text-center">${acts}</td></tr>`; }); ot.innerHTML = oh;
+            } catch(e) {}
+        };
+        window.updateRec = async (c,i,s) => { await updateDoc(doc(db,'artifacts',appId,'public','data',c,i),{status:s}); await updateDoc(doc(db,'artifacts',appId,'users',i,'profile',c==='specialists'?'data':'orgData'),{status:s}); showToast('تم'); loadAdminData(); };
+
+        window.specGlobalData = {};
+        window.loadOrgDirectory = async () => {
+            const list = document.getElementById('org-specialists-list'); list.innerHTML = '<div class="col-span-full text-center p-4">جاري التحميل...</div>';
+            try {
+                const ss = await getDocs(collection(db,'artifacts',appId,'public','data','specialists')); let h=''; window.specGlobalData = {};
+                ss.forEach(d => { 
+                    const v=d.data(); if(v.status==='approved'){
+                        window.specGlobalData[d.id] = v;
+                        h += `<div class="bg-white p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all flex flex-col h-full"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-3"><span class="material-symbols-outlined">person</span></div><h4 class="font-bold text-slate-800 text-lg mb-1">${v.fullName||'أخصائي'}</h4><p class="text-sm text-slate-500 mb-4">${v.edu||'لم يحدد التخصص'}</p><div class="mt-auto flex gap-2"><button onclick="previewCV(true, window.specGlobalData['${d.id}'])" class="flex-1 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 text-xs transition-colors">الملف</button><button onclick="sendRequestToSpec('${d.id}', '${v.fullName}')" class="flex-[2] py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 text-xs flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[14px]">send</span> طلب تواصل</button></div></div>`;
+                    }
+                });
+                list.innerHTML = h || '<div class="col-span-full text-center p-4">لا يوجد أخصائيين معتمدين بعد.</div>';
+            } catch(e) { list.innerHTML = '<div class="col-span-full text-center p-4">حدث خطأ.</div>'; }
+        };
 
     </script>
 </body>
