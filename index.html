@@ -119,7 +119,7 @@
         </div>
         <footer class="w-full z-10 text-center text-secondary text-sm mt-auto pt-4 font-medium backdrop-blur-sm bg-white/30 py-2 rounded-t-2xl fade-up flex flex-col items-center gap-2">
             <p>© بيئيين ٢٠٢٦. جميع الحقوق محفوظة.</p>
-            <a href="#" onclick="navigate('view-admin'); return false;" class="text-xs text-primary/60 hover:text-primary transition-colors flex items-center gap-1 mb-2"><span class="material-symbols-outlined text-[14px]">admin_panel_settings</span> بوابة الإدارة</a>
+            <a href="#" onclick="document.getElementById('admin-login-modal').classList.remove('hidden-view'); document.getElementById('admin-login-modal').classList.add('flex'); return false;" class="text-xs text-primary/60 hover:text-primary transition-colors flex items-center gap-1 mb-2"><span class="material-symbols-outlined text-[14px]">admin_panel_settings</span> بوابة الإدارة</a>
         </footer>
     </main>
 
@@ -529,6 +529,19 @@
         </div>
     </div>
 
+    <!-- نافذة تسجيل دخول الإدارة -->
+    <div id="admin-login-modal" class="hidden-view fixed inset-0 z-[100] items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+        <div class="bg-surface rounded-3xl shadow-2xl w-full max-w-sm flex flex-col overflow-hidden p-6 relative">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined">admin_panel_settings</span> دخول الإدارة</h3>
+                <button onclick="closeModal('admin-login-modal')" class="w-8 h-8 rounded-full bg-surface-container-low hover:bg-surface-container-high"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <p class="text-sm text-secondary mb-6 leading-relaxed">هذه البوابة مخصصة لمسؤولي المنصة (المؤسسة المالكة) فقط لاعتماد الحسابات. يرجى إدخال رمز الدخول.</p>
+            <input type="password" id="admin-password" class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-2 border-outline-variant focus:border-primary mb-6 text-center text-xl tracking-widest font-mono" placeholder="****">
+            <button onclick="verifyAdmin()" class="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-[#006d44] transition-colors shadow-md">دخول آمن</button>
+        </div>
+    </div>
+
     <!-- Required container for Firebase Recaptcha -->
     <div id="recaptcha-container"></div>
 
@@ -550,20 +563,20 @@
         window.navigate = (vid) => { document.querySelectorAll('main').forEach(el=> { el.classList.add('hidden-view'); el.classList.remove('flex','block'); }); const target = document.getElementById(vid); target.classList.remove('hidden-view'); target.classList.add(vid.includes('step')||vid.includes('otp')||vid.includes('admin')||vid.includes('dashboard')||vid==='view-home'||vid==='view-waiting-room'?'flex':'block'); window.scrollTo(0,0); if(vid==='view-admin') loadAdminData(); if(vid==='view-org-dashboard') loadOrgDirectory(); };
         window.closeModal = (mid) => { document.getElementById(mid).classList.add('hidden-view'); document.getElementById(mid).classList.remove('flex'); };
         
-        window.switchSpecTab = (t) => { ['home','cv','orgs','requests'].forEach(x=>{ document.getElementById('scontent-'+x).classList.add('hidden'); document.getElementById('scontent-'+x).classList.remove('block','flex'); document.getElementById('stab-'+x).className="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold relative"; }); document.getElementById('scontent-'+t).classList.remove('hidden'); document.getElementById('scontent-'+t).classList.add(t==='requests'?'flex':'block'); document.getElementById('stab-'+t).className="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold relative"; };
-        window.switchOrgTab = (t) => { ['home','specialists','messages'].forEach(x=>{ document.getElementById('ocontent-'+x).classList.add('hidden'); document.getElementById('ocontent-'+x).classList.remove('block','flex'); document.getElementById('otab-'+x).className="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"; }); document.getElementById('ocontent-'+t).classList.remove('hidden'); document.getElementById('ocontent-'+t).classList.add(t==='messages'?'flex':'block'); document.getElementById('otab-'+t).className="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold"; };
-        window.switchAdminTab = (t) => { document.getElementById('admin-spec-sec').classList.toggle('hidden', t!=='specialists'); document.getElementById('admin-org-sec').classList.toggle('hidden', t!=='organizations'); document.getElementById('atab-spec').className = t==='specialists' ? "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold" : "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"; document.getElementById('atab-org').className = t==='organizations' ? "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold" : "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"; };
+        // التحقق من الرقم السري للإدارة
+        window.verifyAdmin = () => {
+            const pass = document.getElementById('admin-password').value;
+            if(pass === '1234') { // رمز الدخول السري
+                closeModal('admin-login-modal');
+                document.getElementById('admin-password').value = '';
+                navigate('view-admin');
+                showToast('مرحباً بك في لوحة الإدارة');
+            } else {
+                showToast('رمز الدخول غير صحيح!', true);
+            }
+        };
 
-        // Realtime Auth & Dashboards
-        let currAccountType = ''; let myProfileData = null;
-        window.checkAndGoToDashboard = async () => {
-            const u = auth.currentUser;
-            if(!u) return showToast('يرجى تسجيل الدخول أولاً', true);
-            
-            try {
-                // الاعتماد على الذاكرة المحلية لمعرفة آخر دور تم التسجيل به لمنع التداخل
-                const prefRole = localStorage.getItem('preferredRole');
-                let targetRole = null;
+        window.switchSpecTab = (t) => { ['home','cv','requests'].forEach(x=>{ document.getElementById('scontent-'+x).classList.add('hidden'); document.getElementById('scontent-'+x).classList.remove('block','flex'); document.getElementById('stab-'+x).className="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold relative"; }); document.getElementById('scontent-'+t).classList.remove('hidden'); document.getElementById('scontent-'+t).classList.add(t==='requests'?'flex':'block'); document.getElementById('stab-'+t).className="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold relative"; };
                 let profileData = null;
 
                 const specDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'specialists', u.uid)); 
