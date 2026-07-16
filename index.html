@@ -458,14 +458,20 @@
             </div>
 
             <div id="scontent-orgs" class="hidden">
-                <h2 class="text-3xl font-bold text-primary mb-6">المنشآت المتاحة</h2>
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <h2 class="text-3xl font-bold text-primary">المنشآت المتاحة</h2>
+                    <div class="relative w-full md:w-72">
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-secondary">search</span>
+                        <input type="text" id="org-search-input" onkeyup="filterOrganizations()" class="w-full pr-10 pl-4 py-2.5 border-2 border-outline-variant rounded-xl focus:border-primary focus:ring-0 text-sm bg-white shadow-sm" placeholder="ابحث باسم المنشأة...">
+                    </div>
+                </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white p-6 rounded-2xl border flex flex-col">
+                    <div class="org-card bg-white p-6 rounded-2xl border flex flex-col">
                         <div class="flex items-center gap-4 mb-4"><div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary"><span class="material-symbols-outlined">domain</span></div><div><h4 class="font-bold text-primary">شركة نيوم</h4></div></div>
                         <button class="w-full py-2 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-colors" onclick="submitApp('شركة نيوم', this)">تقديم السيرة الذاتية</button>
                         <div id="applications-list" class="mt-4 flex flex-col gap-2"></div>
                     </div>
-                    <div class="bg-white p-6 rounded-2xl border flex flex-col">
+                    <div class="org-card bg-white p-6 rounded-2xl border flex flex-col">
                         <div class="flex items-center gap-4 mb-4"><div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary"><span class="material-symbols-outlined">corporate_fare</span></div><div><h4 class="font-bold text-primary">المركز الوطني للغطاء النباتي</h4></div></div>
                         <button class="w-full py-2 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-colors" onclick="submitApp('المركز الوطني', this)">تقديم السيرة الذاتية</button>
                     </div>
@@ -1007,6 +1013,15 @@
         window.filterSpecialists = () => {
             const query = document.getElementById('spec-search-input').value.toLowerCase();
             const cards = document.querySelectorAll('.spec-card');
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(query) ? '' : 'none';
+            });
+        };
+        
+        window.filterOrganizations = () => {
+            const query = document.getElementById('org-search-input').value.toLowerCase();
+            const cards = document.querySelectorAll('.org-card');
             cards.forEach(card => {
                 const text = card.innerText.toLowerCase();
                 card.style.display = text.includes(query) ? '' : 'none';
