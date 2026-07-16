@@ -307,7 +307,7 @@
                 <button onclick="switchSpecTab('orgs')" id="stab-orgs" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"><span class="material-symbols-outlined">corporate_fare</span> تصفح الجهات</button>
                 <button onclick="switchSpecTab('requests')" id="stab-requests" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold relative"><span class="material-symbols-outlined">forum</span> الطلبات والمراسلات <span id="spec-noti-badge" class="absolute left-4 top-1/2 -translate-y-1/2 bg-orange-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full hidden">0</span></button>
             </nav>
-            <button onclick="navigate('view-home')" class="mt-auto flex items-center justify-center gap-2 w-full py-3 border border-white/30 rounded-xl font-bold hover:bg-white/10"><span class="material-symbols-outlined rotate-180">logout</span> خروج</button>
+            <button onclick="performLogout()" class="mt-auto flex items-center justify-center gap-2 w-full py-3 border border-white/30 rounded-xl font-bold hover:bg-white/10"><span class="material-symbols-outlined rotate-180">logout</span> خروج</button>
         </aside>
 
         <section class="flex-1 p-6 md:p-10 overflow-y-auto bg-surface-container-low">
@@ -483,7 +483,7 @@
                 <button onclick="switchOrgTab('specialists')" id="otab-specialists" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"><span class="material-symbols-outlined">group</span> دليل الكفاءات</button>
                 <button onclick="switchOrgTab('messages')" id="otab-messages" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"><span class="material-symbols-outlined">forum</span> المراسلات النشطة</button>
             </nav>
-            <button onclick="navigate('view-home')" class="mt-auto flex items-center justify-center gap-2 w-full py-3 border border-white/30 rounded-xl font-bold hover:bg-white/10"><span class="material-symbols-outlined rotate-180">logout</span> خروج</button>
+            <button onclick="performLogout()" class="mt-auto flex items-center justify-center gap-2 w-full py-3 border border-white/30 rounded-xl font-bold hover:bg-white/10"><span class="material-symbols-outlined rotate-180">logout</span> خروج</button>
         </aside>
 
         <section class="flex-1 p-6 md:p-10 overflow-y-auto bg-slate-50">
@@ -497,7 +497,13 @@
             </div>
             
             <div id="ocontent-specialists" class="hidden">
-                <h2 class="text-3xl font-bold text-slate-800 mb-6">دليل الكفاءات والأخصائيين</h2>
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <h2 class="text-3xl font-bold text-slate-800">دليل الكفاءات والأخصائيين</h2>
+                    <div class="relative w-full md:w-72">
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                        <input type="text" id="spec-search-input" onkeyup="filterSpecialists()" class="w-full pr-10 pl-4 py-2.5 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-0 text-sm bg-white shadow-sm" placeholder="ابحث بالتخصص أو الاسم...">
+                    </div>
+                </div>
                 <div id="org-specialists-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="col-span-full text-center p-8 text-slate-500">جاري جلب بيانات الأخصائيين المعتمدين...</div>
                 </div>
@@ -548,7 +554,7 @@
                 <button onclick="switchAdminTab('specialists')" id="atab-spec" class="flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold"><span class="material-symbols-outlined">person_search</span> الأخصائيين</button>
                 <button onclick="switchAdminTab('organizations')" id="atab-org" class="flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"><span class="material-symbols-outlined">domain</span> الجهات</button>
             </nav>
-            <button onclick="navigate('view-home')" class="mt-auto flex items-center justify-center gap-2 w-full py-3 border border-white/30 rounded-xl font-bold hover:bg-white/10"><span class="material-symbols-outlined rotate-180">logout</span> خروج</button>
+            <button onclick="performLogout()" class="mt-auto flex items-center justify-center gap-2 w-full py-3 border border-white/30 rounded-xl font-bold hover:bg-white/10"><span class="material-symbols-outlined rotate-180">logout</span> خروج</button>
         </aside>
         <section class="flex-1 p-6 md:p-10 overflow-y-auto">
             <div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-bold text-primary">لوحة الإدارة</h2><div class="flex gap-2"><button id="generate-ai-report-btn" class="bg-primary-fixed text-primary px-4 py-2 rounded-lg font-bold border hover:bg-[#7ce2a8]">✨ تحليل ذكي</button><button onclick="loadAdminData()" class="bg-white px-4 py-2 rounded-lg text-primary font-bold border hover:bg-surface">تحديث</button></div></div>
@@ -625,17 +631,26 @@
         const app = initializeApp({ apiKey:"AIzaSyAtnPXcLjEjT1yw0mpO2qw_6_pYHQsUZeA", authDomain:"baeeyen-c7107.firebaseapp.com", projectId:"baeeyen-c7107", appId:"1:289802927952:web:deda8750a6bb6d4ce7b655" });
         const auth = getAuth(app); const db = getFirestore(app); const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         
-        // تسريع إخفاء شاشة البداية
-        const hideSplash = () => { const s=document.getElementById('splash-screen'); if(s && s.style.display !== 'none'){ s.style.opacity='0'; setTimeout(()=>s.style.display='none', 500); } };
-        window.addEventListener('DOMContentLoaded', hideSplash); // الاستجابة فور تحميل الهيكل بدل انتظار الصور
-        setTimeout(hideSplash, 800); // إغلاق إجباري سريع جداً (أقل من ثانية)
-        
+        // منع تعليق الصفحة
+        const hideSplash = () => { const s=document.getElementById('splash-screen'); if(s && s.style.display !== 'none'){ s.style.opacity='0'; setTimeout(()=>s.style.display='none', 700); } };
+        window.addEventListener('load', hideSplash);
+        setTimeout(hideSplash, 2500); // إغلاق إجباري لشاشة التحميل بعد 2.5 ثانية
+
         try { signInAnonymously(auth); } catch(e) { console.error("Auth error", e); showToast('تعذر الاتصال بالخادم، يرجى تحديث الصفحة', true); }
 
         // Navigation
         window.navigate = (vid) => { document.querySelectorAll('main').forEach(el=> { el.classList.add('hidden-view'); el.classList.remove('flex','block'); }); const target = document.getElementById(vid); target.classList.remove('hidden-view'); target.classList.add(vid.includes('step')||vid.includes('otp')||vid.includes('admin')||vid.includes('dashboard')||vid==='view-home'||vid==='view-waiting-room'?'flex':'block'); window.scrollTo(0,0); if(vid==='view-admin') loadAdminData(); if(vid==='view-org-dashboard') loadOrgDirectory(); };
         window.closeModal = (mid) => { document.getElementById(mid).classList.add('hidden-view'); document.getElementById(mid).classList.remove('flex'); };
         
+        window.performLogout = () => {
+            localStorage.removeItem('preferredRole');
+            currAccountType = '';
+            myProfileData = null;
+            navigate('view-home');
+            showToast('تم تسجيل الخروج بنجاح');
+            setTimeout(() => window.location.reload(), 1000);
+        };
+
         // التحقق من الرقم السري للإدارة
         window.verifyAdmin = () => {
             const pass = document.getElementById('admin-password').value;
@@ -848,11 +863,6 @@
                             const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
                             audio.play().catch(e => console.log('Audio blocked by browser'));
                         }
-                        if(role === 'org' && req.orgId === uid && req.status === 'accepted') {
-                            showToast(`🎉 وافق ${req.specName} على طلب التواصل!`);
-                            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-                            audio.play().catch(e => console.log('Audio blocked by browser'));
-                        }
                     }
                 });
 
@@ -987,11 +997,20 @@
                 ss.forEach(d => { 
                     const v=d.data(); if(v.status==='approved'){
                         window.specGlobalData[d.id] = v;
-                        h += `<div class="bg-white p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all flex flex-col h-full"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-3"><span class="material-symbols-outlined">person</span></div><h4 class="font-bold text-slate-800 text-lg mb-1">${v.fullName||'أخصائي'}</h4><p class="text-sm text-slate-500 mb-2 truncate">${v.edu||'لم يحدد التخصص'}</p><p class="text-xs font-bold text-blue-600 mb-4 bg-blue-50 px-2 py-1 rounded w-fit">${v.years ? v.years+' سنوات خبرة' : 'مبتدئ'}</p><div class="mt-auto flex gap-2"><button onclick="previewCV(true, window.specGlobalData['${d.id}'])" class="flex-1 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 text-xs transition-colors">الملف</button><button onclick="sendRequestToSpec('${d.id}', '${v.fullName}')" class="flex-[2] py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 text-xs flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[14px]">send</span> طلب تواصل</button></div></div>`;
+                        h += `<div class="spec-card bg-white p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all flex flex-col h-full"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-3"><span class="material-symbols-outlined">person</span></div><h4 class="font-bold text-slate-800 text-lg mb-1">${v.fullName||'أخصائي'}</h4><p class="text-sm text-slate-500 mb-4">${v.edu||'لم يحدد التخصص'}</p><div class="mt-auto flex gap-2"><button onclick="previewCV(true, window.specGlobalData['${d.id}'])" class="flex-1 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 text-xs transition-colors">الملف</button><button onclick="sendRequestToSpec('${d.id}', '${v.fullName}')" class="flex-[2] py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 text-xs flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[14px]">send</span> طلب تواصل</button></div></div>`;
                     }
                 });
                 list.innerHTML = h || '<div class="col-span-full text-center p-4">لا يوجد أخصائيين معتمدين بعد.</div>';
             } catch(e) { list.innerHTML = '<div class="col-span-full text-center p-4">حدث خطأ.</div>'; }
+        };
+
+        window.filterSpecialists = () => {
+            const query = document.getElementById('spec-search-input').value.toLowerCase();
+            const cards = document.querySelectorAll('.spec-card');
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(query) ? '' : 'none';
+            });
         };
 
     </script>
