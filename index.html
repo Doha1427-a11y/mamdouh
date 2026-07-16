@@ -794,6 +794,40 @@
         const otpIn = document.querySelectorAll('.otp-input');
         otpIn.forEach((i, idx) => { i.addEventListener('input', e => { if(e.target.value.length===1 && idx<otpIn.length-1) otpIn[idx+1].focus(); if(e.target.value.length>1) e.target.value=e.target.value.slice(0,1); }); i.addEventListener('keydown', e => { if(e.key==='Backspace' && !e.target.value && idx>0) otpIn[idx-1].focus(); }); });
 
+        // عرض اسم الملف والصور عند اختيارها (للأخصائي والجهة)
+        document.getElementById('file_upload')?.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if(fileName) document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">${fileName}</span>`;
+        });
+        
+        document.getElementById('org_file_upload')?.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if(fileName) document.getElementById('org_upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">${fileName}</span>`;
+        });
+
+        document.getElementById('profile_pic_upload')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('profile_pic_preview');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    document.getElementById('profile_pic_icon').classList.add('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('certs_upload')?.addEventListener('change', function(e) {
+            const files = e.target.files;
+            const container = document.getElementById('certs_upload_label');
+            container.innerHTML = '';
+            Array.from(files).forEach(file => {
+                container.innerHTML += `<span class="bg-surface-container-high px-2 py-1 rounded border border-outline-variant text-secondary">${file.name}</span>`;
+            });
+        });
+
         // Advanced CV Logic & Preview
         window.saveCVSpecialist = async () => {
             const u = auth.currentUser; if(!u) return;
