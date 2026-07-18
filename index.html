@@ -70,6 +70,30 @@
         </div>
     </div>
 
+    <!-- سكربت الإخفاء المطور: يعتمد على التحميل الفعلي مع مؤقت أمان -->
+    <script>
+        (function() {
+            var splash = document.getElementById('splash-screen');
+            var isHidden = false;
+            
+            function hideSplash() {
+                if(!isHidden && splash) {
+                    isHidden = true;
+                    splash.style.opacity = '0';
+                    splash.style.pointerEvents = 'none'; // يمنع حجب الضغطات أثناء التلاشي
+                    // انتظار انتهاء تأثير التلاشي (700ms) ثم إخفاء العنصر نهائياً
+                    setTimeout(function() { splash.style.display = 'none'; }, 700);
+                }
+            }
+
+            // 1. إخفاء الشاشة بسلاسة بمجرد اكتمال تحميل عناصر الصفحة
+            window.addEventListener('load', hideSplash);
+            
+            // 2. مؤقت أمان (Fallback): إخفاء إجباري بعد 2.5 ثانية كحد أقصى في حال بطء الإنترنت
+            setTimeout(hideSplash, 2500);
+        })();
+    </script>
+
     <div id="custom-toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] bg-surface border-l-4 border-primary shadow-2xl rounded-xl p-4 flex items-center gap-3 w-11/12 max-w-md hidden-view">
         <span class="material-symbols-outlined text-primary text-2xl" id="toast-icon">info</span>
         <p id="toast-msg" class="text-on-surface font-semibold text-sm flex-1"></p>
@@ -125,7 +149,6 @@
         </footer>
     </main>
 
-    <!-- تسجيل الأخصائي -->
     <main id="view-step1" class="hidden-view flex-col md:flex-row min-h-screen w-full transition-opacity duration-300">
         <section class="hidden md:flex md:w-5/12 editorial-gradient p-12 flex-col justify-between relative overflow-hidden">
             <div class="relative z-10">
@@ -138,7 +161,6 @@
             <div class="w-full max-w-xl">
                 <header class="mb-12 text-right"><h3 class="text-primary text-3xl font-bold mb-2">البيانات الشخصية</h3><p class="text-secondary">يرجى تعبئة بياناتك الأساسية للبدء</p></header>
                 
-                <!-- اضافة القارئ الذكي للأخصائي -->
                 <div class="mb-8 p-6 bg-primary-fixed/20 border-2 border-primary-fixed rounded-2xl relative overflow-hidden group">
                     <div class="flex items-center gap-3 mb-2">
                         <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg"><span class="material-symbols-outlined">qr_code_scanner</span></div>
@@ -181,7 +203,6 @@
         </section>
     </main>
 
-    <!-- تسجيل الأخصائي (الخطوة 2) -->
     <main id="view-step2" class="hidden-view flex-col md:flex-row min-h-screen w-full transition-opacity duration-300">
         <section class="hidden md:flex md:w-5/12 editorial-gradient p-12 flex-col justify-between relative overflow-hidden">
             <div class="relative z-10"><a href="#" onclick="navigate('view-home'); return false;" class="flex items-center gap-3 mb-12 hover:opacity-80 transition-opacity w-fit"><span class="material-symbols-outlined text-primary-fixed text-4xl">eco</span><h1 class="text-white text-2xl font-bold tracking-tight">بيئيين</h1></a><div class="space-y-6"><h2 class="text-white text-4xl lg:text-5xl font-bold leading-tight">توثيق الكفاءات والقدرات</h2></div></div>
@@ -231,7 +252,6 @@
         </section>
     </main>
 
-    <!-- تسجيل الجهة -->
     <main id="view-org-step1" class="hidden-view flex-col md:flex-row min-h-screen w-full transition-opacity duration-300">
         <section class="hidden md:flex md:w-5/12 editorial-gradient p-12 flex-col justify-between relative overflow-hidden">
             <div class="relative z-10"><a href="#" onclick="navigate('view-home'); return false;" class="flex items-center gap-3 mb-12 hover:opacity-80 transition-opacity w-fit"><span class="material-symbols-outlined text-primary-fixed text-4xl">eco</span><h1 class="text-white text-2xl font-bold tracking-tight">بيئيين</h1></a><div class="space-y-6"><h2 class="text-white text-4xl lg:text-5xl font-bold leading-tight">بوابة الجهات والمؤسسات</h2></div></div>
@@ -241,7 +261,6 @@
             <div class="w-full max-w-xl">
                 <header class="mb-12 text-right"><h3 class="text-primary text-3xl font-bold mb-2">تسجيل جهة جديدة</h3></header>
                 
-                <!-- اضافة القارئ الذكي للمؤسسات -->
                 <div class="mb-8 p-6 bg-blue-50 border-2 border-blue-200 rounded-2xl relative overflow-hidden group">
                     <div class="flex items-center gap-3 mb-2">
                         <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg"><span class="material-symbols-outlined">document_scanner</span></div>
@@ -298,7 +317,6 @@
         </section>
     </main>
 
-    <!-- التحقق OTP -->
     <main id="view-otp" class="hidden-view flex-col md:flex-row min-h-screen w-full transition-opacity duration-300">
         <section class="hidden md:flex md:w-5/12 editorial-gradient p-12 flex-col justify-between relative overflow-hidden">
             <div class="relative z-10"><a href="#" onclick="navigate('view-home'); return false;" class="flex items-center gap-3 mb-12 hover:opacity-80 transition-opacity w-fit"><span class="material-symbols-outlined text-primary-fixed text-4xl">eco</span><h1 class="text-white text-2xl font-bold tracking-tight">بيئيين</h1></a></div>
@@ -327,7 +345,6 @@
         </section>
     </main>
 
-    <!-- غرفة الانتظار -->
     <main id="view-waiting-room" class="hidden-view min-h-screen w-full flex-col items-center justify-center bg-surface relative p-6 transition-opacity duration-300">
         <div class="bg-white p-10 rounded-3xl shadow-xl max-w-md w-full text-center border border-outline-variant/50">
             <div class="w-24 h-24 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6"><span id="waiting-icon" class="material-symbols-outlined text-5xl animate-pulse">hourglass_empty</span></div>
@@ -337,7 +354,6 @@
         </div>
     </main>
 
-    <!-- لوحة تحكم الأخصائي -->
     <main id="view-specialist-dashboard" class="hidden-view min-h-screen w-full flex-col md:flex-row bg-surface-container-lowest transition-opacity duration-300">
         <aside class="w-full md:w-64 editorial-gradient text-white flex flex-col p-6 shadow-xl shrink-0">
             <div class="flex items-center gap-3 mb-12"><span class="material-symbols-outlined text-4xl">eco</span><h1 class="text-2xl font-bold">حساب الأخصائي</h1></div>
@@ -351,7 +367,6 @@
         </aside>
 
         <section class="flex-1 p-6 md:p-10 overflow-y-auto bg-surface-container-low">
-            <!-- الصفحة الرئيسية للأخصائي -->
             <div id="scontent-home" class="block">
                 <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                     <h2 class="text-3xl font-bold text-primary">مرحباً بك! 👋</h2>
@@ -401,7 +416,6 @@
                 </div>
             </div>
 
-            <!-- الملف المهني للأخصائي -->
             <div id="scontent-cv" class="hidden">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-3xl font-bold text-primary">تعديل الملف المهني</h2>
@@ -457,7 +471,6 @@
                 </div>
             </div>
 
-            <!-- قسم الطلبات والمراسلات -->
             <div id="scontent-requests" class="hidden h-full flex-col">
                 <h2 class="text-3xl font-bold text-primary mb-6">الطلبات الواردة والمراسلات</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-[500px]">
@@ -511,7 +524,6 @@
         </section>
     </main>
 
-    <!-- لوحة تحكم المؤسسة -->
     <main id="view-org-dashboard" class="hidden-view min-h-screen w-full flex-col md:flex-row bg-surface-container-lowest transition-opacity duration-300">
         <aside class="w-full md:w-64 bg-slate-800 text-white flex flex-col p-6 shadow-xl shrink-0">
             <div class="flex items-center gap-3 mb-12"><span class="material-symbols-outlined text-4xl text-blue-400">corporate_fare</span><h1 class="text-2xl font-bold">بوابة الجهات</h1></div>
@@ -546,7 +558,6 @@
                 </div>
             </div>
 
-            <!-- قسم المراسلات (المؤسسة) -->
             <div id="ocontent-messages" class="hidden h-full flex-col">
                 <h2 class="text-3xl font-bold text-slate-800 mb-6">المراسلات والطلبات</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-[500px]">
@@ -579,7 +590,6 @@
         </section>
     </main>
 
-    <!-- لوحة الإدارة -->
     <main id="view-admin" class="hidden-view min-h-screen w-full flex-col md:flex-row bg-surface-container-lowest transition-opacity duration-300">
         <aside class="w-full md:w-64 editorial-gradient text-white flex flex-col p-6 shadow-xl shrink-0">
             <div class="flex items-center gap-3 mb-12"><span class="material-symbols-outlined text-4xl text-primary-fixed">admin_panel_settings</span><h1 class="text-2xl font-bold">الإدارة</h1></div>
@@ -607,7 +617,6 @@
         </section>
     </main>
 
-    <!-- نافذة معاينة الملف المهني -->
     <div id="cv-preview-modal" class="hidden-view fixed inset-0 z-[100] items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
         <div class="bg-surface rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
             <div class="p-6 border-b flex justify-between items-center bg-white">
@@ -635,7 +644,6 @@
         </div>
     </div>
 
-    <!-- نافذة تسجيل دخول الإدارة -->
     <div id="admin-login-modal" class="hidden-view fixed inset-0 z-[100] items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
         <div class="bg-surface rounded-3xl shadow-2xl w-full max-w-sm flex flex-col overflow-hidden p-6 relative">
             <div class="flex justify-between items-center mb-6">
@@ -648,7 +656,6 @@
         </div>
     </div>
 
-    <!-- Required container for Firebase Recaptcha -->
     <div id="recaptcha-container"></div>
 
     <script type="module">
@@ -656,32 +663,24 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, serverTimestamp, collection, getDocs, updateDoc, getDoc, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Toasts
         window.showToast = (msg, err=false) => { const t=document.getElementById('custom-toast'); document.getElementById('toast-msg').innerText=msg; t.className=`fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] shadow-2xl rounded-xl p-4 flex items-center gap-3 show border-l-4 ${err?'bg-red-50 border-red-500':'bg-surface border-primary'}`; document.getElementById('toast-icon').innerText=err?'error':'check_circle'; document.getElementById('toast-icon').className=`material-symbols-outlined text-2xl ${err?'text-red-500':'text-primary'}`; setTimeout(()=>t.classList.remove('show'),3500); };
         window.hideToast = () => document.getElementById('custom-toast').classList.remove('show');
 
-        // Firebase Setup
         const app = initializeApp({ apiKey:"AIzaSyAtnPXcLjEjT1yw0mpO2qw_6_pYHQsUZeA", authDomain:"baeeyen-c7107.firebaseapp.com", projectId:"baeeyen-c7107", appId:"1:289802927952:web:deda8750a6bb6d4ce7b655" });
         const auth = getAuth(app); const db = getFirestore(app); const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         
-        // Splash Screen (Fast Hide)
-        const hideSplash = () => { const s=document.getElementById('splash-screen'); if(s && s.style.display !== 'none'){ s.style.opacity='0'; setTimeout(()=>s.style.display='none', 700); } };
-        window.addEventListener('load', hideSplash);
-        setTimeout(hideSplash, 1000); 
-
         try { signInAnonymously(auth); } catch(e) { console.error("Auth error", e); showToast('تعذر الاتصال بالخادم، يرجى تحديث الصفحة', true); }
 
-        // Navigation
         window.navigate = (vid) => { document.querySelectorAll('main').forEach(el=> { el.classList.add('hidden-view'); el.classList.remove('flex','block'); }); const target = document.getElementById(vid); target.classList.remove('hidden-view'); target.classList.add(vid.includes('step')||vid.includes('otp')||vid.includes('admin')||vid.includes('dashboard')||vid==='view-home'||vid==='view-waiting-room'?'flex':'block'); window.scrollTo(0,0); if(vid==='view-admin') loadAdminData(); if(vid==='view-org-dashboard') loadOrgDirectory(); };
         window.closeModal = (mid) => { document.getElementById(mid).classList.add('hidden-view'); document.getElementById(mid).classList.remove('flex'); };
         
+        // تسجيل الخروج الحقيقي (يمسح الذاكرة)
         window.performLogout = () => {
             localStorage.removeItem('preferredRole');
             currAccountType = '';
             myProfileData = null;
-            navigate('view-home');
             showToast('تم تسجيل الخروج بنجاح');
-            setTimeout(() => window.location.reload(), 1000);
+            setTimeout(() => window.location.reload(), 1000); // تحديث الصفحة إجبارياً
         };
 
         window.verifyAdmin = () => {
@@ -758,7 +757,6 @@
             }, 2500);
         };
 
-        // File Selection UI Updates
         document.getElementById('file_upload')?.addEventListener('change', function(e) {
             const fileName = e.target.files[0]?.name;
             if(fileName) document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">${fileName}</span>`;
@@ -800,12 +798,17 @@
                     await setDoc(doc(db,'artifacts',appId,'public','data','organizations',u.uid), od); 
                     localStorage.setItem('preferredRole', 'org'); navigate('view-waiting-room'); listenToStatus(u.uid, 'org'); b.innerHTML='تأكيد'; b.disabled=false;
                 } else { 
+                    // القبول التلقائي إذا استخدم الذكاء الاصطناعي
                     const finalStatus = window.specAutoApprove ? 'approved' : 'pending';
                     const pd = {status: finalStatus, fullName:tData.n, nationalId:tData.id, email:tData.em, phone:tData.ph, bio:tData.bio||'', license:tData.lic, createdAt: serverTimestamp()}; 
                     await setDoc(doc(db,'artifacts',appId,'public','data','specialists',u.uid), pd); 
                     localStorage.setItem('preferredRole', 'spec'); b.innerHTML='تأكيد'; b.disabled=false;
-                    if(finalStatus === 'approved') { showToast('تم تفعيل الحساب فورياً بناءً على قراءة الباركود!'); setTimeout(() => checkAndGoToDashboard(), 2000); } 
-                    else { navigate('view-waiting-room'); listenToStatus(u.uid, 'spec'); }
+                    if(finalStatus === 'approved') { 
+                        showToast('تم تفعيل الحساب فورياً بناءً على قراءة الباركود!'); 
+                        setTimeout(() => checkAndGoToDashboard(), 2000); 
+                    } else { 
+                        navigate('view-waiting-room'); listenToStatus(u.uid, 'spec'); 
+                    }
                 }
             } 
         });
@@ -847,7 +850,6 @@
             if(list) { if(list.innerText.includes('لا توجد')) list.innerHTML = ''; list.innerHTML += `<div class="flex items-center justify-between p-3 border rounded-xl bg-surface/50"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary">domain</span><span class="font-bold text-sm">${n}</span></div><span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-lg text-xs font-bold">قيد المراجعة</span></div>`; }
         };
 
-        // Search logic
         window.filterSpecialists = () => {
             const query = document.getElementById('spec-search-input').value.toLowerCase();
             document.querySelectorAll('.spec-card').forEach(card => card.style.display = card.innerText.toLowerCase().includes(query) ? '' : 'none');
