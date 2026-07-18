@@ -41,22 +41,25 @@
         .animation-delay-2000 { animation-delay: 2s; }
         .hidden-view { display: none !important; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0px); } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes blob { 0% { transform: translate(0px, 0px) scale(1) } 33% { transform: translate(30px, -50px) scale(1.1) } 66% { transform: translate(-20px, 20px) scale(0.9) } 100% { transform: translate(0px, 0px) scale(1) } }
+        @keyframes scan { 0%, 100% { top: 0%; } 50% { top: 100%; } }
+        
         .animate-blob { animation: blob 7s infinite; }
         .hero-animation { animation: float 4s ease-in-out infinite; }
         .fade-up { animation: fadeUp 1s ease forwards; }
-        @keyframes scan { 0%, 100% { top: 0; } 50% { top: 100%; } }
+        
         #custom-toast { transition: transform 0.3s ease, opacity 0.3s ease; transform: translateY(-20px); opacity: 0; pointer-events: none; }
         #custom-toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        
         .chat-bubble-me { background-color: #005232; color: white; border-radius: 16px 16px 0px 16px; align-self: flex-end; }
         .chat-bubble-other { background-color: #ffffff; color: #1a1c19; border: 1px solid #bec9bf; border-radius: 16px 16px 16px 0px; align-self: flex-start; }
     </style>
 </head>
 <body class="text-on-surface antialiased overflow-x-hidden min-h-screen relative">
 
-    <!-- شاشة البداية -->
     <div id="splash-screen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center editorial-gradient transition-opacity duration-700">
         <div class="relative z-10 flex flex-col items-center">
             <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-2xl mb-6 animate-bounce">
@@ -74,7 +77,6 @@
         <button onclick="hideToast()" class="text-secondary hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg">close</span></button>
     </div>
 
-    <!-- الصفحة الرئيسية -->
     <main id="view-home" class="flex flex-col min-h-screen relative overflow-x-hidden p-6 transition-opacity duration-300">
         <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
             <img src="https://images.unsplash.com/photo-1473448912268-2022ce9509d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="خلفية" class="w-full h-full object-cover" />
@@ -150,7 +152,7 @@
                     <input type="file" id="smart_spec_upload" class="hidden" accept="image/*,.pdf" onchange="simulateAIScan(this, 'spec')">
                     
                     <div id="spec_scan_overlay" class="hidden absolute inset-0 bg-[#005232]/90 flex flex-col items-center justify-center z-10 backdrop-blur-sm">
-                        <div class="w-full h-1 bg-[#8af8bb] animate-[scan_2s_ease-in-out_infinite] absolute shadow-[0_0_15px_#8af8bb]"></div>
+                        <div class="w-full h-1 bg-[#8af8bb] absolute shadow-[0_0_15px_#8af8bb]" style="animation: scan 2s ease-in-out infinite;"></div>
                         <span class="material-symbols-outlined text-[#8af8bb] text-5xl animate-pulse mb-3">qr_code_scanner</span>
                         <p class="text-white font-bold text-sm">جاري قراءة الباركود واستخراج البيانات...</p>
                     </div>
@@ -253,7 +255,7 @@
                     <input type="file" id="smart_org_upload" class="hidden" accept="image/*,.pdf" onchange="simulateAIScan(this, 'org')">
                     
                     <div id="org_scan_overlay" class="hidden absolute inset-0 bg-blue-900/90 flex flex-col items-center justify-center z-10 backdrop-blur-sm">
-                        <div class="w-full h-1 bg-blue-300 animate-[scan_2s_ease-in-out_infinite] absolute shadow-[0_0_15px_#93c5fd]"></div>
+                        <div class="w-full h-1 bg-blue-300 absolute shadow-[0_0_15px_#93c5fd]" style="animation: scan 2s ease-in-out infinite;"></div>
                         <span class="material-symbols-outlined text-blue-300 text-5xl animate-pulse mb-3">document_scanner</span>
                         <p class="text-white font-bold text-sm">جاري تحليل السجل واستخراج البيانات...</p>
                     </div>
@@ -680,21 +682,22 @@
         // منع تعليق الصفحة
         const hideSplash = () => { const s=document.getElementById('splash-screen'); if(s && s.style.display !== 'none'){ s.style.opacity='0'; setTimeout(()=>s.style.display='none', 700); } };
         window.addEventListener('load', hideSplash);
-        setTimeout(hideSplash, 2500); // إغلاق إجباري لشاشة التحميل بعد 2.5 ثانية
+        setTimeout(hideSplash, 1500); // إغلاق إجباري لشاشة التحميل لتسريع الفتح
 
         try { signInAnonymously(auth); } catch(e) { console.error("Auth error", e); showToast('تعذر الاتصال بالخادم، يرجى تحديث الصفحة', true); }
 
-        // Navigation
+        // Navigation & Modals
         window.navigate = (vid) => { document.querySelectorAll('main').forEach(el=> { el.classList.add('hidden-view'); el.classList.remove('flex','block'); }); const target = document.getElementById(vid); target.classList.remove('hidden-view'); target.classList.add(vid.includes('step')||vid.includes('otp')||vid.includes('admin')||vid.includes('dashboard')||vid==='view-home'||vid==='view-waiting-room'?'flex':'block'); window.scrollTo(0,0); if(vid==='view-admin') loadAdminData(); if(vid==='view-org-dashboard') loadOrgDirectory(); };
         window.closeModal = (mid) => { document.getElementById(mid).classList.add('hidden-view'); document.getElementById(mid).classList.remove('flex'); };
         
+        // زر تسجيل الخروج الحقيقي
         window.performLogout = () => {
-            localStorage.clear();
-            sessionStorage.clear();
+            localStorage.removeItem('preferredRole');
             currAccountType = '';
             myProfileData = null;
-            showToast('تم تسجيل الخروج بنجاح... جاري التحديث');
-            setTimeout(() => window.location.reload(), 1000);
+            navigate('view-home');
+            showToast('تم تسجيل الخروج بنجاح');
+            setTimeout(() => window.location.reload(), 1000); // تحديث الصفحة لضمان مسح أي داتا
         };
 
         // التحقق من الرقم السري للإدارة
@@ -783,11 +786,11 @@
             });
         }
 
-        // Registration Flow
         let tData = {}; let isOrgReg = false;
         window.specAutoApprove = false;
         window.extractedLicense = '';
 
+        // قراءة الملفات الذكية (OCR/QR)
         window.simulateAIScan = (input, type) => {
             if(!input.files[0]) return;
             const overlay = document.getElementById(type + '_scan_overlay');
@@ -811,6 +814,40 @@
             }, 2500);
         };
 
+        // عرض أسماء الملفات والصور فور اختيارها
+        document.getElementById('file_upload')?.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if(fileName) document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">${fileName}</span>`;
+        });
+        
+        document.getElementById('org_file_upload')?.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if(fileName) document.getElementById('org_upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">${fileName}</span>`;
+        });
+
+        document.getElementById('profile_pic_upload')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('profile_pic_preview');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    document.getElementById('profile_pic_icon').classList.add('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('certs_upload')?.addEventListener('change', function(e) {
+            const files = e.target.files;
+            const container = document.getElementById('certs_upload_label');
+            container.innerHTML = '';
+            Array.from(files).forEach(file => {
+                container.innerHTML += `<span class="bg-surface-container-high px-2 py-1 rounded border border-outline-variant text-secondary">${file.name}</span>`;
+            });
+        });
+
         window.fetchCRData = () => {
             const cr = document.getElementById("cr_number").value;
             const btn = document.getElementById("fetch_cr_btn");
@@ -822,6 +859,13 @@
                 document.getElementById("org_desc").removeAttribute("readonly");
                 document.getElementById("org_desc").classList.remove("bg-surface-container-low", "cursor-not-allowed", "border-0");
                 document.getElementById("org_desc").classList.add("bg-transparent", "border-2", "border-outline-variant", "focus:border-primary");
+                
+                btn.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span> تم الجلب';
+                btn.classList.add('bg-primary-fixed', 'text-primary');
+                showToast("تم التحقق وجلب بيانات المنشأة بنجاح");
+            }, 1500);
+        };
+
         document.getElementById("form-step1")?.addEventListener("submit", e => { 
             e.preventDefault(); isOrgReg=false; tData.n = document.getElementById("full_name").value; tData.id = document.getElementById("national_id").value; tData.em = document.getElementById("email").value; tData.ph = document.getElementById("phone").value; tData.bio = document.getElementById("bio").value; 
             if(window.extractedLicense) {
@@ -830,6 +874,7 @@
             }
             navigate('view-step2'); 
         });
+        
         document.getElementById("form-step2")?.addEventListener("submit", e => { e.preventDefault(); tData.lic = document.getElementById("license").value; navigate('view-otp'); showToast("استخدم 123456"); });
         
         document.getElementById("form-org-step1")?.addEventListener("submit", e => { 
@@ -838,19 +883,8 @@
             isOrgReg=true; tData.on = document.getElementById("org_name").value; tData.cr = document.getElementById("cr_number").value; tData.ph = document.getElementById("org_phone").value; tData.desc = document.getElementById("org_desc").value; 
             navigate('view-otp'); showToast("استخدم 123456 للتحقق"); 
         });
-
-        // --- كود إظهار اسم الملف المرفوع للأخصائي والجهة ---
-        document.getElementById('file_upload')?.addEventListener('change', function(e) {
-            const fileName = e.target.files[0]?.name;
-            if(fileName) document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary mb-1 block">task</span><span class="text-sm font-bold text-primary block break-all px-2">${fileName}</span>`;
-        });
-
-        document.getElementById('org_file_upload')?.addEventListener('change', function(e) {
-            const fileName = e.target.files[0]?.name;
-            if(fileName) document.getElementById('org_upload_label').innerHTML = `<span class="material-symbols-outlined text-primary mb-1 block">task</span><span class="text-sm font-bold text-primary block break-all px-2">${fileName}</span>`;
-        });
-        // --------------------------------------------------
         
+        // نموذج التحقق وتخطي غرفة الانتظار للأخصائي
         document.getElementById("form-otp")?.addEventListener("submit", async e => { 
             e.preventDefault(); const u=auth.currentUser; const b=e.target.querySelector('button[type="submit"]'); b.innerHTML='جاري...'; b.disabled=true;
             if(u) {
@@ -881,7 +915,6 @@
         const otpIn = document.querySelectorAll('.otp-input');
         otpIn.forEach((i, idx) => { i.addEventListener('input', e => { if(e.target.value.length===1 && idx<otpIn.length-1) otpIn[idx+1].focus(); if(e.target.value.length>1) e.target.value=e.target.value.slice(0,1); }); i.addEventListener('keydown', e => { if(e.key==='Backspace' && !e.target.value && idx>0) otpIn[idx-1].focus(); }); });
 
-        // Advanced CV Logic & Preview
         window.saveCVSpecialist = async () => {
             const u = auth.currentUser; if(!u) return;
             const newData = { fullName: document.getElementById('cv_name').value, nationalId: document.getElementById('cv_id').value, email: document.getElementById('cv_email').value, phone: document.getElementById('cv_phone').value, edu: document.getElementById('cv_edu').value, years: document.getElementById('cv_years').value, license: document.getElementById('cv_license').value, bio: document.getElementById('cv_bio').value, exp: document.getElementById('cv_exp').value, portfolio: document.getElementById('cv_portfolio').value };
