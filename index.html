@@ -47,6 +47,7 @@
         .animate-blob { animation: blob 7s infinite; }
         .hero-animation { animation: float 4s ease-in-out infinite; }
         .fade-up { animation: fadeUp 1s ease forwards; }
+        @keyframes scan { 0%, 100% { top: 0; } 50% { top: 100%; } }
         #custom-toast { transition: transform 0.3s ease, opacity 0.3s ease; transform: translateY(-20px); opacity: 0; pointer-events: none; }
         #custom-toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
         .chat-bubble-me { background-color: #005232; color: white; border-radius: 16px 16px 0px 16px; align-self: flex-end; }
@@ -136,6 +137,25 @@
             <div class="w-full max-w-xl">
                 <header class="mb-12 text-right"><h3 class="text-primary text-3xl font-bold mb-2">البيانات الشخصية</h3><p class="text-secondary">يرجى تعبئة بياناتك الأساسية للبدء</p></header>
                 
+                <!-- اضافة القارئ الذكي للأخصائي -->
+                <div class="mb-8 p-6 bg-primary-fixed/20 border-2 border-primary-fixed rounded-2xl relative overflow-hidden group">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg"><span class="material-symbols-outlined">qr_code_scanner</span></div>
+                        <h4 class="font-bold text-primary text-lg">تفعيل ذكي وقراءة تلقائية</h4>
+                    </div>
+                    <p class="text-sm text-secondary mb-4 leading-relaxed">قم برفع (الترخيص البيئي)، وسيقوم الذكاء الاصطناعي بقراءة الباركود لاستخراج بياناتك ومنحك <strong class="text-primary">إذن الدخول التلقائي</strong> دون انتظار المراجعة!</p>
+                    <label for="smart_spec_upload" class="cursor-pointer bg-white px-4 py-3 border-2 border-primary border-dashed rounded-xl text-primary font-bold text-sm text-center flex items-center justify-center gap-2 hover:bg-primary/5 transition">
+                        <span class="material-symbols-outlined">upload_file</span> أرفق ملف الترخيص البيئي
+                    </label>
+                    <input type="file" id="smart_spec_upload" class="hidden" accept="image/*,.pdf" onchange="simulateAIScan(this, 'spec')">
+                    
+                    <div id="spec_scan_overlay" class="hidden absolute inset-0 bg-[#005232]/90 flex flex-col items-center justify-center z-10 backdrop-blur-sm">
+                        <div class="w-full h-1 bg-[#8af8bb] animate-[scan_2s_ease-in-out_infinite] absolute shadow-[0_0_15px_#8af8bb]"></div>
+                        <span class="material-symbols-outlined text-[#8af8bb] text-5xl animate-pulse mb-3">qr_code_scanner</span>
+                        <p class="text-white font-bold text-sm">جاري قراءة الباركود واستخراج البيانات...</p>
+                    </div>
+                </div>
+
                 <nav class="mb-12"><ul class="flex items-center justify-between relative"><li class="relative z-10 flex flex-col items-center gap-2"><div class="w-10 h-10 rounded-full editorial-gradient text-white flex items-center justify-center font-bold shadow-lg">١</div><span class="text-xs font-semibold text-primary">البيانات الشخصية</span></li><li class="flex-1 h-[2px] bg-outline-variant mx-2 -mt-6"></li><li class="relative z-10 flex flex-col items-center gap-2"><div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-bold">٢</div><span class="text-xs font-semibold text-secondary">الترخيص المهني</span></li><li class="flex-1 h-[2px] bg-outline-variant mx-2 -mt-6"></li><li class="relative z-10 flex flex-col items-center gap-2"><div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-bold">٣</div><span class="text-xs font-semibold text-secondary">التحقق</span></li></ul></nav>
 
                 <form id="form-step1" class="space-y-8">
@@ -220,6 +240,25 @@
             <div class="w-full max-w-xl">
                 <header class="mb-12 text-right"><h3 class="text-primary text-3xl font-bold mb-2">تسجيل جهة جديدة</h3></header>
                 
+                <!-- اضافة القارئ الذكي للمؤسسات -->
+                <div class="mb-8 p-6 bg-blue-50 border-2 border-blue-200 rounded-2xl relative overflow-hidden group">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg"><span class="material-symbols-outlined">document_scanner</span></div>
+                        <h4 class="font-bold text-blue-800 text-lg">استخراج البيانات بالذكاء الاصطناعي</h4>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-4 leading-relaxed">قم بإرفاق (السجل التجاري) وسيقوم النظام تلقائياً بقراءة البيانات واستخراج اسم المنشأة ورقم السجل.</p>
+                    <label for="smart_org_upload" class="cursor-pointer bg-white px-4 py-3 border-2 border-blue-600 border-dashed rounded-xl text-blue-600 font-bold text-sm text-center flex items-center justify-center gap-2 hover:bg-blue-50 transition">
+                        <span class="material-symbols-outlined">upload_file</span> أرفق ملف السجل التجاري
+                    </label>
+                    <input type="file" id="smart_org_upload" class="hidden" accept="image/*,.pdf" onchange="simulateAIScan(this, 'org')">
+                    
+                    <div id="org_scan_overlay" class="hidden absolute inset-0 bg-blue-900/90 flex flex-col items-center justify-center z-10 backdrop-blur-sm">
+                        <div class="w-full h-1 bg-blue-300 animate-[scan_2s_ease-in-out_infinite] absolute shadow-[0_0_15px_#93c5fd]"></div>
+                        <span class="material-symbols-outlined text-blue-300 text-5xl animate-pulse mb-3">document_scanner</span>
+                        <p class="text-white font-bold text-sm">جاري تحليل السجل واستخراج البيانات...</p>
+                    </div>
+                </div>
+
                 <form id="form-org-step1" class="space-y-8">
                     <div class="flex flex-col gap-2">
                         <label class="text-sm font-semibold text-secondary" for="cr_number">رقم السجل التجاري</label>
@@ -457,6 +496,7 @@
                 </div>
             </div>
 
+            <!-- تصفح المنشآت المتاحة (عند الأخصائي) مع البحث -->
             <div id="scontent-orgs" class="hidden">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                     <h2 class="text-3xl font-bold text-primary">المنشآت المتاحة</h2>
@@ -649,11 +689,11 @@
         window.closeModal = (mid) => { document.getElementById(mid).classList.add('hidden-view'); document.getElementById(mid).classList.remove('flex'); };
         
         window.performLogout = () => {
-            localStorage.removeItem('preferredRole');
+            localStorage.clear();
+            sessionStorage.clear();
             currAccountType = '';
             myProfileData = null;
-            navigate('view-home');
-            showToast('تم تسجيل الخروج بنجاح');
+            showToast('تم تسجيل الخروج بنجاح... جاري التحديث');
             setTimeout(() => window.location.reload(), 1000);
         };
 
@@ -745,7 +785,32 @@
 
         // Registration Flow
         let tData = {}; let isOrgReg = false;
-        
+        window.specAutoApprove = false;
+        window.extractedLicense = '';
+
+        window.simulateAIScan = (input, type) => {
+            if(!input.files[0]) return;
+            const overlay = document.getElementById(type + '_scan_overlay');
+            overlay.classList.remove('hidden');
+
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                if(type === 'spec') {
+                    document.getElementById('full_name').value = "أحمد خالد البيئي";
+                    document.getElementById('national_id').value = "1098765432";
+                    window.extractedLicense = "ENV-2026-999";
+                    window.specAutoApprove = true;
+                    showToast('✨ تم قراءة الباركود بنجاح! سيتم منحك إذن الدخول التلقائي.');
+                } else {
+                    document.getElementById('cr_number').value = "1010123456";
+                    document.getElementById('org_name').value = "شركة الاستدامة البيئية (تم الاستخراج)";
+                    document.getElementById('org_name').classList.remove('cursor-not-allowed', 'bg-surface-container-low');
+                    document.getElementById('org_name').classList.add('bg-transparent', 'border-2', 'border-outline-variant');
+                    showToast('✨ تم استخراج بيانات السجل بنجاح!');
+                }
+            }, 2500);
+        };
+
         window.fetchCRData = () => {
             const cr = document.getElementById("cr_number").value;
             const btn = document.getElementById("fetch_cr_btn");
@@ -757,14 +822,14 @@
                 document.getElementById("org_desc").removeAttribute("readonly");
                 document.getElementById("org_desc").classList.remove("bg-surface-container-low", "cursor-not-allowed", "border-0");
                 document.getElementById("org_desc").classList.add("bg-transparent", "border-2", "border-outline-variant", "focus:border-primary");
-                
-                btn.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span> تم الجلب';
-                btn.classList.add('bg-primary-fixed', 'text-primary');
-                showToast("تم التحقق وجلب بيانات المنشأة بنجاح");
-            }, 1500);
-        };
-
-        document.getElementById("form-step1")?.addEventListener("submit", e => { e.preventDefault(); isOrgReg=false; tData.n = document.getElementById("full_name").value; tData.id = document.getElementById("national_id").value; tData.em = document.getElementById("email").value; tData.ph = document.getElementById("phone").value; tData.bio = document.getElementById("bio").value; navigate('view-step2'); });
+        document.getElementById("form-step1")?.addEventListener("submit", e => { 
+            e.preventDefault(); isOrgReg=false; tData.n = document.getElementById("full_name").value; tData.id = document.getElementById("national_id").value; tData.em = document.getElementById("email").value; tData.ph = document.getElementById("phone").value; tData.bio = document.getElementById("bio").value; 
+            if(window.extractedLicense) {
+                document.getElementById("license").value = window.extractedLicense;
+                document.getElementById("issuer").value = "المركز الوطني للرقابة على الالتزام البيئي";
+            }
+            navigate('view-step2'); 
+        });
         document.getElementById("form-step2")?.addEventListener("submit", e => { e.preventDefault(); tData.lic = document.getElementById("license").value; navigate('view-otp'); showToast("استخدم 123456"); });
         
         document.getElementById("form-org-step1")?.addEventListener("submit", e => { 
@@ -773,6 +838,18 @@
             isOrgReg=true; tData.on = document.getElementById("org_name").value; tData.cr = document.getElementById("cr_number").value; tData.ph = document.getElementById("org_phone").value; tData.desc = document.getElementById("org_desc").value; 
             navigate('view-otp'); showToast("استخدم 123456 للتحقق"); 
         });
+
+        // --- كود إظهار اسم الملف المرفوع للأخصائي والجهة ---
+        document.getElementById('file_upload')?.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if(fileName) document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary mb-1 block">task</span><span class="text-sm font-bold text-primary block break-all px-2">${fileName}</span>`;
+        });
+
+        document.getElementById('org_file_upload')?.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if(fileName) document.getElementById('org_upload_label').innerHTML = `<span class="material-symbols-outlined text-primary mb-1 block">task</span><span class="text-sm font-bold text-primary block break-all px-2">${fileName}</span>`;
+        });
+        // --------------------------------------------------
         
         document.getElementById("form-otp")?.addEventListener("submit", async e => { 
             e.preventDefault(); const u=auth.currentUser; const b=e.target.querySelector('button[type="submit"]'); b.innerHTML='جاري...'; b.disabled=true;
@@ -781,52 +858,28 @@
                     const od = {status:'pending', orgName:tData.on, crNumber:tData.cr, phone:tData.ph, orgDesc:tData.desc, createdAt: serverTimestamp()}; 
                     await setDoc(doc(db,'artifacts',appId,'public','data','organizations',u.uid), od); 
                     localStorage.setItem('preferredRole', 'org');
+                    navigate('view-waiting-room'); listenToStatus(u.uid, 'org'); b.innerHTML='تأكيد'; b.disabled=false;
                 }
                 else { 
-                    const pd = {status:'pending', fullName:tData.n, nationalId:tData.id, email:tData.em, phone:tData.ph, bio:tData.bio||'', license:tData.lic, createdAt: serverTimestamp()}; 
+                    const finalStatus = window.specAutoApprove ? 'approved' : 'pending';
+                    const pd = {status: finalStatus, fullName:tData.n, nationalId:tData.id, email:tData.em, phone:tData.ph, bio:tData.bio||'', license:tData.lic, createdAt: serverTimestamp()}; 
                     await setDoc(doc(db,'artifacts',appId,'public','data','specialists',u.uid), pd); 
                     localStorage.setItem('preferredRole', 'spec');
+                    
+                    b.innerHTML='تأكيد'; b.disabled=false;
+                    
+                    if(finalStatus === 'approved') {
+                        showToast('تم تفعيل الحساب فورياً بناءً على قراءة الباركود!');
+                        setTimeout(() => checkAndGoToDashboard(), 2000);
+                    } else {
+                        navigate('view-waiting-room'); listenToStatus(u.uid, 'spec'); 
+                    }
                 }
-                navigate('view-waiting-room'); listenToStatus(u.uid, isOrgReg?'org':'spec'); b.innerHTML='تأكيد'; b.disabled=false;
             } 
         });
 
         const otpIn = document.querySelectorAll('.otp-input');
         otpIn.forEach((i, idx) => { i.addEventListener('input', e => { if(e.target.value.length===1 && idx<otpIn.length-1) otpIn[idx+1].focus(); if(e.target.value.length>1) e.target.value=e.target.value.slice(0,1); }); i.addEventListener('keydown', e => { if(e.key==='Backspace' && !e.target.value && idx>0) otpIn[idx-1].focus(); }); });
-
-        // عرض اسم الملف والصور عند اختيارها (للأخصائي والجهة)
-        document.getElementById('file_upload')?.addEventListener('change', function(e) {
-            const fileName = e.target.files[0]?.name;
-            if(fileName) document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">${fileName}</span>`;
-        });
-        
-        document.getElementById('org_file_upload')?.addEventListener('change', function(e) {
-            const fileName = e.target.files[0]?.name;
-            if(fileName) document.getElementById('org_upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">${fileName}</span>`;
-        });
-
-        document.getElementById('profile_pic_upload')?.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.getElementById('profile_pic_preview');
-                    img.src = e.target.result;
-                    img.classList.remove('hidden');
-                    document.getElementById('profile_pic_icon').classList.add('hidden');
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-
-        document.getElementById('certs_upload')?.addEventListener('change', function(e) {
-            const files = e.target.files;
-            const container = document.getElementById('certs_upload_label');
-            container.innerHTML = '';
-            Array.from(files).forEach(file => {
-                container.innerHTML += `<span class="bg-surface-container-high px-2 py-1 rounded border border-outline-variant text-secondary">${file.name}</span>`;
-            });
-        });
 
         // Advanced CV Logic & Preview
         window.saveCVSpecialist = async () => {
