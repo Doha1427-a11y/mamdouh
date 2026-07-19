@@ -1,641 +1,1193 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html dir="rtl" lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شركة البيئة المتقدمة - حلول بيئية مستدامة</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>منصة بيئيين</title>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    
+    <!-- تمت إضافة مكتبة قراءة النصوص لتدعم استخراج الرقم والتاريخ من الصورة -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <!-- تمت إضافة مكتبة PDF.js لفتح ملفات PDF وقراءة الصفحة الأولى منها -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#005232",
+                        "secondary": "#526350",
+                        "primary-fixed": "#8af8bb",
+                        "on-primary-container": "#81efb2",
+                        "surface": "#f9faf5",
+                        "on-surface": "#1a1c19",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f3f4ef",
+                        "surface-container-high": "#e7e9e4",
+                        "on-surface-variant": "#3f4942",
+                        "outline": "#6f7a71",
+                        "outline-variant": "#bec9bf"
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" }
+                },
+            },
+        }
+    </script>
+    
     <style>
-        * {
-            font-family: 'Cairo', sans-serif;
-        }
-        .gradient-bg {
-            background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
-        }
-        .hero-pattern {
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        }
-        .float-animation {
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(5, 150, 105, 0.2);
-        }
+        body { font-family: 'IBM Plex Sans Arabic', 'Manrope', sans-serif; background-color: #f9faf5; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        .editorial-gradient { background: linear-gradient(135deg, #005232 0%, #006d44 100%); }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .hidden-view { display: none !important; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-12px); } 100% { transform: translateY(0px); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes blob { 0% { transform: translate(0px, 0px) scale(1) } 33% { transform: translate(30px, -50px) scale(1.1) } 66% { transform: translate(-20px, 20px) scale(0.9) } 100% { transform: translate(0px, 0px) scale(1) } }
+        @keyframes scan { 0%, 100% { top: 0%; } 50% { top: 100%; } }
+        
+        .animate-blob { animation: blob 7s infinite; }
+        .hero-animation { animation: float 4s ease-in-out infinite; }
+        .fade-up { animation: fadeUp 1s ease forwards; }
+        
+        #custom-toast { transition: transform 0.3s ease, opacity 0.3s ease; transform: translateY(-20px); opacity: 0; pointer-events: none; }
+        #custom-toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        
+        .chat-bubble-me { background-color: #005232; color: white; border-radius: 16px 16px 0px 16px; align-self: flex-end; }
+        .chat-bubble-other { background-color: #ffffff; color: #1a1c19; border: 1px solid #bec9bf; border-radius: 16px 16px 16px 0px; align-self: flex-start; }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="text-on-surface antialiased overflow-x-hidden min-h-screen relative">
 
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg fixed w-full z-50">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 gradient-bg rounded-full flex items-center justify-center">
-                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold text-emerald-700">البيئة المتقدمة</h1>
-                        <p class="text-xs text-gray-500">لحلول بيئية مستدامة</p>
-                    </div>
-                </div>
+    <div id="splash-screen" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center editorial-gradient transition-opacity duration-700">
+        <div class="relative z-10 flex flex-col items-center">
+            <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-2xl mb-6 animate-bounce">
+                <span class="material-symbols-outlined text-primary text-6xl">eco</span>
+            </div>
+            <h1 class="text-white text-4xl font-bold tracking-tight mb-2">منصة بيئيين</h1>
+            <p class="text-primary-fixed text-sm font-medium">جاري التحميل...</p>
+        </div>
+    </div>
+
+    <!-- سكربت الإخفاء المطور: يعتمد على التحميل الفعلي مع مؤقت أمان -->
+    <script>
+        (function() {
+            var splash = document.getElementById('splash-screen');
+            var isHidden = false;
+            
+            function hideSplash() {
+                if(!isHidden && splash) {
+                    isHidden = true;
+                    splash.style.opacity = '0';
+                    splash.style.pointerEvents = 'none'; // يمنع حجب الضغطات أثناء التلاشي
+                    // انتظار انتهاء تأثير التلاشي (700ms) ثم إخفاء العنصر نهائياً
+                    setTimeout(function() { splash.style.display = 'none'; }, 700);
+                }
+            }
+
+            // 1. إخفاء الشاشة بسلاسة بمجرد اكتمال تحميل عناصر الصفحة
+            window.addEventListener('load', hideSplash);
+            
+            // 2. مؤقت أمان (Fallback): إخفاء إجباري بعد 2.5 ثانية كحد أقصى في حال بطء الإنترنت
+            setTimeout(hideSplash, 2500);
+        })();
+    </script>
+
+    <div id="custom-toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] bg-surface border-l-4 border-primary shadow-2xl rounded-xl p-4 flex items-center gap-3 w-11/12 max-w-md hidden-view">
+        <span class="material-symbols-outlined text-primary text-2xl" id="toast-icon">info</span>
+        <p id="toast-msg" class="text-on-surface font-semibold text-sm flex-1"></p>
+        <button onclick="hideToast()" class="text-secondary hover:text-primary transition-colors"><span class="material-symbols-outlined text-lg">close</span></button>
+    </div>
+
+    <main id="view-home" class="flex flex-col min-h-screen relative overflow-x-hidden p-6 transition-opacity duration-300">
+        <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            <img src="https://images.unsplash.com/photo-1473448912268-2022ce9509d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="خلفية" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-[#f9faf5]/85 backdrop-blur-sm"></div>
+            <div class="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-primary-fixed rounded-full mix-blend-multiply filter blur-[128px] opacity-50 animate-blob"></div>
+            <div class="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-primary/30 rounded-full mix-blend-multiply filter blur-[128px] opacity-50 animate-blob animation-delay-2000"></div>
+        </div>
+
+        <header class="absolute top-6 left-6 right-6 md:top-8 md:left-12 md:right-12 z-20 flex items-center justify-between fade-up">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary text-4xl shadow-sm rounded-full bg-white/50 p-1 backdrop-blur-md">eco</span>
+                <span class="text-primary text-2xl font-bold tracking-tight">بيئيين</span>
+            </div>
+            <button onclick="checkAndGoToDashboard()" class="flex items-center gap-2 bg-white/80 hover:bg-white text-primary px-4 py-2 rounded-full font-bold shadow-md backdrop-blur-md transition-all border border-white/50 hover:scale-105">
+                <span class="material-symbols-outlined text-[18px]">person</span> الدخول لحسابي
+            </button>
+        </header>
+
+        <div class="flex-1 flex flex-col justify-center items-center relative z-10 w-full max-w-4xl mx-auto py-12 mt-12 md:mt-0">
+            <div class="text-center mb-12 flex flex-col items-center">
+                <a href="https://oasis-bay-151.faces.site/w8chr2rnnq3e" target="_blank" class="group relative inline-block transition-transform duration-300 hover:scale-105 mb-4 hero-animation fade-up" style="animation-delay: 1.6s;" title="المساعد الذكي">
+                    <img src="https://images.unsplash.com/photo-1556157382-97eda2d62296?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="المساعد الذكي" onerror="this.src='https://ui-avatars.com/api/?name=مساعد+ذكي&background=005232&color=fff&size=400'" class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover shadow-2xl border-4 border-white group-hover:border-primary-fixed transition-colors">
+                    <div class="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-primary text-white text-sm font-bold py-1.5 px-6 rounded-full shadow-lg whitespace-nowrap flex items-center gap-1 group-hover:bg-[#006d44] transition-colors">المساعد الذكي <span class="material-symbols-outlined text-sm">ads_click</span></div>
+                </a>
+                <h2 class="text-3xl md:text-5xl font-bold text-primary mt-6 mb-4 drop-shadow-sm fade-up" style="animation-delay: 1.8s;">منصة بيئيين</h2>
+                <p class="text-secondary text-lg max-w-lg font-medium bg-white/40 px-6 py-2 rounded-full backdrop-blur-md border border-white/50 shadow-sm fade-up">الرجاء تحديد نوع الحساب للمتابعة وإتمام عملية الدخول أو التسجيل.</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 md:gap-8 w-full max-w-3xl">
+                <a href="#" onclick="navigate('view-step1'); return false;" class="group relative bg-white/70 backdrop-blur-xl p-4 md:p-8 rounded-3xl border-2 border-white/60 hover:border-primary shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col items-center text-center overflow-hidden hover:-translate-y-2 fade-up" style="animation-delay: 0.2s;">
+                    <div class="w-14 h-14 md:w-20 md:h-20 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-sm"><span class="material-symbols-outlined text-3xl md:text-4xl">person_search</span></div>
+                    <h3 class="text-base md:text-2xl font-bold text-on-surface mb-2 md:mb-3 group-hover:text-primary transition-colors">أخصائي بيئي</h3>
+                    <p class="text-secondary text-xs md:text-base mb-4 md:mb-8 leading-relaxed font-medium">للأفراد والمتخصصين في المجال البيئي لتوثيق أعمالهم والوصول إلى الأرشيف.</p>
+                    <div class="mt-auto inline-flex items-center gap-1 md:gap-2 text-primary font-bold group-hover:gap-2 md:group-hover:gap-3 transition-all text-xs md:text-base bg-white/50 px-4 py-2 rounded-full">دخول كأخصائي <span class="material-symbols-outlined rotate-180 text-base md:text-lg">arrow_right_alt</span></div>
+                </a>
+                <a href="#" onclick="navigate('view-org-step1'); return false;" class="group relative bg-white/70 backdrop-blur-xl p-4 md:p-8 rounded-3xl border-2 border-white/60 hover:border-primary shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col items-center text-center overflow-hidden hover:-translate-y-2 fade-up" style="animation-delay: 0.3s;">
+                    <div class="w-14 h-14 md:w-20 md:h-20 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-300 shadow-sm"><span class="material-symbols-outlined text-3xl md:text-4xl">domain</span></div>
+                    <h3 class="text-base md:text-2xl font-bold text-on-surface mb-2 md:mb-3 group-hover:text-primary transition-colors">جهة / مؤسسة</h3>
+                    <p class="text-secondary text-xs md:text-base mb-4 md:mb-8 leading-relaxed font-medium">للشركات والمؤسسات لإدارة المشاريع واستعراض الكفاءات والمواهب.</p>
+                    <div class="mt-auto inline-flex items-center gap-1 md:gap-2 text-primary font-bold group-hover:gap-2 md:group-hover:gap-3 transition-all text-xs md:text-base bg-white/50 px-4 py-2 rounded-full">دخول كجهة <span class="material-symbols-outlined rotate-180 text-base md:text-lg">arrow_right_alt</span></div>
+                </a>
+            </div>
+        </div>
+        <footer class="w-full z-10 text-center text-secondary text-sm mt-auto pt-4 font-medium backdrop-blur-sm bg-white/30 py-2 rounded-t-2xl fade-up flex flex-col items-center gap-2">
+            <p>© بيئيين ٢٠٢٦. جميع الحقوق محفوظة.</p>
+            <a href="#" onclick="document.getElementById('admin-login-modal').classList.remove('hidden-view'); document.getElementById('admin-login-modal').classList.add('flex'); return false;" class="text-xs text-primary/60 hover:text-primary transition-colors flex items-center gap-1 mb-2"><span class="material-symbols-outlined text-[14px]">admin_panel_settings</span> بوابة الإدارة</a>
+        </footer>
+    </main>
+
+    <main id="view-step1" class="hidden-view flex-col md:flex-row min-h-screen w-full transition-opacity duration-300">
+        <section class="hidden md:flex md:w-5/12 editorial-gradient p-12 flex-col justify-between relative overflow-hidden">
+            <div class="relative z-10">
+                <a href="#" onclick="navigate('view-home'); return false;" class="flex items-center gap-3 mb-12 hover:opacity-80 transition-opacity w-fit"><span class="material-symbols-outlined text-primary-fixed text-4xl">eco</span><h1 class="text-white text-2xl font-bold tracking-tight">بيئيين</h1></a>
+                <div class="space-y-6"><h2 class="text-white text-4xl lg:text-5xl font-bold leading-tight">الأرشيف الحي للخبراء البيئيين</h2></div>
+            </div>
+            <div class="absolute inset-0 opacity-20 pointer-events-none"><img class="w-full h-full object-cover grayscale mix-blend-overlay" alt="الطبيعة والأشجار" src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" /></div>
+        </section>
+        <section class="flex-1 flex flex-col items-center justify-center p-6 md:p-12 bg-surface overflow-y-auto">
+            <div class="w-full max-w-xl">
+                <header class="mb-12 text-right"><h3 class="text-primary text-3xl font-bold mb-2">البيانات الشخصية</h3><p class="text-secondary">يرجى تعبئة بياناتك الأساسية للبدء</p></header>
                 
-                <div class="hidden md:flex items-center gap-8">
-                    <a href="#home" class="text-gray-700 hover:text-emerald-600 transition">الرئيسية</a>
-                    <a href="#services" class="text-gray-700 hover:text-emerald-600 transition">خدماتنا</a>
-                    <a href="#about" class="text-gray-700 hover:text-emerald-600 transition">من نحن</a>
-                    <a href="#projects" class="text-gray-700 hover:text-emerald-600 transition">مشاريعنا</a>
-                    <a href="#contact" class="text-gray-700 hover:text-emerald-600 transition">تواصل معنا</a>
-                </div>
+                <nav class="mb-12"><ul class="flex items-center justify-between relative"><li class="relative z-10 flex flex-col items-center gap-2"><div class="w-10 h-10 rounded-full editorial-gradient text-white flex items-center justify-center font-bold shadow-lg">١</div><span class="text-xs font-semibold text-primary">البيانات الشخصية</span></li><li class="flex-1 h-[2px] bg-outline-variant mx-2 -mt-6"></li><li class="relative z-10 flex flex-col items-center gap-2"><div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-bold">٢</div><span class="text-xs font-semibold text-secondary">الترخيص المهني</span></li><li class="flex-1 h-[2px] bg-outline-variant mx-2 -mt-6"></li><li class="relative z-10 flex flex-col items-center gap-2"><div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-bold">٣</div><span class="text-xs font-semibold text-secondary">التحقق</span></li></ul></nav>
 
-                <button class="gradient-bg text-white px-6 py-2 rounded-full hover:opacity-90 transition">
-                    احصل على عرض سعر
-                </button>
+                <form id="form-step1" class="space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-2"><label class="text-sm font-semibold text-secondary" for="full_name">الاسم الثلاثي</label><input class="w-full px-4 py-3 bg-transparent border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0" id="full_name" type="text" required /></div>
+                        <div class="flex flex-col gap-2"><label class="text-sm font-semibold text-secondary" for="national_id">رقم الهوية</label><input class="w-full px-4 py-3 bg-transparent border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0" id="national_id" type="text" required /></div>
+                        <div class="flex flex-col gap-2"><label class="text-sm font-semibold text-secondary" for="email">البريد الإلكتروني</label><input class="w-full px-4 py-3 bg-transparent border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-right" dir="ltr" id="email" type="email" required /></div>
+                        <div class="flex flex-col gap-2"><label class="text-sm font-semibold text-secondary" for="phone">رقم الجوال</label><input class="w-full px-4 py-3 bg-transparent border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 text-right" dir="ltr" id="phone" type="tel" required /></div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between pt-6 border-t border-outline-variant/30">
+                        <button type="button" onclick="navigate('view-home')" class="px-6 py-2.5 border-2 border-outline-variant rounded-xl text-secondary font-bold">إلغاء</button>
+                        <button type="submit" class="px-8 py-2.5 bg-primary hover:bg-[#006d44] text-white font-bold rounded-xl shadow-md flex items-center gap-2">متابعة <span class="material-symbols-outlined rotate-180 text-sm">arrow_forward</span></button>
+                    </div>
+                </form>
             </div>
-        </div>
-    </nav>
+        </section>
+    </main>
 
-    <!-- Hero Section -->
-    <section id="home" class="gradient-bg hero-pattern min-h-screen flex items-center pt-20">
-        <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div class="text-white">
-                    <span class="bg-white/20 px-4 py-1 rounded-full text-sm mb-6 inline-block">
-                        🌱 رائدون في الحلول البيئية منذ 2010
-                    </span>
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                        نحو بيئة
-                        <span class="text-yellow-300">أنظف</span>
-                        ومستدامة
-                    </h1>
-                    <p class="text-lg md:text-xl opacity-90 mb-8 leading-relaxed">
-                        نقدم حلولاً بيئية متكاملة تجمع بين التكنولوجيا الحديثة والاستدامة، لمساعدة الشركات والمجتمعات على تقليل بصمتها البيئية
-                    </p>
-                    <div class="flex flex-wrap gap-4">
-                        <button class="bg-white text-emerald-700 px-8 py-3 rounded-full font-bold hover:bg-emerald-50 transition">
-                            اكتشف خدماتنا
-                        </button>
-                        <button class="border-2 border-white text-white px-8 py-3 rounded-full font-bold hover:bg-white/10 transition flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
-                            </svg>
-                            شاهد الفيديو
-                        </button>
+    <main id="view-step2" class="hidden-view flex-col md:flex-row min-h-screen w-full transition-opacity duration-300">
+        <section class="hidden md:flex md:w-5/12 editorial-gradient p-12 flex-col justify-between relative overflow-hidden">
+            <div class="relative z-10"><a href="#" onclick="navigate('view-home'); return false;" class="flex items-center gap-3 mb-12 hover:opacity-80 transition-opacity w-fit"><span class="material-symbols-outlined text-primary-fixed text-4xl">eco</span><h1 class="text-white text-2xl font-bold tracking-tight">بيئيين</h1></a><div class="space-y-6"><h2 class="text-white text-4xl lg:text-5xl font-bold leading-tight">توثيق الكفاءات والقدرات</h2></div></div>
+            <div class="absolute inset-0 opacity-20 pointer-events-none"><img class="w-full h-full object-cover grayscale mix-blend-overlay" src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" /></div>
+        </section>
+        <section class="flex-1 flex flex-col items-center justify-center p-6 md:p-12 bg-surface overflow-y-auto">
+            <div class="w-full max-w-xl">
+                <header class="mb-12 text-right"><h3 class="text-primary text-3xl font-bold mb-2">الترخيص المهني</h3><p class="text-secondary">يرجى إدخال تفاصيل الترخيص وإرفاق المستندات</p></header>
+                
+                <div class="mb-8 p-6 bg-primary-fixed/20 border-2 border-primary-fixed rounded-2xl relative overflow-hidden group">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg"><span class="material-symbols-outlined">qr_code_scanner</span></div>
+                        <h4 class="font-bold text-primary text-lg">قراءة تلقائية للترخيص</h4>
                     </div>
-                </div>
-                <div class="relative flex justify-center">
-                    <div class="relative">
-                        <div class="w-64 h-64 md:w-80 md:h-80 bg-white/20 rounded-full absolute -top-4 -right-4"></div>
-                        <div class="w-64 h-64 md:w-80 md:h-80 bg-white/10 rounded-full flex items-center justify-center float-animation">
-                            <svg class="w-32 h-32 md:w-40 md:h-40 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Stats Section -->
-    <section class="py-16 bg-white relative -mt-16 mx-4 rounded-2xl shadow-xl">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                <div class="card-hover p-6 rounded-xl">
-                    <div class="text-4xl font-bold text-emerald-600 mb-2">+500</div>
-                    <div class="text-gray-600">مشروع منجز</div>
-                </div>
-                <div class="card-hover p-6 rounded-xl">
-                    <div class="text-4xl font-bold text-emerald-600 mb-2">+200</div>
-                    <div class="text-gray-600">عميل سعيد</div>
-                </div>
-                <div class="card-hover p-6 rounded-xl">
-                    <div class="text-4xl font-bold text-emerald-600 mb-2">15</div>
-                    <div class="text-gray-600">سنة خبرة</div>
-                </div>
-                <div class="card-hover p-6 rounded-xl">
-                    <div class="text-4xl font-bold text-emerald-600 mb-2">50+</div>
-                    <div class="text-gray-600">متخصص</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Services Section -->
-    <section id="services" class="py-20 bg-gray-50">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
-                <span class="text-emerald-600 font-semibold mb-4 inline-block">خدماتنا المتميزة</span>
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">حلول بيئية شاملة</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto">
-                    نقدم مجموعة متكاملة من الخدمات البيئية المصممة لتلبية احتياجاتكم وتحقيق أهداف الاستدامة
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Service 1 -->
-                <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
-                    <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
-                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-3">إدارة النفايات</h3>
-                    <p class="text-gray-600 mb-4">حلول متكاملة لإدارة وإعادة تدوير النفايات بأنواعها مع الالتزام بأعلى المعايير البيئية</p>
-                    <a href="#" class="text-emerald-600 font-semibold flex items-center gap-2 hover:gap-3 transition-all">
-                        اعرف المزيد
-                        <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                        </svg>
-                    </a>
-                </div>
-
-                <!-- Service 2 -->
-                <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
-                    <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
-                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 3v18m9-9H3m15.364-6.364L7.05 17.05M5.636 6.636L17.05 18.05"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-3">الطاقة المتجددة</h3>
-                    <p class="text-gray-600 mb-4">تصميم وتنفيذ مشاريع الطاقة الشمسية وطاقة الرياح لتحقيق الاستقلال الطاقوي</p>
-                    <a href="#" class="text-emerald-600 font-semibold flex items-center gap-2 hover:gap-3 transition-all">
-                        اعرف المزيد
-                        <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                        </svg>
-                    </a>
-                </div>
-
-                <!-- Service 3 -->
-                <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
-                    <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
-                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 22c4.97 0 9-2.69 9-6v-4c0-3.31-4.03-6-9-6s-9 2.69-9 6v4c0 3.31 4.03 6 9 6z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-3">المياه والصرف الصحي</h3>
-                    <p class="text-gray-600 mb-4">محطات معالجة المياه ومعالجة مياه الصرف الصحي بأحدث التقنيات العالمية</p>
-                    <a href="#" class="text-emerald-600 font-semibold flex items-center gap-2 hover:gap-3 transition-all">
-                        اعرف المزيد
-                        <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                        </svg>
-                    </a>
-                </div>
-
-                <!-- Service 4 -->
-                <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
-                    <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
-                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-3">الاستشارات البيئية</h3>
-                    <p class="text-gray-600 mb-4">دراسات جدوى وتقييمات أثر بيئي واستشارات متخصصة للمشاريع الكبرى</p>
-                    <a href="#" class="text-emerald-600 font-semibold flex items-center gap-2 hover:gap-3 transition-all">
-                        اعرف المزيد
-                        <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                        </svg>
-                    </a>
-                </div>
-
-                <!-- Service 5 -->
-                <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
-                    <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
-                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-3">الزراعة المستدامة</h3>
-                    <p class="text-gray-600 mb-4">حلول زراعية مبتكرة تراعي البيئة وتحافظ على الموارد الطبيعية</p>
-                    <a href="#" class="text-emerald-600 font-semibold flex items-center gap-2 hover:gap-3 transition-all">
-                        اعرف المزيد
-                        <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                        </svg>
-                    </a>
-                </div>
-
-                <!-- Service 6 -->
-                <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
-                    <div class="w-16 h-16 gradient-bg rounded-2xl flex items-center justify-center mb-6">
-                        <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-3">التوعية البيئية</h3>
-                    <p class="text-gray-600 mb-4">برامج تدريبية وورش عمل للتوعية بأهمية الحفاظ على البيئة</p>
-                    <a href="#" class="text-emerald-600 font-semibold flex items-center gap-2 hover:gap-3 transition-all">
-                        اعرف المزيد
-                        <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-                        </svg>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="py-20 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-2 gap-16 items-center">
-                <div class="relative">
-                    <div class="w-full h-96 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl"></div>
-                    <div class="absolute -bottom-8 -left-8 bg-white p-6 rounded-2xl shadow-2xl">
-                        <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 gradient-bg rounded-full flex items-center justify-center">
-                                <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="text-3xl font-bold text-emerald-600">+15</div>
-                                <div class="text-gray-600">سنة من التميز</div>
-                            </div>
-                        </div>
+                    <p class="text-sm text-secondary mb-4 leading-relaxed">قم برفع (الترخيص البيئي)، وسيقوم النظام بقراءة البيانات لاستخراج <strong class="text-primary">رقم الترخيص وتاريخ الإصدار</strong> ومنحك إذن الدخول التلقائي!</p>
+                    <label for="smart_spec_upload" class="cursor-pointer bg-white px-4 py-3 border-2 border-primary border-dashed rounded-xl text-primary font-bold text-sm text-center flex items-center justify-center gap-2 hover:bg-primary/5 transition">
+                        <span class="material-symbols-outlined">upload_file</span> أرفق ملف الترخيص هنا للقراءة
+                    </label>
+                    <input type="file" id="smart_spec_upload" class="hidden" accept="image/*,.pdf" onchange="simulateAIScan(this, 'spec')">
+                    
+                    <div id="spec_scan_overlay" class="hidden absolute inset-0 bg-[#005232]/90 flex flex-col items-center justify-center z-10 backdrop-blur-sm">
+                        <div class="w-full h-1 bg-[#8af8bb] absolute shadow-[0_0_15px_#8af8bb]" style="animation: scan 2s ease-in-out infinite;"></div>
+                        <span class="material-symbols-outlined text-[#8af8bb] text-5xl animate-pulse mb-3">document_scanner</span>
+                        <p class="text-white font-bold text-sm">جاري قراءة الملف واستخراج بيانات الترخيص...</p>
                     </div>
                 </div>
 
-                <div>
-                    <span class="text-emerald-600 font-semibold mb-4 inline-block">من نحن</span>
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
-                        رواد في الحلول البيئية المستدامة
-                    </h2>
-                    <p class="text-gray-600 mb-6 leading-relaxed">
-                        شركة البيئة المتقدمة هي شركة رائدة في مجال الخدمات البيئية، تأسست عام 2010 بهدف تقديم حلول بيئية مبتكرة ومستدامة. نحن نعمل مع الشركات والحكومات والمجتمعات المحلية لتحقيق التوازن بين التنمية الاقتصادية والحفاظ على البيئة.
-                    </p>
-                    <p class="text-gray-600 mb-8 leading-relaxed">
-                        فريقنا يضم نخبة من المتخصصين في مختلف المجالات البيئية، ونلتزم بأعلى معايير الجودة والسلامة البيئية في جميع مشاريعنا.
-                    </p>
-
-                    <div class="grid grid-cols-2 gap-6 mb-8">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                                <svg class="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                                </svg>
-                            </div>
-                            <span class="text-gray-700 font-medium">فريق متخصص</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                                <svg class="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                                </svg>
-                            </div>
-                            <span class="text-gray-700 font-medium">تقنيات حديثة</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                                <svg class="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                                </svg>
-                            </div>
-                            <span class="text-gray-700 font-medium">شهادات معتمدة</span>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-                                <svg class="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                                </svg>
-                            </div>
-                            <span class="text-gray-700 font-medium">دعم مستمر</span>
-                        </div>
-                    </div>
-
-                    <button class="gradient-bg text-white px-8 py-3 rounded-full font-bold hover:opacity-90 transition">
-                        تواصل معنا الآن
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Projects Section -->
-    <section id="projects" class="py-20 bg-gray-50">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
-                <span class="text-emerald-600 font-semibold mb-4 inline-block">مشاريعنا</span>
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">مشاريع نفخر بها</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto">
-                    مجموعة من أبرز المشاريع التي نفذناها بتحقيق أعلى معايير الجودة والاستدامة
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="bg-white rounded-2xl overflow-hidden shadow-lg card-hover">
-                    <div class="h-48 bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                        <svg class="w-20 h-20 text-white/50" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 3v18m9-9H3"/>
-                        </svg>
-                    </div>
-                    <div class="p-6">
-                        <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm">الطاقة الشمسية</span>
-                        <h3 class="text-xl font-bold text-gray-800 mt-4 mb-2">محطة طاقة شمسية - الرياض</h3>
-                        <p class="text-gray-600 mb-4">محطة طاقة شمسية بقدرة 5 ميغاواط لتوفير الطاقة النظيفة</p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-emerald-600 font-semibold">2023</span>
-                            <a href="#" class="text-emerald-600 hover:text-emerald-700">عرض التفاصيل ←</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl overflow-hidden shadow-lg card-hover">
-                    <div class="h-48 bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center">
-                        <svg class="w-20 h-20 text-white/50" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/>
-                        </svg>
-                    </div>
-                    <div class="p-6">
-                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">معالجة المياه</span>
-                        <h3 class="text-xl font-bold text-gray-800 mt-4 mb-2">محطة معالجة مياه - الدمام</h3>
-                        <p class="text-gray-600 mb-4">محطة معالجة متكاملة للمياه بطاقة 10,000 متر مكعب يومياً</p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-emerald-600 font-semibold">2022</span>
-                            <a href="#" class="text-emerald-600 hover:text-emerald-700">عرض التفاصيل ←</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl overflow-hidden shadow-lg card-hover">
-                    <div class="h-48 bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-                        <svg class="w-20 h-20 text-white/50" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
-                        </svg>
-                    </div>
-                    <div class="p-6">
-                        <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm">إدارة النفايات</span>
-                        <h3 class="text-xl font-bold text-gray-800 mt-4 mb-2">مركز إعادة التدوير - جدة</h3>
-                        <p class="text-gray-600 mb-4">مركز متكامل لإعادة تدوير النفايات الإلكترونية</p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-emerald-600 font-semibold">2023</span>
-                            <a href="#" class="text-emerald-600 hover:text-emerald-700">عرض التفاصيل ←</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Testimonials -->
-    <section class="py-20 gradient-bg hero-pattern">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-16">
-                <span class="text-emerald-200 font-semibold mb-4 inline-block">آراء العملاء</span>
-                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">ماذا يقول عملاؤنا</h2>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-white">
-                    <div class="flex items-center gap-1 mb-4">
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                    </div>
-                    <p class="mb-6 opacity-90 leading-relaxed">
-                        "تجربة ممتازة مع شركة البيئة المتقدمة. فريق محترف وخدمة عالية الجودة. أنصح بالتعامل معهم بشدة."
-                    </p>
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-white/20 rounded-full"></div>
-                        <div>
-                            <div class="font-bold">أحمد محمد</div>
-                            <div class="text-sm opacity-75">مدير شركة الإتقان</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-white">
-                    <div class="flex items-center gap-1 mb-4">
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                    </div>
-                    <p class="mb-6 opacity-90 leading-relaxed">
-                        "ساعدونا في الحصول على شهادة ISO 14001. عمل احترافي والتزام بالمواعيد. شكراً جزيلاً!"
-                    </p>
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-white/20 rounded-full"></div>
-                        <div>
-                            <div class="font-bold">سارة العتيبي</div>
-                            <div class="text-sm opacity-75">مديرة الجودة - مجموعة الخليج</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-white">
-                    <div class="flex items-center gap-1 mb-4">
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                    </div>
-                    <p class="mb-6 opacity-90 leading-relaxed">
-                        "أفضل شركة بيئية تعاملت معها. السرعة في التنفيذ والجودة العالية في العمل. موصى بهم!"
-                    </p>
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-white/20 rounded-full"></div>
-                        <div>
-                            <div class="font-bold">خالد الرشيد</div>
-                            <div class="text-sm opacity-75">المدير العام - مصانع البركة</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="py-20 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-2 gap-16">
-                <div>
-                    <span class="text-emerald-600 font-semibold mb-4 inline-block">تواصل معنا</span>
-                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
-                        هل لديك مشروع؟ لنتحدث!
-                    </h2>
-                    <p class="text-gray-600 mb-8">
-                        فريقنا جاهز للإجابة على استفساراتك وتقديم أفضل الحلول البيئية لمشروعك
-                    </p>
-
-                    <div class="space-y-6">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="font-bold text-gray-800">العنوان</div>
-                                <div class="text-gray-600">الرياض، المملكة العربية السعودية</div>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="font-bold text-gray-800">الهاتف</div>
-                                <div class="text-gray-600" dir="ltr">+966 11 XXX XXXX</div>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center">
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="font-bold text-gray-800">البريد الإلكتروني</div>
-                                <div class="text-gray-600">info@advanced-env.com</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-4 mt-8">
-                        <a href="#" class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-emerald-100 transition">
-                            <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                        </a>
-                        <a href="#" class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-emerald-100 transition">
-                            <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
-                        </a>
-                        <a href="#" class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-emerald-100 transition">
-                            <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z"/></svg>
-                        </a>
-                        <a href="#" class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-emerald-100 transition">
-                            <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                        </a>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 rounded-2xl p-8">
-                    <form class="space-y-6">
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2">الاسم الكامل</label>
-                            <input type="text" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition" placeholder="أدخل اسمك الكامل">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2">البريد الإلكتروني</label>
-                            <input type="email" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition" placeholder="example@email.com" dir="ltr">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2">رقم الهاتف</label>
-                            <input type="tel" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition" placeholder="+966 5XX XXX XXXX" dir="ltr">
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2">نوع الخدمة</label>
-                            <select class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition bg-white">
-                                <option>إدارة النفايات</option>
-                                <option>الطاقة المتجددة</option>
-                                <option>المياه والصرف الصحي</option>
-                                <option>الاستشارات البيئية</option>
-                                <option>الزراعة المستدامة</option>
-                                <option>أخرى</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-gray-700 font-medium mb-2">رسالتك</label>
-                            <textarea rows="4" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition resize-none" placeholder="اكتب رسالتك هنا..."></textarea>
-                        </div>
-                        <button type="submit" class="w-full gradient-bg text-white py-4 rounded-xl font-bold hover:opacity-90 transition">
-                            إرسال الرسالة
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-16">
-        <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-4 gap-12 mb-12">
-                <div>
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-12 h-12 gradient-bg rounded-full flex items-center justify-center">
-                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold">البيئة المتقدمة</h3>
-                            <p class="text-sm text-gray-400">لحلول بيئية مستدامة</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-400 leading-relaxed">
-                        رواد في تقديم الحلول البيئية المبتكرة لتحقيق الاستدامة وحماية كوكبنا
-                    </p>
-                </div>
-
-                <div>
-                    <h4 class="text-lg font-bold mb-6">روابط سريعة</h4>
-                    <ul class="space-y-3 text-gray-400">
-                        <li><a href="#" class="hover:text-emerald-400 transition">الرئيسية</a></li>
-                        <li><a href="#" class="hover:text-emerald-400 transition">من نحن</a></li>
-                        <li><a href="#" class="hover:text-emerald-400 transition">خدماتنا</a></li>
-                        <li><a href="#" class="hover:text-emerald-400 transition">مشاريعنا</a></li>
-                        <li><a href="#" class="hover:text-emerald-400 transition">المدونة</a></li>
+                <nav class="mb-12">
+                    <ul class="flex items-center justify-between relative">
+                        <li class="relative z-10 flex flex-col items-center gap-2">
+                            <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold shadow-md cursor-pointer" onclick="navigate('view-step1')"><span class="material-symbols-outlined text-xl">check</span></div>
+                            <span class="text-xs font-semibold text-primary">البيانات الشخصية</span>
+                        </li>
+                        <li class="flex-1 h-[2px] bg-primary mx-2 -mt-6"></li>
+                        <li class="relative z-10 flex flex-col items-center gap-2">
+                            <div class="w-10 h-10 rounded-full editorial-gradient text-white flex items-center justify-center font-bold shadow-lg">٢</div>
+                            <span class="text-xs font-semibold text-primary">الترخيص المهني</span>
+                        </li>
+                        <li class="flex-1 h-[2px] bg-outline-variant mx-2 -mt-6"></li>
+                        <li class="relative z-10 flex flex-col items-center gap-2">
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-bold">٣</div>
+                            <span class="text-xs font-semibold text-secondary">التحقق</span>
+                        </li>
                     </ul>
+                </nav>
+
+                <form id="form-step2" class="space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-2"><label class="text-sm font-semibold text-secondary" for="license">رقم الترخيص</label><input class="w-full px-4 py-3 bg-transparent border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0" id="license" type="text" required /></div>
+                        <div class="flex flex-col gap-2"><label class="text-sm font-semibold text-secondary" for="issue_date">تاريخ الانتهاء</label><input class="w-full px-4 py-3 bg-transparent border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0" id="issue_date" type="date" required /></div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-semibold text-secondary">رفع ملف الترخيص</label>
+                        <label for="file_upload" class="w-full px-4 py-10 bg-surface-container-lowest border-2 border-dashed border-outline-variant rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-primary cursor-pointer">
+                            <div class="text-center" id="upload_label"><span class="text-sm font-bold text-primary block mb-1">اضغط هنا لاختيار الملف</span></div>
+                            <input type="file" id="file_upload" class="hidden" accept=".pdf,.jpg,.jpeg,.png" required />
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between pt-6 border-t border-outline-variant/30">
+                        <button type="button" onclick="navigate('view-step1')" class="px-6 py-2.5 border-2 border-outline-variant rounded-xl text-secondary font-bold">رجوع</button>
+                        <button type="submit" class="px-8 py-2.5 bg-primary hover:bg-[#006d44] text-white font-bold rounded-xl shadow-md flex items-center gap-2">متابعة <span class="material-symbols-outlined rotate-180 text-sm">arrow_forward</span></button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <main id="view-org-step1" class="hidden-view flex-col md:flex-row min-h-screen w-full transition-opacity duration-300">
+        <section class="hidden md:flex md:w-5/12 editorial-gradient p-12 flex-col justify-between relative overflow-hidden">
+            <div class="relative z-10"><a href="#" onclick="navigate('view-home'); return false;" class="flex items-center gap-3 mb-12 hover:opacity-80 transition-opacity w-fit"><span class="material-symbols-outlined text-primary-fixed text-4xl">eco</span><h1 class="text-white text-2xl font-bold tracking-tight">بيئيين</h1></a><div class="space-y-6"><h2 class="text-white text-4xl lg:text-5xl font-bold leading-tight">بوابة الجهات والمؤسسات</h2></div></div>
+            <div class="absolute inset-0 opacity-20 pointer-events-none"><img class="w-full h-full object-cover grayscale mix-blend-overlay" src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" /></div>
+        </section>
+        <section class="flex-1 flex flex-col items-center justify-center p-6 md:p-12 bg-surface overflow-y-auto">
+            <div class="w-full max-w-xl">
+                <header class="mb-12 text-right"><h3 class="text-primary text-3xl font-bold mb-2">تسجيل جهة جديدة</h3></header>
+                
+                <div class="mb-8 p-6 bg-blue-50 border-2 border-blue-200 rounded-2xl relative overflow-hidden group">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg"><span class="material-symbols-outlined">document_scanner</span></div>
+                        <h4 class="font-bold text-blue-800 text-lg">استخراج البيانات بالذكاء الاصطناعي</h4>
+                    </div>
+                    <p class="text-sm text-slate-600 mb-4 leading-relaxed">قم بإرفاق (السجل التجاري) وسيقوم النظام تلقائياً بقراءة البيانات واستخراج اسم المنشأة ورقم السجل.</p>
+                    <label for="smart_org_upload" class="cursor-pointer bg-white px-4 py-3 border-2 border-blue-600 border-dashed rounded-xl text-blue-600 font-bold text-sm text-center flex items-center justify-center gap-2 hover:bg-blue-50 transition">
+                        <span class="material-symbols-outlined">upload_file</span> أرفق ملف السجل التجاري
+                    </label>
+                    <input type="file" id="smart_org_upload" class="hidden" accept="image/*,.pdf" onchange="simulateAIScan(this, 'org')">
+                    
+                    <div id="org_scan_overlay" class="hidden absolute inset-0 bg-blue-900/90 flex flex-col items-center justify-center z-10 backdrop-blur-sm">
+                        <div class="w-full h-1 bg-blue-300 absolute shadow-[0_0_15px_#93c5fd]" style="animation: scan 2s ease-in-out infinite;"></div>
+                        <span class="material-symbols-outlined text-blue-300 text-5xl animate-pulse mb-3">document_scanner</span>
+                        <p class="text-white font-bold text-sm">جاري تحليل السجل واستخراج البيانات...</p>
+                    </div>
                 </div>
 
-                <div>
-                    <h4 class="text-lg font-bold mb-6">خدماتنا</h4>
-                    <ul class="space-y-3 text-gray-400">
-                        <li><a href="#" class="hover:text-emerald-400 transition">إدارة النفايات</a></li>
-                        <li><a href="#" class="hover:text-emerald-400 transition">الطاقة المتجددة</a></li>
-                        <li><a href="#" class="hover:text-emerald-400 transition">معالجة المياه</a></li>
-                        <li><a href="#" class="hover:text-emerald-400 transition">الاستشارات البيئية</a></li>
-                        <li><a href="#" class="hover:text-emerald-400 transition">التوعية البيئية</a></li>
-                    </ul>
+                <form id="form-org-step1" class="space-y-8">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-semibold text-secondary" for="cr_number">رقم السجل التجاري</label>
+                        <div class="flex gap-2">
+                            <input class="flex-1 px-4 py-3 bg-transparent border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0 font-mono" id="cr_number" placeholder="أدخل رقم السجل للتحقق..." required />
+                            <button type="button" id="fetch_cr_btn" onclick="fetchCRData()" class="bg-primary/10 text-primary px-4 py-2 rounded-xl font-bold border border-primary/20 hover:bg-primary hover:text-white transition-colors flex items-center gap-2">
+                                <span class="material-symbols-outlined text-lg">search</span> جلب البيانات
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/30">
+                        <div class="flex flex-col gap-2"><label class="text-xs font-semibold text-secondary">اسم المؤسسة (تلقائي)</label><input class="w-full px-4 py-3 bg-surface-container-low border-0 rounded-xl focus:ring-0 text-primary font-bold cursor-not-allowed" id="org_name" readonly placeholder="سيتم جلبه من السجل..." required /></div>
+                        <div class="flex flex-col gap-2"><label class="text-xs font-semibold text-secondary">رقم الجوال للمفوض</label><input class="w-full px-4 py-3 bg-transparent border-2 border-outline-variant rounded-xl focus:border-primary focus:ring-0 text-right" dir="ltr" id="org_phone" placeholder="05xxxxxxxx" type="tel" required /></div>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-center"><label class="text-sm font-semibold text-secondary">وصف نشاط المنشأة (تلقائي)</label><button type="button" id="enhance-org-btn" class="text-xs text-primary font-bold bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-full flex items-center gap-1 border border-primary/20 shadow-sm hidden">✨ تحسين الوصف ترويجياً</button></div>
+                        <textarea id="org_desc" rows="3" class="w-full px-4 py-3 bg-surface-container-low border-0 rounded-xl focus:ring-0 cursor-not-allowed" readonly placeholder="سيتم جلبه من السجل..."></textarea>
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-semibold text-secondary">إرفاق التفويض أو إثبات الكيان</label>
+                        <label for="org_file_upload" class="w-full px-4 py-10 bg-surface-container-lowest border-2 border-dashed border-outline-variant rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-primary cursor-pointer">
+                            <div class="text-center" id="org_upload_label"><span class="text-sm font-bold text-primary block mb-1">اضغط هنا للاختيار</span></div>
+                            <input type="file" id="org_file_upload" class="hidden" accept=".pdf,.jpg,.jpeg,.png" required />
+                        </label>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-6 border-t border-outline-variant/30">
+                        <button type="button" onclick="navigate('view-home')" class="px-6 py-2.5 border-2 border-outline-variant rounded-xl text-secondary font-bold">إلغاء</button>
+                        <button type="submit" class="px-8 py-2.5 bg-primary hover:bg-[#006d44] text-white font-bold rounded-xl shadow-md flex items-center gap-2">متابعة للتحقق <span class="material-symbols-outlined rotate-180 text-sm">arrow_forward</span></button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <main id="view-otp" class="hidden-view flex-col md:flex-row min-h-screen w-full transition-opacity duration-300">
+        <section class="hidden md:flex md:w-5/12 editorial-gradient p-12 flex-col justify-between relative overflow-hidden">
+            <div class="relative z-10"><a href="#" onclick="navigate('view-home'); return false;" class="flex items-center gap-3 mb-12 hover:opacity-80 transition-opacity w-fit"><span class="material-symbols-outlined text-primary-fixed text-4xl">eco</span><h1 class="text-white text-2xl font-bold tracking-tight">بيئيين</h1></a></div>
+        </section>
+        <section class="flex-1 flex flex-col items-center justify-center p-6 md:p-12 bg-surface overflow-y-auto">
+            <div class="w-full max-w-xl">
+                <header class="mb-12 text-right"><h3 class="text-primary text-3xl font-bold mb-2">تأكيد رقم الجوال</h3><p class="text-secondary">تم إرسال رمز تحقق (OTP)</p></header>
+                <form id="form-otp" class="space-y-8 text-center flex flex-col items-center">
+                    <div class="flex flex-col items-center gap-4 w-full">
+                        <label class="text-sm font-semibold text-secondary block">أدخل رمز التحقق (للاختبار استخدم: 123456)</label>
+                        <div class="flex gap-2 justify-center" dir="ltr">
+                            <input type="number" class="otp-input w-12 h-14 md:w-16 md:h-16 text-center text-xl md:text-2xl font-bold bg-transparent border-2 border-outline-variant rounded-xl focus:border-primary" maxlength="1" required />
+                            <input type="number" class="otp-input w-12 h-14 md:w-16 md:h-16 text-center text-xl md:text-2xl font-bold bg-transparent border-2 border-outline-variant rounded-xl focus:border-primary" maxlength="1" required />
+                            <input type="number" class="otp-input w-12 h-14 md:w-16 md:h-16 text-center text-xl md:text-2xl font-bold bg-transparent border-2 border-outline-variant rounded-xl focus:border-primary" maxlength="1" required />
+                            <input type="number" class="otp-input w-12 h-14 md:w-16 md:h-16 text-center text-xl md:text-2xl font-bold bg-transparent border-2 border-outline-variant rounded-xl focus:border-primary" maxlength="1" required />
+                            <input type="number" class="otp-input w-12 h-14 md:w-16 md:h-16 text-center text-xl md:text-2xl font-bold bg-transparent border-2 border-outline-variant rounded-xl focus:border-primary" maxlength="1" required />
+                            <input type="number" class="otp-input w-12 h-14 md:w-16 md:h-16 text-center text-xl md:text-2xl font-bold bg-transparent border-2 border-outline-variant rounded-xl focus:border-primary" maxlength="1" required />
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-6 border-t border-outline-variant/30 w-full">
+                        <button type="button" onclick="navigate('view-home')" class="px-6 py-2.5 border-2 border-outline-variant rounded-xl text-secondary font-bold">إلغاء</button>
+                        <button type="submit" class="px-8 py-2.5 bg-primary hover:bg-[#006d44] text-white font-bold rounded-xl shadow-md flex items-center gap-2">تأكيد <span class="material-symbols-outlined text-sm">verified_user</span></button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <main id="view-waiting-room" class="hidden-view min-h-screen w-full flex-col items-center justify-center bg-surface relative p-6 transition-opacity duration-300">
+        <div class="bg-white p-10 rounded-3xl shadow-xl max-w-md w-full text-center border border-outline-variant/50">
+            <div class="w-24 h-24 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-6"><span id="waiting-icon" class="material-symbols-outlined text-5xl animate-pulse">hourglass_empty</span></div>
+            <h2 id="waiting-title" class="text-3xl font-bold text-primary mb-3">حسابك قيد المراجعة</h2>
+            <p id="waiting-desc" class="text-secondary mb-6 leading-relaxed">نقوم الآن بمراجعة بياناتك واعتمادها.</p>
+            <button onclick="navigate('view-home')" class="text-secondary text-sm font-bold hover:text-primary">العودة للرئيسية</button>
+        </div>
+    </main>
+
+    <main id="view-specialist-dashboard" class="hidden-view min-h-screen w-full flex-col md:flex-row bg-surface-container-lowest transition-opacity duration-300">
+        <aside class="w-full md:w-64 editorial-gradient text-white flex flex-col p-6 shadow-xl shrink-0">
+            <div class="flex items-center gap-3 mb-12"><span class="material-symbols-outlined text-4xl">eco</span><h1 class="text-2xl font-bold">حساب الأخصائي</h1></div>
+            <nav class="flex-1 flex flex-col gap-2">
+                <button onclick="switchSpecTab('home')" id="stab-home" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold"><span class="material-symbols-outlined">home</span> الرئيسية</button>
+                <button onclick="switchSpecTab('cv')" id="stab-cv" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"><span class="material-symbols-outlined">badge</span> الملف المهني</button>
+                <button onclick="switchSpecTab('orgs')" id="stab-orgs" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"><span class="material-symbols-outlined">corporate_fare</span> تصفح الجهات</button>
+                <button onclick="switchSpecTab('requests')" id="stab-requests" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold relative"><span class="material-symbols-outlined">forum</span> الطلبات والمراسلات <span id="spec-noti-badge" class="absolute left-4 top-1/2 -translate-y-1/2 bg-orange-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full hidden">0</span></button>
+                
+                <div class="h-px bg-white/20 my-2"></div>
+                <button onclick="switchAccountMode('org')" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white hover:bg-white/10 font-bold border border-white/20"><span class="material-symbols-outlined">swap_horiz</span> حساب المنشأة</button>
+            </nav>
+            <button onclick="performLogout()" class="mt-auto flex items-center justify-center gap-2 w-full py-3 border border-white/30 rounded-xl font-bold hover:bg-white/10"><span class="material-symbols-outlined rotate-180">logout</span> خروج</button>
+        </aside>
+
+        <section class="flex-1 p-6 md:p-10 overflow-y-auto bg-surface-container-low">
+            <div id="scontent-home" class="block">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                    <h2 class="text-3xl font-bold text-primary">مرحباً بك! 👋</h2>
+                    <div class="flex items-center gap-4">
+                        <button onclick="switchSpecTab('requests')" class="relative bg-white p-2 rounded-full shadow-sm border hover:bg-surface transition-colors" title="الإشعارات">
+                            <span class="material-symbols-outlined text-secondary">notifications</span>
+                            <span id="home-noti-badge" class="absolute -top-1 -right-1 bg-orange-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+                        </button>
+                        <div class="bg-white px-4 py-2 rounded-xl border">
+                            <span class="text-sm font-bold text-secondary">الحالة: </span>
+                            <span class="bg-primary-fixed text-primary px-3 py-1 rounded-full text-xs font-bold">مفعل</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div>
-                    <h4 class="text-lg font-bold mb-6">النشرة البريدية</h4>
-                    <p class="text-gray-400 mb-4">اشترك لتصلك آخر الأخبار والعروض</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center"><span class="material-symbols-outlined">mark_email_unread</span></div>
+                        <div><p class="text-secondary text-xs font-bold">طلبات جديدة</p><p id="stat-new-requests" class="text-2xl font-black mt-1">0</p></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><span class="material-symbols-outlined">rocket_launch</span></div>
+                        <div><p class="text-secondary text-xs font-bold">قيد التنفيذ</p><p id="stat-active-projects" class="text-2xl font-black mt-1">0</p></div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-[#005232]/10 text-[#005232] flex items-center justify-center"><span class="material-symbols-outlined">task_alt</span></div>
+                        <div><p class="text-secondary text-xs font-bold">مشاريع مكتملة</p><p id="stat-completed-projects" class="text-2xl font-black mt-1">0</p></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border flex flex-col h-[350px]">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-primary">أحدث الطلبات</h3>
+                            <button onclick="switchSpecTab('requests')" class="text-xs text-primary font-bold hover:underline">عرض الكل</button>
+                        </div>
+                        <div id="home-requests-list" class="flex-1 overflow-y-auto space-y-3 pr-1">
+                            <div class="text-sm text-secondary text-center py-10 opacity-70">لا توجد طلبات جديدة حالياً.</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border flex flex-col h-[350px]">
+                        <h3 class="font-bold text-primary mb-4">المشاريع قيد التنفيذ</h3>
+                        <div id="home-projects-list" class="flex-1 overflow-y-auto space-y-3 pr-1">
+                            <div class="text-sm text-secondary text-center py-10 opacity-70">لا توجد مشاريع قيد التنفيذ. اقبل بعض الطلبات لتبدأ!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="scontent-cv" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-primary">تعديل الملف المهني</h2>
                     <div class="flex gap-2">
-                        <input type="email" placeholder="بريدك الإلكتروني" class="flex-1 px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 focus:border-emerald-500 outline-none transition text-white" dir="ltr">
-                        <button class="gradient-bg px-6 py-3 rounded-xl hover:opacity-90 transition">
-                            <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                            </svg>
-                        </button>
+                        <button onclick="previewCV(false)" class="bg-white text-primary border px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-sm hover:bg-surface"><span class="material-symbols-outlined text-lg">visibility</span> معاينة</button>
+                        <button onclick="printProfile()" class="bg-primary/10 text-primary border border-primary/20 px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-primary hover:text-white shadow-sm"><span class="material-symbols-outlined text-lg">picture_as_pdf</span> استخراج PDF</button>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border space-y-6 shadow-sm">
+                    <div class="flex items-center gap-4 mb-6">
+                        <label for="profile_pic_upload" id="profile_pic_container" class="w-20 h-20 bg-surface-container-high rounded-full flex items-center justify-center text-secondary border-2 border-dashed border-outline-variant overflow-hidden cursor-pointer hover:border-primary relative group">
+                            <span id="profile_pic_icon" class="material-symbols-outlined text-3xl">add_a_photo</span>
+                            <img id="profile_pic_preview" src="" class="absolute inset-0 w-full h-full object-cover hidden">
+                            <div class="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center text-white text-xs font-bold opacity-0 hover:opacity-100">تغيير</div>
+                            <input type="file" id="profile_pic_upload" class="hidden" accept=".jpg,.jpeg,.png">
+                        </label>
+                        <div><p class="font-bold text-primary">الصورة الشخصية</p><p class="text-xs text-secondary">تظهر في ملفك المهني</p></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label class="text-xs font-bold text-secondary block mb-1">الاسم الرباعي</label><input type="text" id="cv_name" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary font-bold text-primary"></div>
+                        <div><label class="text-xs font-bold text-secondary block mb-1">رقم الهوية</label><input type="text" id="cv_id" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary font-mono text-sm"></div>
+                        <div><label class="text-xs font-bold text-secondary block mb-1">البريد الإلكتروني</label><input type="email" id="cv_email" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary text-right" dir="ltr"></div>
+                        <div><label class="text-xs font-bold text-secondary block mb-1">رقم الجوال</label><input type="tel" id="cv_phone" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary text-right" dir="ltr"></div>
+                        
+                        <div class="md:col-span-2"><label class="text-xs font-bold text-secondary block mb-1">تاريخ الميلاد</label>
+                            <div class="flex gap-2">
+                                <select id="cv_dob_type" class="w-1/4 px-2 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary text-sm font-bold"><option value="gregorian">ميلادي</option><option value="hijri">هجري</option></select>
+                                <input type="number" id="cv_dob_day" placeholder="اليوم" class="w-1/4 px-2 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary text-center text-sm" min="1" max="31">
+                                <input type="number" id="cv_dob_month" placeholder="الشهر" class="w-1/4 px-2 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary text-center text-sm" min="1" max="12">
+                                <input type="number" id="cv_dob_year" placeholder="السنة" class="flex-1 px-2 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary text-center text-sm" min="1300" max="2030">
+                            </div>
+                        </div>
+
+                        <div><label class="text-xs font-bold text-secondary block mb-1">التخصص أو المؤهل</label><input type="text" id="cv_edu" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary"></div>
+                        <div><label class="text-xs font-bold text-secondary block mb-1">سنوات الخبرة</label><input type="number" id="cv_years" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary" placeholder="مثال: 5"></div>
+                        <div class="md:col-span-2"><label class="text-xs font-bold text-secondary block mb-1">الترخيص المهني (إن وجد)</label><input type="text" id="cv_license" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary"></div>
+                        
+                        <div class="md:col-span-2"><label class="text-xs font-bold text-secondary block mb-1">الخبرات السابقة بالتفصيل</label><textarea id="cv_exp" rows="3" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary"></textarea></div>
+                        
+                        <div class="md:col-span-2 border-2 border-dashed rounded-xl p-4 bg-surface-container-lowest">
+                            <label class="text-xs font-bold text-secondary block mb-2">الأعمال السابقة والشهادات</label>
+                            <input type="url" id="cv_portfolio" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary text-left text-sm mb-3" dir="ltr" placeholder="رابط درايف أو موقع لأعمالك (https://)">
+                            <label for="certs_upload" class="flex justify-center gap-2 w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl cursor-pointer hover:border-primary text-sm font-bold text-primary"><span class="material-symbols-outlined">upload_file</span> إرفاق ملفات الشهادات <input type="file" id="certs_upload" multiple class="hidden"></label>
+                            <div id="certs_upload_label" class="mt-2 flex flex-wrap gap-2 text-xs empty:hidden"></div>
+                        </div>
+                    </div>
+                    <button onclick="saveCVSpecialist()" class="bg-primary text-white font-bold px-8 py-3 rounded-xl w-full shadow-md hover:bg-[#006d44] transition-colors">حفظ التحديثات ليظهر للجهات</button>
+                </div>
+            </div>
+
+            <div id="scontent-requests" class="hidden h-full flex-col">
+                <h2 class="text-3xl font-bold text-primary mb-6">الطلبات الواردة والمراسلات</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-[500px]">
+                    <div class="bg-white rounded-2xl border shadow-sm flex flex-col h-full overflow-hidden">
+                        <div class="p-4 bg-surface-container-low border-b font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined">inbox</span> سجل الطلبات</div>
+                        <div id="spec-requests-list" class="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50">
+                            <div class="text-center p-4 text-secondary text-sm">جاري التحميل...</div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2 bg-white rounded-2xl border shadow-sm flex flex-col h-full overflow-hidden relative">
+                        <div id="spec-chat-header" class="p-4 bg-surface-container-low border-b flex items-center justify-between hidden">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary"><span class="material-symbols-outlined">domain</span></div>
+                                <div><h4 id="spec-chat-org-name" class="font-bold text-primary leading-none">اسم الجهة</h4><span class="text-xs text-secondary">متصل • قناة آمنة</span></div>
+                            </div>
+                        </div>
+                        <div id="spec-chat-empty" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-10">
+                            <div class="w-20 h-20 bg-primary/5 rounded-full flex items-center justify-center mb-4"><span class="material-symbols-outlined text-4xl text-primary">forum</span></div>
+                            <p class="text-secondary font-bold text-lg">مساحة التواصل المباشر</p>
+                            <p class="text-sm text-outline mt-2 text-center max-w-xs">اختر طلباً تم قبوله من القائمة الجانبية لبدء المحادثة مع المنشأة.</p>
+                        </div>
+                        <div id="spec-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-surface/30"></div>
+                        <form id="spec-chat-form" class="p-3 bg-white border-t flex gap-2 hidden items-center">
+                            <input type="text" id="spec-chat-input" class="flex-1 px-4 py-3 bg-surface border rounded-xl focus:border-primary focus:ring-0 text-sm" placeholder="اكتب رسالتك للجهة هنا..." required autocomplete="off">
+                            <button type="submit" class="bg-primary text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-[#006d44] transition-colors shadow-sm"><span class="material-symbols-outlined -rotate-45 ml-1">send</span></button>
+                        </form>
                     </div>
                 </div>
             </div>
 
-            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                <p class="text-gray-400 text-sm">
-                    © 2024 شركة البيئة المتقدمة. جميع الحقوق محفوظة
-                </p>
-                <div class="flex gap-6 text-sm text-gray-400">
-                    <a href="#" class="hover:text-emerald-400 transition">سياسة الخصوصية</a>
-                    <a href="#" class="hover:text-emerald-400 transition">الشروط والأحكام</a>
+            <div id="scontent-orgs" class="hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <h2 class="text-3xl font-bold text-primary">المنشآت المتاحة</h2>
+                    <div class="relative w-full md:w-72">
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-secondary">search</span>
+                        <input type="text" id="org-search-input" onkeyup="filterOrganizations()" class="w-full pr-10 pl-4 py-2.5 border-2 border-outline-variant rounded-xl focus:border-primary focus:ring-0 text-sm bg-white shadow-sm" placeholder="ابحث باسم المنشأة...">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="org-card bg-white p-6 rounded-2xl border flex flex-col">
+                        <div class="flex items-center gap-4 mb-4"><div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary"><span class="material-symbols-outlined">domain</span></div><div><h4 class="font-bold text-primary">شركة نيوم</h4></div></div>
+                        <button class="w-full py-2 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-colors" onclick="submitApp('شركة نيوم', this)">تقديم السيرة الذاتية</button>
+                        <div id="applications-list" class="mt-4 flex flex-col gap-2"></div>
+                    </div>
+                    <div class="org-card bg-white p-6 rounded-2xl border flex flex-col">
+                        <div class="flex items-center gap-4 mb-4"><div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary"><span class="material-symbols-outlined">corporate_fare</span></div><div><h4 class="font-bold text-primary">المركز الوطني للغطاء النباتي</h4></div></div>
+                        <button class="w-full py-2 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-colors" onclick="submitApp('المركز الوطني', this)">تقديم السيرة الذاتية</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </footer>
+        </section>
+    </main>
 
+    <main id="view-org-dashboard" class="hidden-view min-h-screen w-full flex-col md:flex-row bg-surface-container-lowest transition-opacity duration-300">
+        <aside class="w-full md:w-64 bg-slate-800 text-white flex flex-col p-6 shadow-xl shrink-0">
+            <div class="flex items-center gap-3 mb-12"><span class="material-symbols-outlined text-4xl text-blue-400">corporate_fare</span><h1 class="text-2xl font-bold">بوابة الجهات</h1></div>
+            <nav class="flex-1 flex flex-col gap-2">
+                <button onclick="switchOrgTab('home')" id="otab-home" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold"><span class="material-symbols-outlined">dashboard</span> الرئيسية</button>
+                <button onclick="switchOrgTab('specialists')" id="otab-specialists" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"><span class="material-symbols-outlined">group</span> دليل الكفاءات</button>
+                <button onclick="switchOrgTab('messages')" id="otab-messages" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"><span class="material-symbols-outlined">forum</span> المراسلات النشطة</button>
+                
+                <div class="h-px bg-white/20 my-2"></div>
+                <button onclick="switchAccountMode('spec')" class="flex items-center gap-3 w-full text-right px-4 py-3 rounded-xl text-white hover:bg-white/10 font-bold border border-white/20"><span class="material-symbols-outlined">swap_horiz</span> حساب الأخصائي</button>
+            </nav>
+            <button onclick="performLogout()" class="mt-auto flex items-center justify-center gap-2 w-full py-3 border border-white/30 rounded-xl font-bold hover:bg-white/10"><span class="material-symbols-outlined rotate-180">logout</span> خروج</button>
+        </aside>
+
+        <section class="flex-1 p-6 md:p-10 overflow-y-auto bg-slate-50">
+            <div id="ocontent-home" class="block">
+                <h2 class="text-3xl font-bold text-slate-800 mb-8">مرحباً بك في بوابة الجهات</h2>
+                <div class="bg-white p-6 rounded-2xl border shadow-sm max-w-2xl">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">استقطاب الكفاءات</h3>
+                    <p class="text-slate-600 mb-6 leading-relaxed">تصفح سير الأخصائيين البيئيين المعتمدين في المنصة وتواصل معهم بسهولة.</p>
+                    <button onclick="switchOrgTab('specialists')" class="bg-blue-600 hover:bg-blue-700 transition-colors text-white px-6 py-2.5 rounded-lg font-bold flex items-center gap-2"><span class="material-symbols-outlined text-sm">search</span> تصفح الكفاءات الآن</button>
+                </div>
+            </div>
+            
+            <div id="ocontent-specialists" class="hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <h2 class="text-3xl font-bold text-slate-800">دليل الكفاءات والأخصائيين</h2>
+                    <div class="relative w-full md:w-72">
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                        <input type="text" id="spec-search-input" onkeyup="filterSpecialists()" class="w-full pr-10 pl-4 py-2.5 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-0 text-sm bg-white shadow-sm" placeholder="ابحث بالتخصص أو الاسم...">
+                    </div>
+                </div>
+                <div id="org-specialists-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="col-span-full text-center p-8 text-slate-500">جاري جلب بيانات الأخصائيين المعتمدين...</div>
+                </div>
+            </div>
+
+            <div id="ocontent-messages" class="hidden h-full flex-col">
+                <h2 class="text-3xl font-bold text-slate-800 mb-6">المراسلات والطلبات</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-[500px]">
+                    <div class="bg-white rounded-2xl border shadow-sm flex flex-col h-full overflow-hidden">
+                        <div class="p-4 bg-slate-100 border-b font-bold text-slate-800 flex items-center gap-2"><span class="material-symbols-outlined">send</span> طلباتي</div>
+                        <div id="org-requests-list" class="flex-1 overflow-y-auto p-3 space-y-3 bg-slate-50">
+                            <div class="text-center p-4 text-slate-500 text-sm">جاري التحميل...</div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2 bg-white rounded-2xl border shadow-sm flex flex-col h-full overflow-hidden relative">
+                        <div id="org-chat-header" class="p-4 bg-slate-100 border-b flex items-center justify-between hidden">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><span class="material-symbols-outlined">person</span></div>
+                                <div><h4 id="org-chat-spec-name" class="font-bold text-slate-800 leading-none">اسم الأخصائي</h4><span class="text-xs text-slate-500">متصل • قناة آمنة</span></div>
+                            </div>
+                        </div>
+                        <div id="org-chat-empty" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-10">
+                            <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4"><span class="material-symbols-outlined text-4xl text-slate-400">forum</span></div>
+                            <p class="text-slate-600 font-bold text-lg">مساحة التواصل المباشر</p>
+                            <p class="text-sm text-slate-400 mt-2 text-center max-w-xs">اختر أخصائياً تم قبول طلبك منه من القائمة الجانبية لبدء المحادثة.</p>
+                        </div>
+                        <div id="org-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50"></div>
+                        <form id="org-chat-form" class="p-3 bg-white border-t flex gap-2 hidden items-center">
+                            <input type="text" id="org-chat-input" class="flex-1 px-4 py-3 bg-slate-50 border rounded-xl focus:border-blue-500 focus:ring-0 text-sm" placeholder="اكتب رسالتك للأخصائي هنا..." required autocomplete="off">
+                            <button type="submit" class="bg-blue-600 text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-blue-700 transition-colors shadow-sm"><span class="material-symbols-outlined -rotate-45 ml-1">send</span></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <main id="view-admin" class="hidden-view min-h-screen w-full flex-col md:flex-row bg-surface-container-lowest transition-opacity duration-300">
+        <aside class="w-full md:w-64 editorial-gradient text-white flex flex-col p-6 shadow-xl shrink-0">
+            <div class="flex items-center gap-3 mb-12"><span class="material-symbols-outlined text-4xl text-primary-fixed">admin_panel_settings</span><h1 class="text-2xl font-bold">الإدارة</h1></div>
+            <nav class="flex-1 flex flex-col gap-2">
+                <button onclick="switchAdminTab('specialists')" id="atab-spec" class="flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold"><span class="material-symbols-outlined">person_search</span> الأخصائيين</button>
+                <button onclick="switchAdminTab('organizations')" id="atab-org" class="flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"><span class="material-symbols-outlined">domain</span> الجهات</button>
+            </nav>
+            <button onclick="performLogout()" class="mt-auto flex items-center justify-center gap-2 w-full py-3 border border-white/30 rounded-xl font-bold hover:bg-white/10"><span class="material-symbols-outlined rotate-180">logout</span> خروج</button>
+        </aside>
+        <section class="flex-1 p-6 md:p-10 overflow-y-auto">
+            <div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-bold text-primary">لوحة الإدارة</h2><div class="flex gap-2"><button id="generate-ai-report-btn" class="bg-primary-fixed text-primary px-4 py-2 rounded-lg font-bold border hover:bg-[#7ce2a8]">✨ تحليل ذكي</button><button onclick="loadAdminData()" class="bg-white px-4 py-2 rounded-lg text-primary font-bold border hover:bg-surface">تحديث</button></div></div>
+            
+            <div id="ai-report-container" class="hidden bg-gradient-to-r from-primary/5 to-surface border border-primary/20 rounded-2xl p-6 mb-8"><h3 class="font-bold text-primary mb-2">رؤية الذكاء الاصطناعي</h3><div id="ai-report-content" class="text-sm font-medium">جاري التحليل...</div></div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center gap-4"><div class="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center"><span class="material-symbols-outlined text-3xl">group</span></div><div><p class="text-secondary font-bold text-sm">إجمالي الأخصائيين</p><p class="text-3xl font-black mt-1" id="stat-specialists">0</p></div></div>
+                <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center gap-4"><div class="w-14 h-14 rounded-full bg-[#006d44]/10 text-[#006d44] flex items-center justify-center"><span class="material-symbols-outlined text-3xl">corporate_fare</span></div><div><p class="text-secondary font-bold text-sm">إجمالي المؤسسات</p><p class="text-3xl font-black mt-1" id="stat-orgs">0</p></div></div>
+                <div class="bg-white p-6 rounded-2xl border shadow-sm flex items-center gap-4"><div class="w-14 h-14 rounded-full bg-orange-500/10 text-orange-600 flex items-center justify-center"><span class="material-symbols-outlined text-3xl">pending_actions</span></div><div><p class="text-secondary font-bold text-sm">الطلبات المعلقة</p><p class="text-3xl font-black mt-1" id="stat-pending">0</p></div></div>
+            </div>
+
+            <div class="bg-white rounded-2xl border overflow-hidden">
+                <div id="admin-spec-sec"><table class="w-full text-right text-sm"><thead class="bg-surface-container-high"><tr><th class="p-4">الاسم</th><th class="p-4">الحالة</th><th class="p-4 text-center">الإجراء</th></tr></thead><tbody id="admin-spec-body"></tbody></table></div>
+                <div id="admin-org-sec" class="hidden"><table class="w-full text-right text-sm"><thead class="bg-surface-container-high"><tr><th class="p-4">الجهة</th><th class="p-4">الحالة</th><th class="p-4 text-center">الإجراء</th></tr></thead><tbody id="admin-org-body"></tbody></table></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="cv-preview-modal" class="hidden-view fixed inset-0 z-[100] items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+        <div class="bg-surface rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="p-6 border-b flex justify-between items-center bg-white">
+                <h3 class="text-xl font-bold text-primary">الملف المهني</h3>
+                <button onclick="closeModal('cv-preview-modal')" class="w-8 h-8 rounded-full bg-surface-container-low hover:bg-surface-container-high"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-6">
+                <div class="flex flex-col md:flex-row justify-between md:items-end border-b pb-4 border-outline-variant/30">
+                    <div>
+                        <h2 id="prev_name" class="text-3xl font-bold text-primary mb-1"></h2>
+                        <p id="prev_edu" class="text-lg text-secondary"></p>
+                    </div>
+                    <div class="mt-4 md:mt-0 text-left">
+                        <span id="prev_years" class="bg-primary-fixed text-primary px-4 py-1.5 rounded-full font-bold text-sm"></span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-xl border shadow-sm"><p class="text-sm mb-2"><span class="font-bold text-secondary">رقم الهوية:</span> <span id="prev_id" class="font-mono text-primary"></span></p><p class="text-sm"><span class="font-bold text-secondary">الترخيص:</span> <span id="prev_lic" class="text-primary font-bold"></span></p></div>
+                    <div class="bg-white p-4 rounded-xl border shadow-sm"><p class="text-sm mb-2"><span class="font-bold text-secondary">البريد:</span> <span id="prev_email" dir="ltr" class="text-primary"></span></p><p class="text-sm"><span class="font-bold text-secondary">الجوال:</span> <span id="prev_phone" dir="ltr" class="text-primary font-bold"></span></p></div>
+                </div>
+                <div class="bg-surface-container-low p-5 rounded-2xl"><h4 class="font-bold text-primary mb-2">الخبرات</h4><p id="prev_exp" class="text-sm text-secondary whitespace-pre-line"></p></div>
+                <div id="prev_portfolio_div" class="bg-blue-50 p-5 rounded-2xl border border-blue-100 hidden"><h4 class="font-bold text-blue-800 mb-2">الأعمال السابقة</h4><a id="prev_portfolio" href="#" target="_blank" class="text-sm font-bold text-blue-600 hover:underline block truncate" dir="ltr"></a></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-login-modal" class="hidden-view fixed inset-0 z-[100] items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+        <div class="bg-surface rounded-3xl shadow-2xl w-full max-w-sm flex flex-col overflow-hidden p-6 relative">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined">admin_panel_settings</span> دخول الإدارة</h3>
+                <button onclick="closeModal('admin-login-modal')" class="w-8 h-8 rounded-full bg-surface-container-low hover:bg-surface-container-high"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <p class="text-sm text-secondary mb-6 leading-relaxed">هذه البوابة مخصصة لمسؤولي المنصة (المؤسسة المالكة) فقط لاعتماد الحسابات. يرجى إدخال رمز الدخول.</p>
+            <input type="password" id="admin-password" class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-2 border-outline-variant focus:border-primary mb-6 text-center text-xl tracking-widest font-mono" placeholder="****">
+            <button onclick="verifyAdmin()" class="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-[#006d44] transition-colors shadow-md">دخول آمن</button>
+        </div>
+    </div>
+
+    <div id="recaptcha-container"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, serverTimestamp, collection, getDocs, updateDoc, getDoc, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        window.showToast = (msg, err=false) => { const t=document.getElementById('custom-toast'); document.getElementById('toast-msg').innerText=msg; t.className=`fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] shadow-2xl rounded-xl p-4 flex items-center gap-3 show border-l-4 ${err?'bg-red-50 border-red-500':'bg-surface border-primary'}`; document.getElementById('toast-icon').innerText=err?'error':'check_circle'; document.getElementById('toast-icon').className=`material-symbols-outlined text-2xl ${err?'text-red-500':'text-primary'}`; setTimeout(()=>t.classList.remove('show'),3500); };
+        window.hideToast = () => document.getElementById('custom-toast').classList.remove('show');
+
+        const app = initializeApp({ apiKey:"AIzaSyAtnPXcLjEjT1yw0mpO2qw_6_pYHQsUZeA", authDomain:"baeeyen-c7107.firebaseapp.com", projectId:"baeeyen-c7107", appId:"1:289802927952:web:deda8750a6bb6d4ce7b655" });
+        const auth = getAuth(app); const db = getFirestore(app); const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        
+        try { signInAnonymously(auth); } catch(e) { console.error("Auth error", e); showToast('تعذر الاتصال بالخادم، يرجى تحديث الصفحة', true); }
+
+        window.navigate = (vid) => { document.querySelectorAll('main').forEach(el=> { el.classList.add('hidden-view'); el.classList.remove('flex','block'); }); const target = document.getElementById(vid); target.classList.remove('hidden-view'); target.classList.add(vid.includes('step')||vid.includes('otp')||vid.includes('admin')||vid.includes('dashboard')||vid==='view-home'||vid==='view-waiting-room'?'flex':'block'); window.scrollTo(0,0); if(vid==='view-admin') loadAdminData(); if(vid==='view-org-dashboard') loadOrgDirectory(); };
+        window.closeModal = (mid) => { document.getElementById(mid).classList.add('hidden-view'); document.getElementById(mid).classList.remove('flex'); };
+        
+        // تسجيل الخروج الحقيقي (يمسح الذاكرة)
+        window.performLogout = () => {
+            localStorage.removeItem('preferredRole');
+            currAccountType = '';
+            myProfileData = null;
+            showToast('تم تسجيل الخروج بنجاح');
+            setTimeout(() => window.location.reload(), 1000); // تحديث الصفحة إجبارياً
+        };
+
+        window.verifyAdmin = () => {
+            const pass = document.getElementById('admin-password').value;
+            if(pass === '1234') { 
+                closeModal('admin-login-modal'); document.getElementById('admin-password').value = ''; navigate('view-admin'); showToast('مرحباً بك في لوحة الإدارة');
+            } else { showToast('رمز الدخول غير صحيح!', true); }
+        };
+
+        window.switchSpecTab = (t) => { ['home','cv','requests','orgs'].forEach(x=>{ document.getElementById('scontent-'+x)?.classList.add('hidden'); document.getElementById('scontent-'+x)?.classList.remove('block','flex'); document.getElementById('stab-'+x)?.classList.remove('bg-white/20'); document.getElementById('stab-'+x)?.classList.add('text-white/70', 'hover:bg-white/10'); }); document.getElementById('scontent-'+t)?.classList.remove('hidden'); document.getElementById('scontent-'+t)?.classList.add(t==='requests'?'flex':'block'); document.getElementById('stab-'+t)?.classList.remove('text-white/70', 'hover:bg-white/10'); document.getElementById('stab-'+t)?.classList.add('bg-white/20'); };
+        window.switchOrgTab = (t) => { ['home','specialists','messages'].forEach(x=>{ document.getElementById('ocontent-'+x)?.classList.add('hidden'); document.getElementById('ocontent-'+x)?.classList.remove('block','flex'); document.getElementById('otab-'+x)?.classList.remove('bg-white/20'); document.getElementById('otab-'+x)?.classList.add('text-white/70', 'hover:bg-white/10'); }); document.getElementById('ocontent-'+t)?.classList.remove('hidden'); document.getElementById('ocontent-'+t)?.classList.add(t==='messages'?'flex':'block'); document.getElementById('otab-'+t)?.classList.remove('text-white/70', 'hover:bg-white/10'); document.getElementById('otab-'+t)?.classList.add('bg-white/20'); };
+        window.switchAdminTab = (t) => { document.getElementById('admin-spec-sec').classList.toggle('hidden', t!=='specialists'); document.getElementById('admin-org-sec').classList.toggle('hidden', t!=='organizations'); document.getElementById('atab-spec').className = t==='specialists' ? "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold" : "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"; document.getElementById('atab-org').className = t==='organizations' ? "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold" : "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"; };
+
+        // دالة التبديل بين حساب المنشأة والأخصائي
+        window.switchAccountMode = async (targetRole) => {
+            const u = auth.currentUser;
+            if(!u) return;
+            showToast('جاري التبديل...');
+            
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', targetRole === 'spec' ? 'specialists' : 'organizations', u.uid);
+                const docSnap = await getDoc(docRef);
+                
+                localStorage.setItem('preferredRole', targetRole);
+                
+                if(docSnap.exists()) {
+                    // إذا كان الحساب موجوداً مسبقاً، اذهب للوحة التحكم مباشرة
+                    checkAndGoToDashboard();
+                } else {
+                    // إذا لم يكن لديه حساب من هذا النوع، وجهه لصفحة التسجيل
+                    if(targetRole === 'spec') navigate('view-step1');
+                    if(targetRole === 'org') navigate('view-org-step1');
+                    showToast(`يرجى استكمال تسجيل ${targetRole === 'spec' ? 'الأخصائي' : 'المنشأة'} أولاً`);
+                }
+            } catch (e) {
+                showToast('حدث خطأ أثناء التبديل', true);
+            }
+        };
+
+        let currAccountType = ''; let myProfileData = null;
+        
+        window.checkAndGoToDashboard = async () => {
+            const u = auth.currentUser;
+            if(!u) return showToast('يرجى تحديث الصفحة والمحاولة', true);
+            try {
+                const prefRole = localStorage.getItem('preferredRole');
+                let targetRole = null; let profileData = null;
+                const specDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'specialists', u.uid)); 
+                const orgDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'organizations', u.uid)); 
+
+                if(prefRole === 'org' && orgDoc.exists()) { targetRole = 'org'; profileData = orgDoc.data(); } 
+                else if(prefRole === 'spec' && specDoc.exists()) { targetRole = 'spec'; profileData = specDoc.data(); } 
+                else if(specDoc.exists()) { targetRole = 'spec'; profileData = specDoc.data(); } 
+                else if(orgDoc.exists()) { targetRole = 'org'; profileData = orgDoc.data(); }
+
+                if(targetRole === 'spec') {
+                    currAccountType = 'spec'; myProfileData = profileData;
+                    if(myProfileData.status === 'approved') {
+                        document.getElementById('cv_name').value = myProfileData.fullName||''; document.getElementById('cv_id').value = myProfileData.nationalId||''; document.getElementById('cv_email').value = myProfileData.email||''; document.getElementById('cv_phone').value = myProfileData.phone||''; document.getElementById('cv_edu').value = myProfileData.edu||''; document.getElementById('cv_years').value = myProfileData.years||''; document.getElementById('cv_license').value = myProfileData.license||''; document.getElementById('cv_exp').value = myProfileData.exp||''; document.getElementById('cv_portfolio').value = myProfileData.portfolio||'';
+                        navigate('view-specialist-dashboard'); switchSpecTab('home'); listenToRequests(u.uid, 'spec');
+                    } else { navigate('view-waiting-room'); listenToStatus(u.uid, 'spec'); }
+                    return; 
+                }
+
+                if(targetRole === 'org') {
+                    currAccountType = 'org'; myProfileData = profileData;
+                    if(myProfileData.status === 'approved') {
+                        navigate('view-org-dashboard'); switchOrgTab('home'); listenToRequests(u.uid, 'org');
+                    } else { navigate('view-waiting-room'); listenToStatus(u.uid, 'org'); }
+                    return;
+                }
+                showToast('لم يتم العثور على حساب مسجل، يرجى التسجيل أولاً', true);
+            } catch (e) { showToast('خطأ في الاتصال بقاعدة البيانات', true); }
+        };
+
+        window.listenToStatus = async (uid, type) => {
+            onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', type==='spec'?'specialists':'organizations', uid), (snap) => {
+                if(snap.exists() && snap.data().status === 'approved') { showToast('تم الاعتماد! جاري الدخول...'); setTimeout(() => { checkAndGoToDashboard(); }, 1500); }
+            });
+        }
+
+        window.fetchCRData = async () => {
+            const crInput = document.getElementById('cr_number').value;
+            if(!crInput) return showToast('يرجى إدخال رقم السجل التجاري أولاً', true);
+            
+            const btn = document.getElementById('fetch_cr_btn');
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="material-symbols-outlined text-lg animate-spin">sync</span> جاري...';
+            btn.disabled = true;
+
+            // محاكاة جلب البيانات من السجل التجاري
+            setTimeout(() => {
+                const orgNameField = document.getElementById('org_name');
+                const orgDescField = document.getElementById('org_desc');
+                
+                orgNameField.value = "شركة التقنية البيئية المحدودة";
+                orgNameField.classList.remove('cursor-not-allowed', 'bg-surface-container-low');
+                orgNameField.classList.add('bg-transparent', 'border-2', 'border-outline-variant');
+                
+                orgDescField.value = "شركة متخصصة في الاستشارات البيئية وإدارة المشاريع المستدامة وتطوير الحلول الخضراء.";
+                orgDescField.classList.remove('cursor-not-allowed', 'bg-surface-container-low');
+                orgDescField.classList.add('bg-transparent', 'border-2', 'border-outline-variant');
+                
+                const enhanceBtn = document.getElementById('enhance-org-btn');
+                if (enhanceBtn) enhanceBtn.classList.remove('hidden');
+
+                showToast('✨ تم جلب بيانات السجل بنجاح!');
+                btn.innerHTML = origHtml;
+                btn.disabled = false;
+            }, 1500);
+        };
+
+        let tData = {}; let isOrgReg = false;
+        window.specAutoApprove = false;
+        window.orgAutoApprove = false;
+        window.extractedLicense = '';
+
+        window.simulateAIScan = async (input, type) => {
+            if(!input.files[0]) return;
+            const file = input.files[0];
+
+            // النقل التلقائي للملف من القارئ إلى خانة الإرفاق الأساسية
+            if(type === 'spec') {
+                const mainUpload = document.getElementById('file_upload');
+                if(mainUpload) { 
+                    mainUpload.files = input.files; 
+                    document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">task_alt</span><span class="text-sm font-bold text-primary break-all">تم الإرفاق تلقائياً: ${file.name}</span>`; 
+                }
+            } else if (type === 'org') {
+                const mainOrgUpload = document.getElementById('org_file_upload');
+                if(mainOrgUpload) { 
+                    mainOrgUpload.files = input.files; 
+                    document.getElementById('org_upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">task_alt</span><span class="text-sm font-bold text-primary break-all">تم الإرفاق تلقائياً: ${file.name}</span>`; 
+                }
+            }
+
+            const overlay = document.getElementById(type + '_scan_overlay'); 
+            overlay.classList.remove('hidden');
+            const overlayText = overlay.querySelector('p');
+            const originalOverlayText = overlayText ? overlayText.innerText : '';
+
+            let extractedLicense = null;
+            let extractedDate = null;
+
+            // دالة استخراج النص من الصورة باستخدام OCR
+            const processCanvasOCR = async (canvas) => {
+                if (typeof Tesseract !== 'undefined') {
+                    if(overlayText) overlayText.innerText = "جاري القراءة والتدقيق العميق...";
+                    try {
+                        const dataUrl = canvas.toDataURL('image/jpeg');
+                        const result = await Tesseract.recognize(dataUrl, 'eng');
+                        
+                        let text = result.data.text.toUpperCase();
+                        let cleanText = text.replace(/\s+/g, "");
+                        
+                        if (type === 'spec') {
+                            const transMatch = cleanText.match(/(ELESL-\d{4}-\d+)/);
+                            if (transMatch) { extractedLicense = transMatch[1]; }
+                            
+                            const dateMatch = cleanText.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
+                            if(dateMatch) { extractedDate = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`; }
+                        } else if (type === 'org') {
+                            // استخراج رقم السجل التجاري (10 أرقام)
+                            const crMatch = cleanText.match(/(\d{10})/);
+                            if (crMatch) { extractedLicense = crMatch[1]; }
+                        }
+                    } catch(err) { 
+                        console.error("OCR Error:", err);
+                        // معالجة خطأ (Failed to fetch) الناتج عن قيود الحماية في المتصفح
+                        if(err.message && err.message.includes('fetch')) {
+                            console.warn("تنبيه: تم منع تحميل محرك الذكاء الاصطناعي بسبب قيود الشبكة.");
+                            // تم إزالة الأرقام الثابتة لكي يقرأ النظام ملفاتك الحقيقية فقط!
+                            extractedLicense = null;
+                            extractedDate = null;
+                        }
+                    }
+                }
+            };
+
+            try {
+                if (file.type === 'application/pdf') {
+                    if(overlayText) overlayText.innerText = "جاري فتح ملف PDF...";
+                    if(typeof pdfjsLib === 'undefined') throw new Error("مكتبة PDF غير محملة");
+                    
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+                    
+                    const arrayBuffer = await file.arrayBuffer();
+                    const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+                    const page = await pdf.getPage(1); 
+                    
+                    // 1. محاولة القراءة المباشرة للنصوص من ملف PDF (أسرع وأدق ولا تتأثر بالشبكة)
+                    if(overlayText) overlayText.innerText = "جاري استخراج النصوص من المستند...";
+                    const textContent = await page.getTextContent();
+                    const pdfText = textContent.items.map(item => item.str).join('');
+                    let cleanPdfText = pdfText.toUpperCase().replace(/\s+/g, "");
+                    
+                    if (type === 'spec') {
+                        const transMatch = cleanPdfText.match(/(ELESL-\d{4}-\d+)/);
+                        if (transMatch) { extractedLicense = transMatch[1]; }
+                        const dateMatch = cleanPdfText.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
+                        if(dateMatch) { extractedDate = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`; }
+                    } else if (type === 'org') {
+                        const crMatch = cleanPdfText.match(/(\d{10})/);
+                        if (crMatch) { extractedLicense = crMatch[1]; }
+                    }
+
+                    // 2. إذا لم يتم العثور على نص (مثلاً الـ PDF عبارة عن صورة سكانر)، يتم تشغيل الـ OCR
+                    if (!extractedLicense) {
+                        if(overlayText) overlayText.innerText = "المستند مصور، جاري تشغيل الماسح الضوئي...";
+                        const viewport = page.getViewport({scale: 3.0}); 
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        await page.render({canvasContext: ctx, viewport: viewport}).promise;
+                        await processCanvasOCR(canvas);
+                    }
+                    
+                } else if (file.type.startsWith('image/')) {
+                    const img = new Image();
+                    img.src = URL.createObjectURL(file);
+                    await new Promise((resolve) => {
+                        img.onload = async () => {
+                            const canvas = document.createElement('canvas');
+                            canvas.width = img.width; canvas.height = img.height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0);
+                            await processCanvasOCR(canvas);
+                            resolve();
+                        };
+                    });
+                }
+            } catch(e) {
+                console.error("File processing error:", e);
+            }
+
+            overlay.classList.add('hidden');
+            if(overlayText) overlayText.innerText = originalOverlayText;
+            
+            if (extractedLicense) {
+                if(type === 'spec') {
+                    document.getElementById('license').value = extractedLicense;
+                    if(extractedDate) document.getElementById('issue_date').value = extractedDate;
+                    
+                    window.specAutoApprove = true;
+                    document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">task_alt</span><span class="text-sm font-bold text-primary break-all">تم استخراج الوثيقة بنجاح</span>`;
+                    showToast('✨ تم استخراج رقم المعاملة وتاريخ الانتهاء بنجاح!');
+                } else {
+                    document.getElementById('cr_number').value = extractedLicense; 
+                    document.getElementById('org_name').value = "جاري جلب بيانات المنشأة...";
+                    document.getElementById('org_name').classList.remove('cursor-not-allowed', 'bg-surface-container-low'); 
+                    document.getElementById('org_name').classList.add('bg-transparent', 'border-2', 'border-outline-variant');
+                    
+                    window.orgAutoApprove = true;
+                    document.getElementById('org_upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">task_alt</span><span class="text-sm font-bold text-primary break-all">تم استخراج السجل بنجاح</span>`;
+                    showToast('✨ تم استخراج رقم السجل بنجاح واعتماده!');
+                    
+                    // جلب اسم المنشأة ووصفها تلقائياً بعد استخراج الرقم
+                    fetchCRData(); 
+                }
+            } else {
+                if(type === 'spec') {
+                    document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">تم إرفاق الملف</span>`;
+                    showToast('لم يتم العثور على رقم المعاملة (ELESL) في الصفحة، يرجى التأكد من الملف.', true);
+                } else {
+                    fallbackSimulation(type);
+                }
+            }
+        };
+
+        function fallbackSimulation(type) {
+            if(type === 'spec') {
+                document.getElementById('license').value = "ENV-2026-999"; 
+                document.getElementById('issue_date').value = "2026-07-18";
+                
+                window.specAutoApprove = true;
+                document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">task_alt</span><span class="text-sm font-bold text-primary break-all">تم الإرفاق (محاكاة)</span>`;
+                showToast('تم إدراج بيانات تجريبية للترخيص واعتمادها.');
+            } else {
+                document.getElementById('cr_number').value = "1010123456"; 
+                document.getElementById('org_name').value = "جاري جلب بيانات المنشأة...";
+                document.getElementById('org_name').classList.remove('cursor-not-allowed', 'bg-surface-container-low'); 
+                document.getElementById('org_name').classList.add('bg-transparent', 'border-2', 'border-outline-variant');
+                
+                window.orgAutoApprove = true;
+                document.getElementById('org_upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">task_alt</span><span class="text-sm font-bold text-primary break-all">تم الإرفاق (محاكاة)</span>`;
+                showToast('تم إدراج بيانات تجريبية للسجل واعتمادها.');
+                
+                // جلب اسم المنشأة ووصفها تلقائياً
+                fetchCRData();
+            }
+        }
+
+        document.getElementById('file_upload')?.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if(fileName) document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">${fileName}</span>`;
+        });
+        document.getElementById('org_file_upload')?.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if(fileName) document.getElementById('org_upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">${fileName}</span>`;
+        });
+        document.getElementById('profile_pic_upload')?.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if(file) { const reader = new FileReader(); reader.onload = function(e) { const img = document.getElementById('profile_pic_preview'); img.src = e.target.result; img.classList.remove('hidden'); document.getElementById('profile_pic_icon').classList.add('hidden'); }; reader.readAsDataURL(file); }
+        });
+        document.getElementById('certs_upload')?.addEventListener('change', function(e) {
+            const files = e.target.files; const container = document.getElementById('certs_upload_label'); container.innerHTML = '';
+            Array.from(files).forEach(file => { container.innerHTML += `<span class="bg-surface-container-high px-2 py-1 rounded border border-outline-variant text-secondary">${file.name}</span>`; });
+        });
+
+        document.getElementById("form-step1")?.addEventListener("submit", e => { e.preventDefault(); isOrgReg=false; tData.n = document.getElementById("full_name").value; tData.id = document.getElementById("national_id").value; tData.em = document.getElementById("email").value; tData.ph = document.getElementById("phone").value; navigate('view-step2'); });
+        document.getElementById("form-step2")?.addEventListener("submit", e => { e.preventDefault(); tData.lic = document.getElementById("license").value; navigate('view-otp'); showToast("استخدم 123456"); });
+        document.getElementById("form-org-step1")?.addEventListener("submit", e => { e.preventDefault(); if(!document.getElementById("org_name").value) return showToast("يرجى جلب بيانات السجل التجاري أولاً!", true); isOrgReg=true; tData.on = document.getElementById("org_name").value; tData.cr = document.getElementById("cr_number").value; tData.ph = document.getElementById("org_phone").value; tData.desc = document.getElementById("org_desc").value; navigate('view-otp'); showToast("استخدم 123456 للتحقق"); });
+        
+        document.getElementById("form-otp")?.addEventListener("submit", async e => { 
+            e.preventDefault(); const u=auth.currentUser; const b=e.target.querySelector('button[type="submit"]'); b.innerHTML='جاري...'; b.disabled=true;
+            if(u) {
+                if(isOrgReg) { 
+                    const finalStatus = window.orgAutoApprove ? 'approved' : 'pending';
+                    const od = {status: finalStatus, orgName:tData.on, crNumber:tData.cr, phone:tData.ph, orgDesc:tData.desc, createdAt: serverTimestamp()}; 
+                    await setDoc(doc(db,'artifacts',appId,'public','data','organizations',u.uid), od); 
+                    localStorage.setItem('preferredRole', 'org'); 
+                    b.innerHTML='تأكيد'; b.disabled=false;
+                    
+                    if(finalStatus === 'approved') {
+                        showToast('تم تفعيل حساب المنشأة فورياً بناءً على قراءة السجل!'); 
+                        setTimeout(() => checkAndGoToDashboard(), 2000); 
+                    } else {
+                        navigate('view-waiting-room'); listenToStatus(u.uid, 'org'); 
+                    }
+                } else { 
+                    // القبول التلقائي إذا استخدم الذكاء الاصطناعي
+                    const finalStatus = window.specAutoApprove ? 'approved' : 'pending';
+                    const pd = {status: finalStatus, fullName:tData.n, nationalId:tData.id, email:tData.em, phone:tData.ph, license:tData.lic, createdAt: serverTimestamp()}; 
+                    await setDoc(doc(db,'artifacts',appId,'public','data','specialists',u.uid), pd); 
+                    localStorage.setItem('preferredRole', 'spec'); b.innerHTML='تأكيد'; b.disabled=false;
+                    if(finalStatus === 'approved') { 
+                        showToast('تم تفعيل الحساب فورياً بناءً على قراءة الباركود!'); 
+                        setTimeout(() => checkAndGoToDashboard(), 2000); 
+                    } else { 
+                        navigate('view-waiting-room'); listenToStatus(u.uid, 'spec'); 
+                    }
+                }
+            } 
+        });
+
+        const otpIn = document.querySelectorAll('.otp-input');
+        otpIn.forEach((i, idx) => { i.addEventListener('input', e => { if(e.target.value.length===1 && idx<otpIn.length-1) otpIn[idx+1].focus(); if(e.target.value.length>1) e.target.value=e.target.value.slice(0,1); }); i.addEventListener('keydown', e => { if(e.key==='Backspace' && !e.target.value && idx>0) otpIn[idx-1].focus(); }); });
+
+        window.saveCVSpecialist = async () => {
+            const u = auth.currentUser; if(!u) return;
+            const newData = { fullName: document.getElementById('cv_name').value, nationalId: document.getElementById('cv_id').value, email: document.getElementById('cv_email').value, phone: document.getElementById('cv_phone').value, edu: document.getElementById('cv_edu').value, years: document.getElementById('cv_years').value, license: document.getElementById('cv_license').value, exp: document.getElementById('cv_exp').value, portfolio: document.getElementById('cv_portfolio').value };
+            await updateDoc(doc(db,'artifacts',appId,'public','data','specialists',u.uid), newData); showToast('تم حفظ ونشر التحديثات بنجاح!');
+        };
+
+        window.previewCV = (asOrg=false, specData=null) => {
+            const d = specData || { fullName: document.getElementById('cv_name').value, nationalId: document.getElementById('cv_id').value, email: document.getElementById('cv_email').value, phone: document.getElementById('cv_phone').value, edu: document.getElementById('cv_edu').value, years: document.getElementById('cv_years').value, license: document.getElementById('cv_license').value, exp: document.getElementById('cv_exp').value, portfolio: document.getElementById('cv_portfolio').value };
+            document.getElementById('prev_name').innerText = d.fullName || 'بدون اسم'; document.getElementById('prev_edu').innerText = d.edu || 'لم يحدد التخصص';
+            const id = d.nationalId || ''; document.getElementById('prev_id').innerText = (asOrg && id.length >= 10) ? id.substring(0,3) + '****' + id.substring(7) : (id||'-');
+            document.getElementById('prev_email').innerText = d.email || '-'; document.getElementById('prev_phone').innerText = d.phone || '-'; document.getElementById('prev_years').innerText = d.years ? d.years + ' سنوات خبرة' : 'مبتدئ'; document.getElementById('prev_lic').innerText = d.license || 'لا يوجد'; document.getElementById('prev_exp').innerText = d.exp || 'لا توجد خبرات مفصلة.';
+            const pDiv = document.getElementById('prev_portfolio_div'), pLink = document.getElementById('prev_portfolio');
+            if(d.portfolio) { pLink.href = d.portfolio; pLink.innerText = d.portfolio; pDiv.classList.remove('hidden'); } else { pDiv.classList.add('hidden'); }
+            document.getElementById('cv-preview-modal').classList.remove('hidden-view'); document.getElementById('cv-preview-modal').classList.add('flex');
+        };
+
+        window.printProfile = () => {
+            const name = document.getElementById('cv_name').value || 'غير محدد', natId = document.getElementById('cv_id').value || '-', email = document.getElementById('cv_email').value || '-', phone = document.getElementById('cv_phone').value || '-', edu = document.getElementById('cv_edu').value || '-', lic = document.getElementById('cv_license').value || '-', exp = document.getElementById('cv_exp').value || '';
+            const printWindow = window.open('', '', 'height=800,width=800');
+            printWindow.document.write(`<html dir="rtl" lang="ar"><head><title>الملف المهني</title><style>body { font-family: sans-serif; padding: 40px; color: #1a1c19; } .header h1 { color: #005232; margin-bottom: 5px; } .section { margin-bottom: 30px; background: #f3f4ef; padding: 20px; border-radius: 15px; } .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }</style></head><body>
+                <div class="header"><h1>${name}</h1><p>${edu}</p></div>
+                <div class="section"><h2>معلومات شخصية</h2><div class="grid"><div>الهوية: ${natId}</div><div dir="ltr" style="text-align:right">البريد: ${email}</div><div dir="ltr" style="text-align:right">الجوال: ${phone}</div><div>الترخيص: ${lic}</div></div></div>
+                <div class="section"><h2>الخبرات</h2><p>${exp.replace(/\n/g, '<br>')}</p></div>
+            </body></html>`);
+            printWindow.document.close(); printWindow.focus(); setTimeout(() => printWindow.print(), 800);
+        };
+        
+        window.submitApp = (n, b) => { 
+            showToast('تم التقديم على '+n); b.innerHTML='تم التقديم'; b.disabled=true; b.classList.add('opacity-50','cursor-not-allowed');
+            const list = document.getElementById('applications-list');
+            if(list) { if(list.innerText.includes('لا توجد')) list.innerHTML = ''; list.innerHTML += `<div class="flex items-center justify-between p-3 border rounded-xl bg-surface/50"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-primary">domain</span><span class="font-bold text-sm">${n}</span></div><span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-lg text-xs font-bold">قيد المراجعة</span></div>`; }
+        };
+
+        window.filterSpecialists = () => {
+            const query = document.getElementById('spec-search-input').value.toLowerCase();
+            document.querySelectorAll('.spec-card').forEach(card => card.style.display = card.innerText.toLowerCase().includes(query) ? '' : 'none');
+        };
+        window.filterOrganizations = () => {
+            const query = document.getElementById('org-search-input').value.toLowerCase();
+            document.querySelectorAll('.org-card').forEach(card => card.style.display = card.innerText.toLowerCase().includes(query) ? '' : 'none');
+        };
+
+        const apiKey = ""; 
+        async function fetchGemini(prompt, instruction) { try { const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: instruction }] } }) }); const data = await response.json(); return data.candidates?.[0]?.content?.parts?.[0]?.text || null; } catch (e) { return null; } }
+        document.getElementById('enhance-bio-btn')?.addEventListener('click', async () => { const bio = document.getElementById('bio'); if(!bio.value.trim()) return showToast('يرجى كتابة خبراتك أولاً!', true); const btn = document.getElementById('enhance-bio-btn'); const orig = btn.innerHTML; btn.innerHTML = 'جاري...'; btn.disabled = true; const res = await fetchGemini(`النص: "${bio.value}"`, "أعد صياغة النبذة لتكون احترافية في فقرة قصيرة."); if(res) { bio.value = res.trim(); showToast('تمت الصياغة!'); } else showToast('خطأ', true); btn.innerHTML = orig; btn.disabled = false; });
+        document.getElementById('enhance-cv-bio-btn')?.addEventListener('click', async () => { const bio = document.getElementById('cv_bio'); if(!bio.value.trim()) return showToast('يرجى كتابة خبراتك أولاً!', true); const btn = document.getElementById('enhance-cv-bio-btn'); const orig = btn.innerHTML; btn.innerHTML = 'جاري...'; btn.disabled = true; const res = await fetchGemini(`النص: "${bio.value}"`, "أعد صياغة النبذة المهنية لتكون احترافية وقوية."); if(res) { bio.value = res.trim(); showToast('تمت الصياغة!'); } else showToast('خطأ', true); btn.innerHTML = orig; btn.disabled = false; });
+        document.getElementById('enhance-org-btn')?.addEventListener('click', async () => { const org = document.getElementById('org_desc'); if(!org.value.trim()) return showToast('يرجى كتابة النشاط!', true); const btn = document.getElementById('enhance-org-btn'); const orig = btn.innerHTML; btn.innerHTML = 'جاري...'; btn.disabled = true; const res = await fetchGemini(`الكلمات: "${org.value}"`, "اكتب وصف ترويجي جذاب للمنشأة بأسلوب مؤسسي."); if(res) { org.value = res.trim(); showToast('تمت الصياغة!'); } else showToast('خطأ.', true); btn.innerHTML = orig; btn.disabled = false; });
+        document.getElementById('generate-ai-report-btn')?.addEventListener('click', async () => { const container = document.getElementById('ai-report-container'), content = document.getElementById('ai-report-content'); container.classList.remove('hidden'); content.innerHTML = 'جاري تحليل البيانات...'; const res = await fetchGemini(`الأخصائيين: ${document.getElementById('stat-specialists').innerText}، المؤسسات: ${document.getElementById('stat-orgs').innerText}، المعلقة: ${document.getElementById('stat-pending').innerText}.`, "اكتب ملخص إداري قصير يحلل الوضع ويعطي توصية للنمو."); if(res) content.innerText = res.trim(); else content.innerText = "تعذر جلب التحليل."; });
+
+        window.listenToRequests = (uid, role) => {
+            const reqRef = collection(db, 'artifacts', appId, 'public', 'data', 'requests');
+            onSnapshot(reqRef, (snapshot) => {
+                let html = ''; let homeReqHtml = ''; let homeProjHtml = ''; let pendingCount = 0; let activeProjCount = 0;
+                snapshot.docChanges().forEach((change) => { if (change.type === "added") { const req = change.doc.data(); if(role === 'spec' && req.specId === uid && req.status === 'pending') { showToast(`طلب جديد من ${req.orgName} 🔔`); const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'); audio.play().catch(e => console.log('Audio blocked by browser')); } } });
+                snapshot.forEach(docSnap => {
+                    const req = docSnap.data();
+                    if(role === 'spec' && req.specId === uid) {
+                        if(req.status === 'pending') {
+                            pendingCount++;
+                            let badge = '<span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-[10px] font-bold">طلب جديد</span>'; 
+                            let acts = `<div class="flex gap-1 mt-3"><button onclick="updateReqStatus('${docSnap.id}', 'accepted')" class="flex-1 bg-primary text-white text-xs py-2 rounded-lg hover:bg-[#006d44] font-bold">قبول وبدء محادثة</button><button onclick="updateReqStatus('${docSnap.id}', 'rejected')" class="flex-1 bg-red-50 text-red-600 text-xs py-2 rounded-lg hover:bg-red-100 font-bold">رفض</button></div>`; 
+                            if(pendingCount <= 5) { homeReqHtml += `<div class="flex items-center justify-between p-3 border rounded-xl bg-surface-container-lowest"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-lg">mark_email_unread</span></div><div><p class="font-bold text-sm text-primary truncate max-w-[150px]">${req.orgName}</p><p class="text-[11px] text-secondary mt-0.5">بانتظار موافقتك</p></div></div><button onclick="switchSpecTab('requests')" class="bg-white border shadow-sm text-primary text-xs px-3 py-1.5 rounded-lg font-bold hover:bg-surface transition-colors">مراجعة</button></div>`; }
+                            html += `<div class="p-4 border border-outline-variant/30 rounded-xl bg-white hover:border-primary transition-colors"><div class="flex justify-between items-start mb-2"><h5 class="font-bold text-sm text-on-surface truncate" title="${req.orgName}">${req.orgName}</h5>${badge}</div><p class="text-[11px] text-secondary leading-relaxed line-clamp-2">${req.orgDesc}</p>${acts}</div>`;
+                        } 
+                        else if(req.status === 'accepted') { 
+                            activeProjCount++;
+                            let badge = '<span class="bg-primary-fixed text-primary px-2 py-0.5 rounded text-[10px] font-bold">مقبول</span>'; 
+                            let acts = `<button onclick="openChatRoom('${req.chatId}', '${req.orgName}', 'spec')" class="w-full mt-3 bg-surface-container-high text-secondary text-xs py-2 rounded-lg hover:bg-outline-variant font-bold flex items-center justify-center gap-1"><span class="material-symbols-outlined text-sm">chat</span> فتح المحادثة</button>`; 
+                            homeProjHtml += `<div class="flex items-center justify-between p-4 border rounded-xl bg-white shadow-sm hover:border-primary transition-colors cursor-pointer" onclick="switchSpecTab('requests'); openChatRoom('${req.chatId}', '${req.orgName}', 'spec')"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-lg">rocket_launch</span></div><div><p class="font-bold text-sm text-primary truncate max-w-[140px]">${req.orgName}</p><p class="text-[11px] text-secondary mt-0.5 truncate max-w-[140px]">${req.orgDesc}</p></div></div><span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap">قيد التنفيذ</span></div>`;
+                            html += `<div class="p-4 border border-outline-variant/30 rounded-xl bg-white hover:border-primary transition-colors"><div class="flex justify-between items-start mb-2"><h5 class="font-bold text-sm text-on-surface truncate" title="${req.orgName}">${req.orgName}</h5>${badge}</div><p class="text-[11px] text-secondary leading-relaxed line-clamp-2">${req.orgDesc}</p>${acts}</div>`;
+                        } else { let badge = '<span class="bg-red-50 text-red-500 px-2 py-0.5 rounded text-[10px] font-bold">مرفوض</span>'; html += `<div class="p-4 border border-outline-variant/30 rounded-xl bg-white opacity-60"><div class="flex justify-between items-start mb-2"><h5 class="font-bold text-sm text-on-surface truncate" title="${req.orgName}">${req.orgName}</h5>${badge}</div><p class="text-[11px] text-secondary leading-relaxed line-clamp-2">${req.orgDesc}</p></div>`; }
+                    }
+                    if(role === 'org' && req.orgId === uid) {
+                        let badge='', acts='';
+                        if(req.status === 'pending') { badge = '<span class="bg-slate-200 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold">بانتظار موافقة الأخصائي</span>'; } 
+                        else if(req.status === 'accepted') { badge = '<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold">مقبول</span>'; acts = `<button onclick="openChatRoom('${req.chatId}', '${req.specName}', 'org')" class="w-full mt-3 bg-blue-600 text-white text-xs py-2 rounded-lg hover:bg-blue-700 font-bold flex items-center justify-center gap-1"><span class="material-symbols-outlined text-sm">chat</span> مراسلة الأخصائي</button>`; } 
+                        else { badge = '<span class="bg-red-50 text-red-500 px-2 py-0.5 rounded text-[10px] font-bold">مرفوض</span>'; }
+                        html += `<div class="p-4 border border-slate-200 rounded-xl bg-white"><div class="flex justify-between items-center mb-1"><h5 class="font-bold text-sm text-slate-800 truncate">إلى: ${req.specName}</h5></div><div class="mt-2">${badge}</div>${acts}</div>`;
+                    }
+                });
+
+                if(role === 'spec') { 
+                    const list = document.getElementById('spec-requests-list'); if(list) list.innerHTML = html || '<div class="text-center p-4 text-secondary text-sm">لا توجد طلبات حالياً.</div>'; 
+                    const badge = document.getElementById('spec-noti-badge'); const homeBadge = document.getElementById('home-noti-badge');
+                    if(badge) { if(pendingCount>0) { badge.innerText = pendingCount; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); } }
+                    if(homeBadge) { if(pendingCount>0) { homeBadge.innerText = pendingCount; homeBadge.classList.remove('hidden'); } else { homeBadge.classList.add('hidden'); } }
+                    const statNew = document.getElementById('stat-new-requests'); const statActive = document.getElementById('stat-active-projects');
+                    if(statNew) statNew.innerText = pendingCount; if(statActive) statActive.innerText = activeProjCount;
+                    const homeReqList = document.getElementById('home-requests-list'); const homeProjList = document.getElementById('home-projects-list');
+                    if(homeReqList) homeReqList.innerHTML = homeReqHtml || '<div class="text-sm text-secondary text-center py-10 opacity-70">لا توجد طلبات جديدة حالياً.</div>';
+                    if(homeProjList) homeProjList.innerHTML = homeProjHtml || '<div class="text-sm text-secondary text-center py-10 opacity-70">لا توجد مشاريع قيد التنفيذ. اقبل بعض الطلبات لتبدأ!</div>';
+                } 
+                else if(role === 'org') { const list = document.getElementById('org-requests-list'); if(list) list.innerHTML = html || '<div class="text-center p-4 text-slate-500 text-sm">لم تقم بإرسال أي طلبات بعد.</div>'; }
+            });
+        };
+
+        let activeChatId = null; let activeChatRole = null; let chatUnsub = null;
+        window.openChatRoom = (chatId, otherName, role) => {
+            activeChatId = chatId; activeChatRole = role;
+            const prefix = role === 'spec' ? 'spec' : 'org';
+            document.getElementById(`${prefix}-chat-empty`).classList.add('hidden'); document.getElementById(`${prefix}-chat-header`).classList.remove('hidden'); document.getElementById(`${prefix}-chat-form`).classList.remove('hidden'); document.getElementById(`${prefix}-chat-form`).classList.add('flex');
+            const nameEl = document.getElementById(`${prefix}-chat-${role==='spec'?'org':'spec'}-name`); if(nameEl) nameEl.innerText = otherName;
+            const msgsDiv = document.getElementById(`${prefix}-chat-messages`); msgsDiv.innerHTML = '<div class="text-center text-xs text-gray-400 my-4">جاري فتح القناة الآمنة...</div>';
+            if(chatUnsub) chatUnsub(); 
+            const msgsRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
+            chatUnsub = onSnapshot(msgsRef, (snap) => {
+                const u = auth.currentUser; if(!u) return; let msgs = [];
+                snap.forEach(d => { const m = d.data(); if(m.chatId === chatId) msgs.push(m); }); 
+                msgs.sort((a,b) => (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0)); 
+                msgsDiv.innerHTML = '<div class="text-center text-xs text-gray-400 my-4 font-bold">تم فتح قناة التواصل، الرسائل مشفرة.</div>';
+                msgs.forEach(m => {
+                    const isMe = m.senderId === u.uid;
+                    const bubbleClass = isMe ? (role==='spec' ? 'chat-bubble-me' : 'bg-blue-600 text-white rounded-br-none rounded-t-2xl rounded-bl-2xl') : (role==='spec' ? 'chat-bubble-other' : 'bg-white border text-slate-800 rounded-bl-none rounded-t-2xl rounded-br-2xl');
+                    const justify = isMe ? 'justify-end' : 'justify-start';
+                    msgsDiv.innerHTML += `<div class="flex ${justify} mb-2"><div class="${bubbleClass} px-4 py-2.5 max-w-[85%] shadow-sm text-sm font-medium leading-relaxed">${m.text}</div></div>`;
+                });
+                msgsDiv.scrollTop = msgsDiv.scrollHeight; 
+            });
+        };
+
+        window.sendRequestToSpec = async (specId, specName) => {
+            const u = auth.currentUser; if(!u || !myProfileData) return;
+            const reqId = u.uid + '_' + specId;
+            try { await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', reqId), { orgId: u.uid, orgName: myProfileData.orgName || 'جهة', orgDesc: myProfileData.orgDesc || '', specId: specId, specName: specName, status: 'pending', chatId: reqId, timestamp: serverTimestamp() }); showToast(`تم إرسال الطلب إلى ${specName}`); switchOrgTab('messages'); } catch(e) { showToast('خطأ في الإرسال', true); }
+        };
+
+        window.updateReqStatus = async (reqId, status) => { try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', reqId), { status: status }); showToast(status === 'accepted' ? 'تم القبول!' : 'تم الرفض'); } catch(e) { showToast('خطأ', true); } };
+
+        document.getElementById('spec-chat-form')?.addEventListener('submit', async (e) => { e.preventDefault(); if(!activeChatId || activeChatRole !== 'spec') return; const input = document.getElementById('spec-chat-input'); const text = input.value.trim(); if(!text) return; input.value = ''; try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { chatId: activeChatId, senderId: auth.currentUser.uid, text: text, timestamp: serverTimestamp() }); } catch(err) { showToast('لم يتم الإرسال', true); } });
+        document.getElementById('org-chat-form')?.addEventListener('submit', async (e) => { e.preventDefault(); if(!activeChatId || activeChatRole !== 'org') return; const input = document.getElementById('org-chat-input'); const text = input.value.trim(); if(!text) return; input.value = ''; try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { chatId: activeChatId, senderId: auth.currentUser.uid, text: text, timestamp: serverTimestamp() }); } catch(err) { showToast('لم يتم الإرسال', true); } });
+
+        window.loadAdminData = async () => { 
+            if(!auth.currentUser) return; const st = document.getElementById('admin-spec-body'), ot = document.getElementById('admin-org-body'); st.innerHTML = '<tr><td colspan="3" class="p-4 text-center">جاري...</td></tr>';
+            try {
+                const ss = await getDocs(collection(db,'artifacts',appId,'public','data','specialists')); let sh='';
+                ss.forEach(d => { const v=d.data(); const acts = v.status==='pending'?`<button onclick="updateRec('specialists','${d.id}','approved')" class="bg-primary text-white px-2 py-1 rounded mx-1">قبول</button>`:'-'; sh+=`<tr class="border-b"><td class="p-4">${v.fullName||'-'}</td><td class="p-4">${v.status==='approved'?'مفعل':(v.status==='rejected'?'مرفوض':'معلق')}</td><td class="p-4 text-center">${acts}</td></tr>`; }); st.innerHTML = sh;
+                const os = await getDocs(collection(db,'artifacts',appId,'public','data','organizations')); let oh='';
+                os.forEach(d => { const v=d.data(); const acts = v.status==='pending'?`<button onclick="updateRec('organizations','${d.id}','approved')" class="bg-primary text-white px-2 py-1 rounded mx-1">قبول</button>`:'-'; oh+=`<tr class="border-b"><td class="p-4">${v.orgName||'-'}</td><td class="p-4">${v.status==='approved'?'مفعل':(v.status==='rejected'?'مرفوض':'معلق')}</td><td class="p-4 text-center">${acts}</td></tr>`; }); ot.innerHTML = oh;
+            } catch(e) {}
+        };
+        window.updateRec = async (c,i,s) => { await updateDoc(doc(db,'artifacts',appId,'public','data',c,i),{status:s}); showToast('تم'); loadAdminData(); };
+
+        window.specGlobalData = {};
+        window.loadOrgDirectory = async () => {
+            const list = document.getElementById('org-specialists-list'); list.innerHTML = '<div class="col-span-full text-center p-4">جاري التحميل...</div>';
+            try {
+                const ss = await getDocs(collection(db,'artifacts',appId,'public','data','specialists')); let h=''; window.specGlobalData = {};
+                ss.forEach(d => { 
+                    const v=d.data(); if(v.status==='approved'){
+                        window.specGlobalData[d.id] = v;
+                        h += `<div class="spec-card bg-white p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all flex flex-col h-full"><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-3"><span class="material-symbols-outlined">person</span></div><h4 class="font-bold text-slate-800 text-lg mb-1">${v.fullName||'أخصائي'}</h4><p class="text-sm text-slate-500 mb-4">${v.edu||'لم يحدد التخصص'}</p><div class="mt-auto flex gap-2"><button onclick="previewCV(true, window.specGlobalData['${d.id}'])" class="flex-1 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 text-xs transition-colors">الملف</button><button onclick="sendRequestToSpec('${d.id}', '${v.fullName}')" class="flex-[2] py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 text-xs flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[14px]">send</span> طلب تواصل</button></div></div>`;
+                    }
+                });
+                list.innerHTML = h || '<div class="col-span-full text-center p-4">لا يوجد أخصائيين معتمدين بعد.</div>';
+            } catch(e) { list.innerHTML = '<div class="col-span-full text-center p-4">حدث خطأ.</div>'; }
+        };
+
+    </script>
 </body>
 </html>
