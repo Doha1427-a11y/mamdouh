@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>منصة بيئيين</title>
+    <title>منصة بيئيين - النظام المتكامل</title>
     
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -188,19 +188,19 @@
                 
                 <div class="mb-8 p-6 bg-primary-fixed/20 border-2 border-primary-fixed rounded-2xl relative overflow-hidden group">
                     <div class="flex items-center gap-3 mb-2">
-                        <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg"><span class="material-symbols-outlined">qr_code_scanner</span></div>
-                        <h4 class="font-bold text-primary text-lg">قراءة تلقائية للترخيص</h4>
+                        <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center shadow-lg"><span class="material-symbols-outlined">document_scanner</span></div>
+                        <h4 class="font-bold text-primary text-lg">قراءة ذكية من الصفحة الأولى</h4>
                     </div>
-                    <p class="text-sm text-secondary mb-4 leading-relaxed">قم برفع (الترخيص البيئي)، وسيقوم النظام بقراءة البيانات لاستخراج <strong class="text-primary">رقم الترخيص وتاريخ الإصدار</strong> ومنحك إذن الدخول التلقائي!</p>
+                    <p class="text-sm text-secondary mb-4 leading-relaxed">قم برفع (الترخيص البيئي)، وسيقوم النظام بمسح الصفحة الأولى للبحث عن <strong class="text-primary">رقم المعاملة (ELESL) وتاريخ الإصدار</strong> واعتمادها تلقائياً.</p>
                     <label for="smart_spec_upload" class="cursor-pointer bg-white px-4 py-3 border-2 border-primary border-dashed rounded-xl text-primary font-bold text-sm text-center flex items-center justify-center gap-2 hover:bg-primary/5 transition">
-                        <span class="material-symbols-outlined">upload_file</span> أرفق ملف الترخيص هنا للقراءة
+                        <span class="material-symbols-outlined">upload_file</span> أرفق الترخيص هنا للقراءة السريعة
                     </label>
                     <input type="file" id="smart_spec_upload" class="hidden" accept="image/*,.pdf" onchange="simulateAIScan(this, 'spec')">
                     
                     <div id="spec_scan_overlay" class="hidden absolute inset-0 bg-[#005232]/90 flex flex-col items-center justify-center z-10 backdrop-blur-sm">
                         <div class="w-full h-1 bg-[#8af8bb] absolute shadow-[0_0_15px_#8af8bb]" style="animation: scan 2s ease-in-out infinite;"></div>
                         <span class="material-symbols-outlined text-[#8af8bb] text-5xl animate-pulse mb-3">document_scanner</span>
-                        <p class="text-white font-bold text-sm">جاري قراءة الملف واستخراج بيانات الترخيص...</p>
+                        <p class="text-white font-bold text-sm" id="spec_scan_text">جاري تحليل الصفحة الأولى واستخراج البيانات...</p>
                     </div>
                 </div>
 
@@ -229,7 +229,7 @@
                         <div class="flex flex-col gap-2"><label class="text-sm font-semibold text-secondary" for="issue_date">تاريخ الانتهاء</label><input class="w-full px-4 py-3 bg-transparent border-0 border-b-2 border-outline-variant focus:border-primary focus:ring-0" id="issue_date" type="date" required /></div>
                     </div>
                     <div class="flex flex-col gap-2">
-                        <label class="text-sm font-semibold text-secondary">رفع ملف الترخيص</label>
+                        <label class="text-sm font-semibold text-secondary">رفع ملف الترخيص (تأكيد)</label>
                         <label for="file_upload" class="w-full px-4 py-10 bg-surface-container-lowest border-2 border-dashed border-outline-variant rounded-2xl flex flex-col items-center justify-center gap-3 hover:border-primary cursor-pointer">
                             <div class="text-center" id="upload_label"><span class="text-sm font-bold text-primary block mb-1">اضغط هنا لاختيار الملف</span></div>
                             <input type="file" id="file_upload" class="hidden" accept=".pdf,.jpg,.jpeg,.png" required />
@@ -267,7 +267,7 @@
                     <div id="org_scan_overlay" class="hidden absolute inset-0 bg-blue-900/90 flex flex-col items-center justify-center z-10 backdrop-blur-sm">
                         <div class="w-full h-1 bg-blue-300 absolute shadow-[0_0_15px_#93c5fd]" style="animation: scan 2s ease-in-out infinite;"></div>
                         <span class="material-symbols-outlined text-blue-300 text-5xl animate-pulse mb-3">document_scanner</span>
-                        <p class="text-white font-bold text-sm">جاري تحليل السجل واستخراج البيانات...</p>
+                        <p class="text-white font-bold text-sm" id="org_scan_text">جاري تحليل السجل واستخراج البيانات...</p>
                     </div>
                 </div>
 
@@ -436,6 +436,15 @@
                         <div><label class="text-xs font-bold text-secondary block mb-1">البريد الإلكتروني</label><input type="email" id="cv_email" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary text-right" dir="ltr"></div>
                         <div><label class="text-xs font-bold text-secondary block mb-1">رقم الجوال</label><input type="tel" id="cv_phone" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary text-right" dir="ltr"></div>
                         
+                        <div class="md:col-span-2"><label class="text-xs font-bold text-secondary block mb-1">تاريخ الميلاد</label>
+                            <div class="flex gap-2">
+                                <select id="cv_dob_type" class="w-1/4 px-2 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary text-sm font-bold"><option value="gregorian">ميلادي</option><option value="hijri">هجري</option></select>
+                                <input type="number" id="cv_dob_day" placeholder="اليوم" class="w-1/4 px-2 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary text-center text-sm" min="1" max="31">
+                                <input type="number" id="cv_dob_month" placeholder="الشهر" class="w-1/4 px-2 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary text-center text-sm" min="1" max="12">
+                                <input type="number" id="cv_dob_year" placeholder="السنة" class="flex-1 px-2 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary text-center text-sm" min="1300" max="2030">
+                            </div>
+                        </div>
+
                         <div><label class="text-xs font-bold text-secondary block mb-1">التخصص أو المؤهل</label><input type="text" id="cv_edu" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary"></div>
                         <div><label class="text-xs font-bold text-secondary block mb-1">سنوات الخبرة</label><input type="number" id="cv_years" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary" placeholder="مثال: 5"></div>
                         <div class="md:col-span-2"><label class="text-xs font-bold text-secondary block mb-1">الترخيص المهني (إن وجد)</label><input type="text" id="cv_license" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary"></div>
@@ -445,7 +454,6 @@
                         <div class="md:col-span-2 border-2 border-dashed rounded-xl p-4 bg-surface-container-lowest">
                             <label class="text-xs font-bold text-secondary block mb-2">الأعمال السابقة والشهادات</label>
                             <input type="url" id="cv_portfolio" class="w-full px-4 py-3 bg-transparent rounded-xl border-2 border-outline-variant focus:border-primary text-left text-sm mb-3" dir="ltr" placeholder="رابط درايف أو موقع لأعمالك (https://)">
-                            
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label for="certs_upload" class="flex justify-center gap-2 w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl cursor-pointer hover:border-primary text-sm font-bold text-primary"><span class="material-symbols-outlined">upload_file</span> إرفاق ملفات الشهادات <input type="file" id="certs_upload" multiple class="hidden"></label>
@@ -498,11 +506,18 @@
                         <input type="text" id="org-search-input" onkeyup="filterOrganizations()" class="w-full pr-10 pl-4 py-2.5 border-2 border-outline-variant rounded-xl focus:border-primary focus:ring-0 text-sm bg-white shadow-sm" placeholder="ابحث باسم المنشأة...">
                     </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="organizations-list-container">
-                    <div class="org-card bg-white p-6 rounded-2xl border flex flex-col">
-                        <div class="flex items-center gap-4 mb-4"><div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary"><span class="material-symbols-outlined">domain</span></div><div><h4 class="font-bold text-primary">شركة نيوم</h4></div></div>
-                        <button class="w-full py-2 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-colors" onclick="submitApp('شركة نيوم', this)">تقديم السيرة الذاتية</button>
+
+                <!-- إضافة سجل التقديمات بناءً على طلبك -->
+                <div class="bg-white p-6 rounded-2xl border shadow-sm mb-8">
+                    <h3 class="font-bold text-primary mb-4 flex items-center gap-2"><span class="material-symbols-outlined">work_history</span> سجل التقديمات (قيد المراجعة)</h3>
+                    <div id="applications-list" class="flex flex-col gap-3">
+                        <div class="text-sm text-secondary text-center py-6 bg-surface-container-low rounded-xl border border-dashed border-outline-variant">لم تقم بتقديم سيرتك الذاتية لأي جهة بعد. تصفح المنشآت بالأسفل وقدم سيرتك لتبدأ!</div>
                     </div>
+                </div>
+
+                <h3 class="font-bold text-primary mb-4">قائمة المنشآت المعتمدة</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="organizations-list-container">
+                    <div class="col-span-full text-center text-secondary">جاري تحميل البيانات...</div>
                 </div>
             </div>
         </section>
@@ -560,9 +575,8 @@
                                 <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><span class="material-symbols-outlined">person</span></div>
                                 <div><h4 id="org-chat-spec-name" class="font-bold text-slate-800 leading-none">اسم الأخصائي</h4><span class="text-xs text-slate-500">متصل • قناة آمنة</span></div>
                             </div>
-                            <button onclick="window.openContractModal()" class="bg-primary text-white text-sm px-4 py-2 rounded-lg font-bold hover:bg-[#006d44] transition-colors shadow-sm flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm">history_edu</span> إبرام عقد عمل
-                            </button>
+                            <!-- الزر الخاص بإنشاء العقد -->
+                            <button onclick="openContractModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-blue-700 flex items-center gap-2 transition-colors"><span class="material-symbols-outlined text-[18px]">history_edu</span> إبرام عقد عمل 📄</button>
                         </div>
                         <div id="org-chat-empty" class="absolute inset-0 flex flex-col items-center justify-center bg-white z-10">
                             <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4"><span class="material-symbols-outlined text-4xl text-slate-400">forum</span></div>
@@ -607,7 +621,6 @@
         </section>
     </main>
 
-    <!-- نافذة معاينة الملف المهني مع السيرة الذاتية المرفقة -->
     <div id="cv-preview-modal" class="hidden-view fixed inset-0 z-[100] items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
         <div class="bg-surface rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
             <div class="p-6 border-b flex justify-between items-center bg-white">
@@ -638,21 +651,17 @@
                         <h4 class="font-bold text-blue-800 mb-2">الأعمال السابقة</h4>
                         <a id="prev_portfolio" href="#" target="_blank" class="text-sm font-bold text-blue-600 hover:underline block truncate" dir="ltr"></a>
                     </div>
-                    
                     <div id="prev_resume_div" class="bg-[#005232]/5 p-5 rounded-2xl border border-[#005232]/20 hidden flex-col justify-center items-center text-center">
                         <span class="material-symbols-outlined text-4xl text-[#005232] mb-2">description</span>
                         <h4 class="font-bold text-[#005232] mb-2">السيرة الذاتية (CV)</h4>
-                        <!-- هذا هو زر التحميل المربوط بالـ JS -->
-                        <a id="prev_resume_link" href="#" download="CV.pdf" class="bg-[#005232] text-white px-6 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-[#003d25] transition-colors cursor-pointer">
-                            <span class="material-symbols-outlined text-[16px]">download</span> تحميل الملف
-                        </a>
+                        <a id="prev_resume_link" download="resume.pdf" class="bg-[#005232] text-white px-6 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-[#003d25] transition-colors"><span class="material-symbols-outlined text-[16px]">download</span> تحميل الملف</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- نافذة إنشاء العقد (المنشأة) -->
+    <!-- نافذة إنشاء العقد (للمنشأة فقط) -->
     <div id="contract-modal" class="hidden-view fixed inset-0 z-[100] items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
         <div class="bg-surface rounded-3xl shadow-2xl w-full max-w-lg p-8">
             <div class="flex justify-between items-center mb-6">
@@ -660,31 +669,17 @@
                 <button onclick="closeModal('contract-modal')" class="w-8 h-8 rounded-full bg-surface-container-low hover:bg-surface-container-high flex items-center justify-center"><span class="material-symbols-outlined">close</span></button>
             </div>
             <form id="contract-form" class="space-y-4">
-                <input type="text" id="cont_title" class="w-full px-4 py-3 bg-white border rounded-xl focus:border-primary" placeholder="مسمى المشروع أو المهمة" required>
+                <div><label class="text-xs font-bold text-secondary block mb-1">مسمى المشروع / المهمة</label><input type="text" id="cont_title" class="w-full px-4 py-3 border border-outline-variant bg-white rounded-xl focus:border-primary" placeholder="مثال: استشارة تقييم بيئي" required></div>
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="number" id="cont_value" class="w-full px-4 py-3 bg-white border rounded-xl focus:border-primary" placeholder="المبلغ (ر.س)" required>
-                    <input type="text" id="cont_duration" class="w-full px-4 py-3 bg-white border rounded-xl focus:border-primary" placeholder="مدة التنفيذ" required>
+                    <div><label class="text-xs font-bold text-secondary block mb-1">المدة</label><input type="text" id="cont_duration" class="w-full px-4 py-3 border border-outline-variant bg-white rounded-xl focus:border-primary" placeholder="3 أشهر" required></div>
+                    <div><label class="text-xs font-bold text-secondary block mb-1">المبلغ (ر.س)</label><input type="number" id="cont_value" class="w-full px-4 py-3 border border-outline-variant bg-white rounded-xl focus:border-primary font-bold" placeholder="5000" required></div>
                 </div>
                 <div class="border-t pt-4 mt-4">
-                    <label class="text-sm font-bold text-secondary block mb-2">توقيع المنشأة (الطرف الأول)</label>
-                    <input type="text" id="cont_org_sig" class="w-full px-4 py-3 bg-surface-container-lowest border-2 border-primary rounded-xl focus:ring-0 text-center font-bold text-primary text-lg" placeholder="اكتب اسمك الثلاثي للتوقيع" required>
+                    <label class="text-xs font-bold text-secondary block mb-2">توقيع المنشأة (المرسل)</label>
+                    <input type="text" id="cont_org_sig" class="w-full p-3 border-2 border-primary bg-white rounded-xl font-bold text-center text-primary" placeholder="اكتب اسمك الثلاثي لاعتماد العرض" required>
                 </div>
-                <button type="button" onclick="submitContract()" class="w-full mt-2 bg-primary text-white py-3 rounded-xl font-bold shadow-md hover:bg-[#006d44] transition-colors">إرسال العقد للأخصائي</button>
+                <button type="button" onclick="submitContract()" class="w-full mt-4 bg-primary text-white py-3 rounded-xl font-bold hover:bg-[#006d44] transition-colors shadow-md">إرسال العقد للأخصائي للتوقيع</button>
             </form>
-        </div>
-    </div>
-
-    <!-- نافذة توقيع العقد (الأخصائي) -->
-    <div id="sign-modal" class="hidden-view fixed inset-0 z-[100] items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-        <div class="bg-surface rounded-3xl shadow-2xl w-full max-w-lg p-8">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined">verified</span> اعتماد وتوقيع العقد</h3>
-                <button onclick="closeModal('sign-modal')" class="w-8 h-8 rounded-full bg-surface-container-low hover:bg-surface-container-high flex items-center justify-center"><span class="material-symbols-outlined">close</span></button>
-            </div>
-            <p class="text-sm text-gray-600 mb-6 bg-surface-container-low p-4 rounded-xl border border-outline-variant/30 leading-relaxed">بالضغط على توقيع واعتماد، فأنت توافق على كافة البنود المالية والزمنية المرسلة من قبل المنشأة في المحادثة، وتضع اسمك الثلاثي كتوقيع إلكتروني ملزم.</p>
-            <input type="hidden" id="sign_msg_id">
-            <input type="text" id="cont_spec_sig" class="w-full px-4 py-3 bg-white border-2 border-primary rounded-xl text-center font-bold text-primary text-lg mb-6" placeholder="اكتب اسمك الثلاثي (توقيع الطرف الثاني)" required>
-            <button onclick="confirmSignature()" class="w-full bg-primary text-white py-3 rounded-xl font-bold shadow-md hover:bg-[#006d44] transition-colors">توقيع واعتماد نهائي</button>
         </div>
     </div>
 
@@ -694,43 +689,51 @@
                 <h3 class="text-xl font-bold text-primary flex items-center gap-2"><span class="material-symbols-outlined">admin_panel_settings</span> دخول الإدارة</h3>
                 <button onclick="closeModal('admin-login-modal')" class="w-8 h-8 rounded-full bg-surface-container-low hover:bg-surface-container-high flex items-center justify-center"><span class="material-symbols-outlined">close</span></button>
             </div>
-            <p class="text-sm text-secondary mb-6 leading-relaxed">هذه البوابة مخصصة لمسؤولي المنصة (المؤسسة المالكة) فقط لاعتماد الحسابات. يرجى إدخال رمز الدخول.</p>
+            <p class="text-sm text-secondary mb-6 leading-relaxed">يرجى إدخال رمز مسؤولي النظام.</p>
             <input type="password" id="admin-password" class="w-full px-4 py-3 bg-surface-container-low rounded-xl border-2 border-outline-variant focus:border-primary mb-6 text-center text-xl tracking-widest font-mono" placeholder="****">
             <button onclick="verifyAdmin()" class="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-[#006d44] transition-colors shadow-md">دخول آمن</button>
         </div>
     </div>
 
-    <!-- الكود البرمجي (تم التأكد من وضعه كاملاً داخل الوسم) -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, serverTimestamp, collection, getDocs, updateDoc, getDoc, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, serverTimestamp, collection, getDocs, updateDoc, getDoc, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // Global functions
+        const firebaseConfig = {
+            apiKey: "AIzaSyAtnPXcLjEjT1yw0mpO2qw_6_pYHQsUZeA",
+            authDomain: "baeeyen-c7107.firebaseapp.com",
+            projectId: "baeeyen-c7107",
+            storageBucket: "baeeyen-c7107.firebasestorage.app",
+            appId: "1:289802927952:web:deda8750a6bb6d4ce7b655"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app); const db = getFirestore(app); const appId = 'default-app-id';
+        try { signInAnonymously(auth); } catch(e) {}
+
+        const safeStorage = { getItem: (k) => { try { return localStorage.getItem(k); } catch(e) { return window['_ls_'+k]; } }, setItem: (k,v) => { try { localStorage.setItem(k,v); } catch(e) { window['_ls_'+k]=v; } }, removeItem: (k) => { try { localStorage.removeItem(k); } catch(e) { delete window['_ls_'+k]; } } };
+
         window.showToast = (msg, err=false) => { const t=document.getElementById('custom-toast'); document.getElementById('toast-msg').innerText=msg; t.className=`fixed top-6 left-1/2 transform -translate-x-1/2 z-[9999] shadow-2xl rounded-xl p-4 flex items-center gap-3 show border-l-4 ${err?'bg-red-50 border-red-500':'bg-surface border-primary'}`; document.getElementById('toast-icon').innerText=err?'error':'check_circle'; document.getElementById('toast-icon').className=`material-symbols-outlined text-2xl ${err?'text-red-500':'text-primary'}`; setTimeout(()=>t.classList.remove('show'),3500); };
         window.hideToast = () => document.getElementById('custom-toast').classList.remove('show');
         window.navigate = (vid) => { document.querySelectorAll('main').forEach(el=> { el.classList.add('hidden-view'); el.classList.remove('flex','block'); }); const target = document.getElementById(vid); target.classList.remove('hidden-view'); target.classList.add(vid.includes('step')||vid.includes('otp')||vid.includes('admin')||vid.includes('dashboard')||vid==='view-home'||vid==='view-waiting-room'?'flex':'block'); window.scrollTo(0,0); if(vid==='view-admin') window.loadAdminData(); if(vid==='view-org-dashboard') window.loadOrgDirectory(); };
         window.closeModal = (mid) => { document.getElementById(mid).classList.add('hidden-view'); document.getElementById(mid).classList.remove('flex'); };
-        
-        window.performLogout = () => { localStorage.removeItem('preferredRole'); window.currAccountType = ''; window.myProfileData = null; showToast('تم تسجيل الخروج بنجاح'); setTimeout(() => window.location.reload(), 1000); };
-        window.verifyAdmin = () => { const pass = document.getElementById('admin-password').value; if(pass === '1234') { closeModal('admin-login-modal'); document.getElementById('admin-password').value = ''; navigate('view-admin'); showToast('مرحباً بك في لوحة الإدارة'); } else { showToast('رمز الدخول غير صحيح!', true); } };
+        window.performLogout = () => { safeStorage.removeItem('preferredRole'); window.currAccountType = ''; window.myProfileData = null; showToast('تم تسجيل الخروج بنجاح'); setTimeout(() => window.location.reload(), 1000); };
+        window.verifyAdmin = () => { const pass = document.getElementById('admin-password').value; if(pass === '1234') { closeModal('admin-login-modal'); document.getElementById('admin-password').value = ''; navigate('view-admin'); } else { showToast('رمز الدخول غير صحيح!', true); } };
 
         window.switchSpecTab = (t) => { ['home','cv','requests','orgs'].forEach(x=>{ document.getElementById('scontent-'+x)?.classList.add('hidden'); document.getElementById('scontent-'+x)?.classList.remove('block','flex'); document.getElementById('stab-'+x)?.classList.remove('bg-white/20'); document.getElementById('stab-'+x)?.classList.add('text-white/70', 'hover:bg-white/10'); }); document.getElementById('scontent-'+t)?.classList.remove('hidden'); document.getElementById('scontent-'+t)?.classList.add(t==='requests'?'flex':'block'); document.getElementById('stab-'+t)?.classList.remove('text-white/70', 'hover:bg-white/10'); document.getElementById('stab-'+t)?.classList.add('bg-white/20'); };
         window.switchOrgTab = (t) => { ['home','specialists','messages'].forEach(x=>{ document.getElementById('ocontent-'+x)?.classList.add('hidden'); document.getElementById('ocontent-'+x)?.classList.remove('block','flex'); document.getElementById('otab-'+x)?.classList.remove('bg-white/20'); document.getElementById('otab-'+x)?.classList.add('text-white/70', 'hover:bg-white/10'); }); document.getElementById('ocontent-'+t)?.classList.remove('hidden'); document.getElementById('ocontent-'+t)?.classList.add(t==='messages'?'flex':'block'); document.getElementById('otab-'+t)?.classList.remove('text-white/70', 'hover:bg-white/10'); document.getElementById('otab-'+t)?.classList.add('bg-white/20'); };
         window.switchAdminTab = (t) => { document.getElementById('admin-spec-sec').classList.toggle('hidden', t!=='specialists'); document.getElementById('admin-org-sec').classList.toggle('hidden', t!=='organizations'); document.getElementById('atab-spec').className = t==='specialists' ? "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold" : "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"; document.getElementById('atab-org').className = t==='organizations' ? "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl bg-white/20 font-bold" : "flex items-center gap-2 w-full text-right px-4 py-3 rounded-xl text-white/70 hover:bg-white/10 font-bold"; };
 
-        const app = initializeApp({ apiKey:"AIzaSyAtnPXcLjEjT1yw0mpO2qw_6_pYHQsUZeA", authDomain:"baeeyen-c7107.firebaseapp.com", projectId:"baeeyen-c7107", appId:"1:289802927952:web:deda8750a6bb6d4ce7b655" });
-        const auth = getAuth(app); const db = getFirestore(app); const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        try { signInAnonymously(auth); } catch(e) {}
+        window.currAccountType = ''; window.myProfileData = null; window.tData = {}; window.isOrgReg = false; window.specAutoApprove = false; window.orgAutoApprove = false; 
+        window.globalProfilePicData = null; window.globalResumeData = null;
 
         window.switchAccountMode = async (targetRole) => {
             const u = auth.currentUser; if(!u) return; showToast('جاري التبديل...');
             try {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', targetRole === 'spec' ? 'specialists' : 'organizations', u.uid);
                 const docSnap = await getDoc(docRef);
-                localStorage.setItem('preferredRole', targetRole);
-                if(docSnap.exists()) { window.checkAndGoToDashboard(); } 
-                else {
+                safeStorage.setItem('preferredRole', targetRole);
+                if(docSnap.exists()) { window.checkAndGoToDashboard(); } else {
                     if(targetRole === 'spec') window.navigate('view-step1');
                     if(targetRole === 'org') window.navigate('view-org-step1');
                     showToast(`يرجى استكمال تسجيل ${targetRole === 'spec' ? 'الأخصائي' : 'المنشأة'} أولاً`);
@@ -738,13 +741,10 @@
             } catch (e) { showToast('حدث خطأ أثناء التبديل', true); }
         };
 
-        window.currAccountType = ''; window.myProfileData = null;
-        window.globalProfilePicData = null; window.globalResumeData = null;
-
         window.checkAndGoToDashboard = async () => {
             const u = auth.currentUser; if(!u) return showToast('يرجى تحديث الصفحة والمحاولة', true);
             try {
-                const prefRole = localStorage.getItem('preferredRole');
+                const prefRole = safeStorage.getItem('preferredRole');
                 let targetRole = null; let profileData = null;
                 const specDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'specialists', u.uid)); 
                 const orgDoc = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'organizations', u.uid)); 
@@ -758,27 +758,24 @@
                     window.currAccountType = 'spec'; window.myProfileData = profileData;
                     if(window.myProfileData.status === 'approved') {
                         document.getElementById('cv_name').value = window.myProfileData.fullName||''; document.getElementById('cv_id').value = window.myProfileData.nationalId||''; document.getElementById('cv_email').value = window.myProfileData.email||''; document.getElementById('cv_phone').value = window.myProfileData.phone||''; document.getElementById('cv_edu').value = window.myProfileData.edu||''; document.getElementById('cv_years').value = window.myProfileData.years||''; document.getElementById('cv_license').value = window.myProfileData.license||''; document.getElementById('cv_exp').value = window.myProfileData.exp||''; document.getElementById('cv_portfolio').value = window.myProfileData.portfolio||'';
-                        if(window.myProfileData.profilePic) {
-                            document.getElementById('profile_pic_preview').src = window.myProfileData.profilePic;
-                            document.getElementById('profile_pic_preview').classList.remove('hidden');
-                            document.getElementById('profile_pic_icon').classList.add('hidden');
-                            window.globalProfilePicData = window.myProfileData.profilePic;
-                        }
+                        if(window.myProfileData.profilePic) { document.getElementById('profile_pic_preview').src = window.myProfileData.profilePic; document.getElementById('profile_pic_preview').classList.remove('hidden'); document.getElementById('profile_pic_icon').classList.add('hidden'); window.globalProfilePicData = window.myProfileData.profilePic; }
                         if(window.myProfileData.resumeFile) { window.globalResumeData = window.myProfileData.resumeFile; }
-                        
-                        window.navigate('view-specialist-dashboard'); window.switchSpecTab('home'); window.listenToRequests(u.uid, 'spec');
+                        window.navigate('view-specialist-dashboard'); window.switchSpecTab('home');
+                        window.loadUserChats();
                     } else { window.navigate('view-waiting-room'); window.listenToStatus(u.uid, 'spec'); }
                     return; 
                 }
+
                 if(targetRole === 'org') {
                     window.currAccountType = 'org'; window.myProfileData = profileData;
                     if(window.myProfileData.status === 'approved') {
-                        window.navigate('view-org-dashboard'); window.switchOrgTab('home'); window.listenToRequests(u.uid, 'org');
+                        window.navigate('view-org-dashboard'); window.switchOrgTab('home');
+                        window.loadUserChats();
                     } else { window.navigate('view-waiting-room'); window.listenToStatus(u.uid, 'org'); }
                     return;
                 }
                 showToast('لم يتم العثور على حساب مسجل، يرجى التسجيل أولاً', true);
-            } catch (e) { showToast('خطأ في الاتصال بقاعدة البيانات', true); }
+            } catch (e) { showToast('خطأ في الاتصال', true); }
         };
 
         window.listenToStatus = async (uid, type) => {
@@ -796,136 +793,95 @@
                 const orgNameField = document.getElementById('org_name'); const orgDescField = document.getElementById('org_desc');
                 orgNameField.value = "شركة التقنية البيئية المحدودة"; orgNameField.classList.remove('cursor-not-allowed', 'bg-surface-container-low'); orgNameField.classList.add('bg-transparent', 'border-2', 'border-outline-variant');
                 orgDescField.value = "شركة متخصصة في الاستشارات البيئية وإدارة المشاريع المستدامة وتطوير الحلول الخضراء."; orgDescField.classList.remove('cursor-not-allowed', 'bg-surface-container-low'); orgDescField.classList.add('bg-transparent', 'border-2', 'border-outline-variant');
-                const enhanceBtn = document.getElementById('enhance-org-btn'); if (enhanceBtn) enhanceBtn.classList.remove('hidden');
                 showToast('✨ تم جلب بيانات السجل بنجاح!'); btn.innerHTML = origHtml; btn.disabled = false;
             }, 1500);
         };
 
-        window.tData = {}; window.isOrgReg = false; window.specAutoApprove = false; window.orgAutoApprove = false; window.extractedLicense = '';
-
         window.simulateAIScan = async (input, type) => {
             if(!input.files[0]) return; const file = input.files[0];
-            if(type === 'spec') { const mainUpload = document.getElementById('file_upload'); if(mainUpload) { mainUpload.files = input.files; document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">task_alt</span><span class="text-sm font-bold text-primary break-all">تم الإرفاق تلقائياً: ${file.name}</span>`; } } 
+            if(type === 'spec') { const mainUpload = document.getElementById('file_upload'); if(mainUpload) { mainUpload.files = input.files; document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">task_alt</span><span class="text-sm font-bold text-primary break-all">تم الإرفاق تلقائياً: ${file.name}</span>`; } }
             else if (type === 'org') { const mainOrgUpload = document.getElementById('org_file_upload'); if(mainOrgUpload) { mainOrgUpload.files = input.files; document.getElementById('org_upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">task_alt</span><span class="text-sm font-bold text-primary break-all">تم الإرفاق تلقائياً: ${file.name}</span>`; } }
-
+            
             const overlay = document.getElementById(type + '_scan_overlay'); overlay.classList.remove('hidden');
-            const overlayText = overlay.querySelector('p'); const originalOverlayText = overlayText ? overlayText.innerText : '';
+            const overlayText = document.getElementById(type + '_scan_text'); const originalText = overlayText ? overlayText.innerText : '';
             let extractedLicense = null; let extractedDate = null;
 
-            const processCanvasOCR = async (canvas) => {
-                if (typeof Tesseract !== 'undefined') {
-                    if(overlayText) overlayText.innerText = "جاري القراءة والتدقيق العميق...";
-                    try {
-                        const dataUrl = canvas.toDataURL('image/jpeg'); const result = await Tesseract.recognize(dataUrl, 'eng');
-                        let text = result.data.text.toUpperCase(); let cleanText = text.replace(/\s+/g, "");
-                        if (type === 'spec') { const transMatch = cleanText.match(/(ELESL-\d{4}-\d+)/); if (transMatch) { extractedLicense = transMatch[1]; } const dateMatch = cleanText.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/); if(dateMatch) { extractedDate = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`; } } 
-                        else if (type === 'org') { const crMatch = cleanText.match(/(\d{10})/); if (crMatch) { extractedLicense = crMatch[1]; } }
-                    } catch(err) { console.warn("OCR ignored due to network"); extractedLicense = null; extractedDate = null; }
+            const extractTextData = (text) => {
+                let cleanText = text.toUpperCase().replace(/\s+/g, "");
+                if (type === 'spec') {
+                    const transMatch = cleanText.match(/(ELESL-\d{4}-\d+)/) || cleanText.match(/(ELESL\d{4}\d+)/);
+                    if (transMatch) extractedLicense = transMatch[1].replace(/(ELESL)(\d{4})(\d+)/, '$1-$2-$3');
+                    const dateMatch = cleanText.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
+                    if(dateMatch) extractedDate = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+                } else if (type === 'org') {
+                    const crMatch = cleanText.match(/(\d{10})/); if (crMatch) extractedLicense = crMatch[1];
                 }
             };
 
             try {
                 if (file.type === 'application/pdf') {
-                    if(overlayText) overlayText.innerText = "جاري فتح ملف PDF...";
                     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-                    const arrayBuffer = await file.arrayBuffer(); const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise; const page = await pdf.getPage(1); 
+                    const arrayBuffer = await file.arrayBuffer(); const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+                    const page = await pdf.getPage(1); const textContent = await page.getTextContent();
+                    extractTextData(textContent.items.map(item => item.str).join(''));
                     
-                    if(overlayText) overlayText.innerText = "جاري استخراج النصوص من المستند...";
-                    const textContent = await page.getTextContent(); const pdfText = textContent.items.map(item => item.str).join(''); let cleanPdfText = pdfText.toUpperCase().replace(/\s+/g, "");
-                    
-                    if (type === 'spec') { const transMatch = cleanPdfText.match(/(ELESL-\d{4}-\d+)/); if (transMatch) { extractedLicense = transMatch[1]; } const dateMatch = cleanPdfText.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/); if(dateMatch) { extractedDate = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`; } } 
-                    else if (type === 'org') { const crMatch = cleanPdfText.match(/(\d{10})/); if (crMatch) { extractedLicense = crMatch[1]; } }
-
-                    if (!extractedLicense) {
-                        if(overlayText) overlayText.innerText = "المستند مصور، جاري تشغيل الماسح الضوئي...";
+                    if(!extractedLicense && typeof Tesseract !== 'undefined') {
                         const viewport = page.getViewport({scale: 3.0}); const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d'); canvas.height = viewport.height; canvas.width = viewport.width;
-                        await page.render({canvasContext: ctx, viewport: viewport}).promise; await processCanvasOCR(canvas);
+                        await page.render({canvasContext: ctx, viewport: viewport}).promise;
+                        try { const res = await Tesseract.recognize(canvas.toDataURL('image/jpeg'), 'eng'); extractTextData(res.data.text); } catch(err) {}
                     }
                 } else if (file.type.startsWith('image/')) {
                     const img = new Image(); img.src = URL.createObjectURL(file);
-                    await new Promise((resolve) => { img.onload = async () => { const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0); await processCanvasOCR(canvas); resolve(); }; });
+                    await new Promise(resolve => { img.onload = async () => { const canvas = document.createElement('canvas'); canvas.width = img.width; canvas.height = img.height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0); try { if(typeof Tesseract !== 'undefined') { const res = await Tesseract.recognize(canvas.toDataURL('image/jpeg'), 'eng'); extractTextData(res.data.text); } } catch(err) {} resolve(); }; });
                 }
-            } catch(e) { console.error("File processing error:", e); }
+            } catch(e) {}
 
-            overlay.classList.add('hidden'); if(overlayText) overlayText.innerText = originalOverlayText;
+            overlay.classList.add('hidden'); if(overlayText) overlayText.innerText = originalText;
             
             if (extractedLicense) {
                 if(type === 'spec') {
-                    document.getElementById('license').value = extractedLicense; if(extractedDate) document.getElementById('issue_date').value = extractedDate;
-                    window.specAutoApprove = true; document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">task_alt</span><span class="text-sm font-bold text-primary break-all">تم استخراج الوثيقة بنجاح</span>`; showToast('✨ تم استخراج رقم المعاملة وتاريخ الانتهاء بنجاح!');
+                    document.getElementById('license').value = extractedLicense; if(extractedDate) document.getElementById('issue_date').value = extractedDate; window.specAutoApprove = true; showToast('✨ تم الاستخراج بنجاح!');
                 } else {
-                    document.getElementById('cr_number').value = extractedLicense; document.getElementById('org_name').value = "جاري جلب بيانات المنشأة..."; document.getElementById('org_name').classList.remove('cursor-not-allowed', 'bg-surface-container-low'); document.getElementById('org_name').classList.add('bg-transparent', 'border-2', 'border-outline-variant');
-                    window.orgAutoApprove = true; document.getElementById('org_upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">task_alt</span><span class="text-sm font-bold text-primary break-all">تم استخراج السجل بنجاح</span>`; showToast('✨ تم استخراج رقم السجل بنجاح واعتماده!'); window.fetchCRData(); 
+                    document.getElementById('cr_number').value = extractedLicense; document.getElementById('org_name').value = "جاري الجلب..."; window.orgAutoApprove = true; showToast('✨ تم الاستخراج!'); window.fetchCRData(); 
                 }
             } else {
-                if(type === 'spec') { document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">تم إرفاق الملف</span>`; showToast('لم يتم العثور على رقم المعاملة (ELESL) في الصفحة، يرجى التأكد من الملف.', true); } 
-                else { window.fallbackSimulation(type); }
+                showToast(`لم يتم العثور على ${type==='spec'?'رقم المعاملة':'رقم السجل'}، أدخله يدوياً.`, true);
             }
         };
 
-        window.fallbackSimulation = (type) => {
-            if(type === 'spec') {
-                document.getElementById('license').value = "ENV-2026-999"; document.getElementById('issue_date').value = "2026-07-18"; window.specAutoApprove = true; document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">task_alt</span><span class="text-sm font-bold text-primary break-all">تم الإرفاق (محاكاة)</span>`; showToast('تم إدراج بيانات تجريبية للترخيص واعتمادها.');
-            } else {
-                document.getElementById('cr_number').value = "1010123456"; document.getElementById('org_name').value = "جاري جلب بيانات المنشأة..."; document.getElementById('org_name').classList.remove('cursor-not-allowed', 'bg-surface-container-low'); document.getElementById('org_name').classList.add('bg-transparent', 'border-2', 'border-outline-variant'); window.orgAutoApprove = true; document.getElementById('org_upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">task_alt</span><span class="text-sm font-bold text-primary break-all">تم الإرفاق (محاكاة)</span>`; showToast('تم إدراج بيانات تجريبية للسجل واعتمادها.'); window.fetchCRData();
-            }
-        };
-
-        // File Upload Listeners
-        document.getElementById('file_upload')?.addEventListener('change', function(e) { const fileName = e.target.files[0]?.name; if(fileName) document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">${fileName}</span>`; });
-        document.getElementById('org_file_upload')?.addEventListener('change', function(e) { const fileName = e.target.files[0]?.name; if(fileName) document.getElementById('org_upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">${fileName}</span>`; });
+        document.getElementById('file_upload')?.addEventListener('change', function(e) { const fn = e.target.files[0]?.name; if(fn) document.getElementById('upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">${fn}</span>`; });
+        document.getElementById('org_file_upload')?.addEventListener('change', function(e) { const fn = e.target.files[0]?.name; if(fn) document.getElementById('org_upload_label').innerHTML = `<span class="material-symbols-outlined text-primary text-2xl block mb-1">description</span><span class="text-sm font-bold text-primary break-all">${fn}</span>`; });
         
         document.getElementById('profile_pic_upload')?.addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if(file) { 
-                const reader = new FileReader(); 
-                reader.onload = function(e) { 
-                    window.globalProfilePicData = e.target.result; 
-                    const img = document.getElementById('profile_pic_preview'); 
-                    img.src = window.globalProfilePicData; 
-                    img.classList.remove('hidden'); 
-                    document.getElementById('profile_pic_icon').classList.add('hidden'); 
-                }; 
-                reader.readAsDataURL(file); 
+            if(file) { const reader = new FileReader(); reader.onload = function(ev) { window.globalProfilePicData = ev.target.result; const img = document.getElementById('profile_pic_preview'); img.src = window.globalProfilePicData; img.classList.remove('hidden'); document.getElementById('profile_pic_icon').classList.add('hidden'); }; reader.readAsDataURL(file); }
+        });
+        
+        document.getElementById('resume_upload')?.addEventListener('change', function(e) { 
+            const f = e.target.files[0]; const c = document.getElementById('resume_upload_label'); 
+            if(f) {
+                c.innerHTML = `<span class="bg-[#005232]/10 px-3 py-1.5 rounded-lg border border-[#005232]/20 text-[#005232] font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">check_circle</span> ${f.name}</span>`;
+                const reader = new FileReader(); reader.onload = function(ev) { window.globalResumeData = ev.target.result; }; reader.readAsDataURL(f);
             }
         });
 
-        // قراءة وتخزين ملف السيرة الذاتية (CV)
-        document.getElementById('resume_upload')?.addEventListener('change', function(e) { 
-            const f = e.target.files[0]; 
-            const c = document.getElementById('resume_upload_label'); 
-            if(f) {
-                c.innerHTML = `<span class="bg-[#005232]/10 px-3 py-1.5 rounded-lg border border-[#005232]/20 text-[#005232] font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">check_circle</span> ${f.name}</span>`; 
-                const reader = new FileReader(); 
-                reader.onload = function(ev) { window.globalResumeData = ev.target.result; }; 
-                reader.readAsDataURL(f); 
-            } 
-        });
-
-        document.getElementById('certs_upload')?.addEventListener('change', function(e) { const files = e.target.files; const container = document.getElementById('certs_upload_label'); container.innerHTML = ''; Array.from(files).forEach(file => { container.innerHTML += `<span class="bg-surface-container-high px-2 py-1 rounded border border-outline-variant text-secondary">${file.name}</span>`; }); });
-
-        // Form Submit Listeners
-        document.getElementById("form-step1")?.addEventListener("submit", e => { e.preventDefault(); window.isOrgReg=false; window.tData.n = document.getElementById("full_name").value; window.tData.id = document.getElementById("national_id").value; window.tData.em = document.getElementById("email").value; window.tData.ph = document.getElementById("phone").value; window.navigate('view-step2'); });
-        document.getElementById("form-step2")?.addEventListener("submit", e => { e.preventDefault(); window.tData.lic = document.getElementById("license").value; window.navigate('view-otp'); window.showToast("استخدم 123456"); });
-        document.getElementById("form-org-step1")?.addEventListener("submit", e => { e.preventDefault(); if(!document.getElementById("org_name").value) return window.showToast("يرجى جلب بيانات السجل التجاري أولاً!", true); window.isOrgReg=true; window.tData.on = document.getElementById("org_name").value; window.tData.cr = document.getElementById("cr_number").value; window.tData.ph = document.getElementById("org_phone").value; window.tData.desc = document.getElementById("org_desc").value; window.navigate('view-otp'); window.showToast("استخدم 123456 للتحقق"); });
+        document.getElementById("form-step1")?.addEventListener("submit", e => { e.preventDefault(); window.isOrgReg=false; window.tData = { n: document.getElementById("full_name").value, id: document.getElementById("national_id").value, em: document.getElementById("email").value, ph: document.getElementById("phone").value }; window.navigate('view-step2'); });
+        document.getElementById("form-step2")?.addEventListener("submit", e => { e.preventDefault(); window.tData.lic = document.getElementById("license").value; window.navigate('view-otp'); showToast("استخدم 123456"); });
+        document.getElementById("form-org-step1")?.addEventListener("submit", e => { e.preventDefault(); if(!document.getElementById("org_name").value) return showToast("يرجى جلب البيانات أولاً!", true); window.isOrgReg=true; window.tData = { on: document.getElementById("org_name").value, cr: document.getElementById("cr_number").value, ph: document.getElementById("org_phone").value, desc: document.getElementById("org_desc").value }; window.navigate('view-otp'); showToast("استخدم 123456"); });
         
         document.getElementById("form-otp")?.addEventListener("submit", async e => { 
             e.preventDefault(); const u=auth.currentUser; const b=e.target.querySelector('button[type="submit"]'); b.innerHTML='جاري...'; b.disabled=true;
             if(u) {
                 if(window.isOrgReg) { 
-                    const finalStatus = window.orgAutoApprove ? 'approved' : 'pending';
-                    const od = {status: finalStatus, orgName:window.tData.on, crNumber:window.tData.cr, phone:window.tData.ph, orgDesc:window.tData.desc, createdAt: serverTimestamp()}; 
-                    await setDoc(doc(db,'artifacts',appId,'public','data','organizations',u.uid), od); 
-                    localStorage.setItem('preferredRole', 'org'); b.innerHTML='تأكيد'; b.disabled=false;
-                    if(finalStatus === 'approved') { showToast('تم تفعيل حساب المنشأة فورياً بناءً على قراءة السجل!'); setTimeout(() => window.checkAndGoToDashboard(), 2000); } 
-                    else { window.navigate('view-waiting-room'); window.listenToStatus(u.uid, 'org'); }
+                    const fs = window.orgAutoApprove ? 'approved' : 'pending';
+                    await setDoc(doc(db,'artifacts',appId,'public','data','organizations',u.uid), {status: fs, orgName:window.tData.on, crNumber:window.tData.cr, phone:window.tData.ph, orgDesc:window.tData.desc, createdAt: serverTimestamp()}); 
+                    safeStorage.setItem('preferredRole', 'org'); b.innerHTML='تأكيد'; b.disabled=false;
+                    if(fs === 'approved') { showToast('تم التفعيل!'); setTimeout(() => window.checkAndGoToDashboard(), 2000); } else { window.navigate('view-waiting-room'); window.listenToStatus(u.uid, 'org'); }
                 } else { 
-                    const finalStatus = window.specAutoApprove ? 'approved' : 'pending';
-                    const pd = {status: finalStatus, fullName:window.tData.n, nationalId:window.tData.id, email:window.tData.em, phone:window.tData.ph, license:window.tData.lic, createdAt: serverTimestamp()}; 
-                    await setDoc(doc(db,'artifacts',appId,'public','data','specialists',u.uid), pd); 
-                    localStorage.setItem('preferredRole', 'spec'); b.innerHTML='تأكيد'; b.disabled=false;
-                    if(finalStatus === 'approved') { showToast('تم تفعيل الحساب فورياً بناءً على قراءة الباركود!'); setTimeout(() => window.checkAndGoToDashboard(), 2000); } 
-                    else { window.navigate('view-waiting-room'); window.listenToStatus(u.uid, 'spec'); }
+                    const fs = window.specAutoApprove ? 'approved' : 'pending';
+                    await setDoc(doc(db,'artifacts',appId,'public','data','specialists',u.uid), {status: fs, fullName:window.tData.n, nationalId:window.tData.id, email:window.tData.em, phone:window.tData.ph, license:window.tData.lic, createdAt: serverTimestamp()}); 
+                    safeStorage.setItem('preferredRole', 'spec'); b.innerHTML='تأكيد'; b.disabled=false;
+                    if(fs === 'approved') { showToast('تم التفعيل!'); setTimeout(() => window.checkAndGoToDashboard(), 2000); } else { window.navigate('view-waiting-room'); window.listenToStatus(u.uid, 'spec'); }
                 }
             } 
         });
@@ -934,25 +890,19 @@
         otpIn.forEach((i, idx) => { i.addEventListener('input', e => { if(e.target.value.length===1 && idx<otpIn.length-1) otpIn[idx+1].focus(); if(e.target.value.length>1) e.target.value=e.target.value.slice(0,1); }); i.addEventListener('keydown', e => { if(e.key==='Backspace' && !e.target.value && idx>0) otpIn[idx-1].focus(); }); });
 
         window.saveCVSpecialist = async () => {
-            const u = auth.currentUser; if(!u) return;
-            const hasResume = window.globalResumeData ? true : (window.myProfileData?.hasResume || false);
-            
-            const newData = { 
+            const u = auth.currentUser; if(!u) return; 
+            const nd = { 
                 fullName: document.getElementById('cv_name').value, nationalId: document.getElementById('cv_id').value, 
                 email: document.getElementById('cv_email').value, phone: document.getElementById('cv_phone').value, 
                 edu: document.getElementById('cv_edu').value, years: document.getElementById('cv_years').value, 
                 license: document.getElementById('cv_license').value, exp: document.getElementById('cv_exp').value, 
-                portfolio: document.getElementById('cv_portfolio').value,
-                profilePic: window.globalProfilePicData,
-                hasResume: hasResume,
-                resumeFile: window.globalResumeData || null
+                portfolio: document.getElementById('cv_portfolio').value, 
+                profilePic: window.globalProfilePicData || window.myProfileData?.profilePic || null,
+                resumeFile: window.globalResumeData || window.myProfileData?.resumeFile || null
             };
-            await updateDoc(doc(db,'artifacts',appId,'public','data','specialists',u.uid), newData); 
-            if(window.myProfileData) {
-                window.myProfileData.hasResume = hasResume;
-                window.myProfileData.resumeFile = window.globalResumeData || null;
-            }
-            window.showToast('تم حفظ ونشر التحديثات بنجاح!');
+            await updateDoc(doc(db,'artifacts',appId,'public','data','specialists',u.uid), nd); 
+            if(window.myProfileData) { window.myProfileData = {...window.myProfileData, ...nd}; }
+            showToast('تم حفظ التحديثات!');
         };
 
         window.previewCV = (asOrg=false, specData=null) => {
@@ -961,156 +911,87 @@
                 email: document.getElementById('cv_email').value, phone: document.getElementById('cv_phone').value, 
                 edu: document.getElementById('cv_edu').value, years: document.getElementById('cv_years').value, 
                 license: document.getElementById('cv_license').value, exp: document.getElementById('cv_exp').value, 
-                portfolio: document.getElementById('cv_portfolio').value, profilePic: window.globalProfilePicData,
-                hasResume: (window.myProfileData?.hasResume || false), resumeFile: window.globalResumeData
+                portfolio: document.getElementById('cv_portfolio').value, 
+                profilePic: window.globalProfilePicData || window.myProfileData?.profilePic || null, 
+                resumeFile: window.globalResumeData || window.myProfileData?.resumeFile || null 
             };
             
-            document.getElementById('prev_name').innerText = d.fullName || 'بدون اسم'; document.getElementById('prev_edu').innerText = d.edu || 'لم يحدد التخصص';
-            const pic = document.getElementById('prev_pic'); if(d.profilePic) { pic.src = d.profilePic; pic.classList.remove('hidden'); } else { pic.classList.add('hidden'); }
+            document.getElementById('prev_name').innerText = d.fullName || 'بدون اسم'; 
+            document.getElementById('prev_edu').innerText = d.edu || 'لم يحدد التخصص';
+            
+            const pic = document.getElementById('prev_pic');
+            if(d.profilePic) { pic.src = d.profilePic; pic.classList.remove('hidden'); } else { pic.classList.add('hidden'); }
+
             const id = d.nationalId || ''; document.getElementById('prev_id').innerText = (asOrg && id.length >= 10) ? id.substring(0,3) + '****' + id.substring(7) : (id||'-');
             document.getElementById('prev_email').innerText = d.email || '-'; document.getElementById('prev_phone').innerText = d.phone || '-'; document.getElementById('prev_years').innerText = d.years ? d.years + ' سنوات خبرة' : 'مبتدئ'; document.getElementById('prev_lic').innerText = d.license || 'لا يوجد'; document.getElementById('prev_exp').innerText = d.exp || 'لا توجد خبرات مفصلة.';
             
             const pDiv = document.getElementById('prev_portfolio_div'), pLink = document.getElementById('prev_portfolio');
             if(d.portfolio) { pLink.href = d.portfolio; pLink.innerText = d.portfolio; pDiv.classList.remove('hidden'); pDiv.classList.add('flex'); } else { pDiv.classList.add('hidden'); pDiv.classList.remove('flex'); }
             
-            // إظهار زر تحميل الـ CV إذا كان متوفراً
-            const rDiv = document.getElementById('prev_resume_div');
-            const rLink = document.getElementById('prev_resume_link');
-            if(d.hasResume && d.resumeFile) { 
-                rLink.href = d.resumeFile;
-                rLink.download = `CV_${d.fullName || 'الأخصائي'}.pdf`;
-                rDiv.classList.remove('hidden'); rDiv.classList.add('flex'); 
-            } else { 
-                rDiv.classList.add('hidden'); rDiv.classList.remove('flex'); 
-            }
+            const rDiv = document.getElementById('prev_resume_div'), rLink = document.getElementById('prev_resume_link');
+            if(d.resumeFile) { rLink.href = d.resumeFile; rDiv.classList.remove('hidden'); rDiv.classList.add('flex'); } else { rDiv.classList.add('hidden'); rDiv.classList.remove('flex'); }
             
             document.getElementById('cv-preview-modal').classList.remove('hidden-view'); document.getElementById('cv-preview-modal').classList.add('flex');
         };
 
         window.printProfile = () => { window.print(); };
-        
-        window.submitApp = async (orgName, btn) => { 
+
+        window.userNamesCache = {};
+        window.loadUserChats = () => {
             const u = auth.currentUser; if(!u) return;
-            btn.innerHTML='جاري التقديم...'; btn.disabled=true;
-            try {
-                const orgsRef = collection(db, 'artifacts', appId, 'public', 'data', 'organizations');
-                const q = await getDocs(orgsRef); let targetOrgId = null; q.forEach(doc => { if(doc.data().orgName === orgName) targetOrgId = doc.id; });
-                if(targetOrgId) {
-                    const chatId = 'chat_' + targetOrgId + '_' + u.uid;
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { chatId: chatId, senderId: u.uid, text: 'مرحباً، أود التقديم للعمل معكم وقد أرفقت سيرتي الذاتية لتقييمها.', timestamp: serverTimestamp() });
-                    window.showToast('تم التقديم وإنشاء محادثة مع ' + orgName); btn.innerHTML='تم التقديم'; btn.classList.add('opacity-50','cursor-not-allowed');
-                    setTimeout(() => { window.switchSpecTab('requests'); window.openChatRoom(chatId, orgName, 'spec'); }, 1000);
-                } else { window.showToast('لم يتم العثور على المنشأة', true); btn.innerHTML='تقديم السيرة الذاتية'; btn.disabled=false; }
-            } catch(e) { window.showToast('حدث خطأ', true); btn.innerHTML='تقديم السيرة الذاتية'; btn.disabled=false;}
-        };
-
-        window.filterSpecialists = () => { const query = document.getElementById('spec-search-input').value.toLowerCase(); document.querySelectorAll('.spec-card').forEach(card => card.style.display = card.innerText.toLowerCase().includes(query) ? '' : 'none'); };
-        window.filterOrganizations = () => { const query = document.getElementById('org-search-input').value.toLowerCase(); document.querySelectorAll('.org-card').forEach(card => card.style.display = card.innerText.toLowerCase().includes(query) ? '' : 'none'); };
-
-        window.listenToRequests = (uid, role) => {
-            const reqRef = collection(db, 'artifacts', appId, 'public', 'data', 'requests');
-            onSnapshot(reqRef, (snapshot) => {
-                let html = ''; let homeReqHtml = ''; let homeProjHtml = ''; let pendingCount = 0; let activeProjCount = 0;
-                snapshot.forEach(docSnap => {
-                    const req = docSnap.data();
-                    if(role === 'spec' && req.specId === uid) {
-                        if(req.status === 'pending') {
-                            pendingCount++; let badge = '<span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-[10px] font-bold">طلب جديد</span>'; 
-                            let acts = `<div class="flex gap-1 mt-3"><button onclick="updateReqStatus('${docSnap.id}', 'accepted')" class="flex-1 bg-primary text-white text-xs py-2 rounded-lg hover:bg-[#006d44] font-bold">قبول وبدء محادثة</button><button onclick="updateReqStatus('${docSnap.id}', 'rejected')" class="flex-1 bg-red-50 text-red-600 text-xs py-2 rounded-lg hover:bg-red-100 font-bold">رفض</button></div>`; 
-                            if(pendingCount <= 5) { homeReqHtml += `<div class="flex items-center justify-between p-3 border rounded-xl bg-surface-container-lowest"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-orange-50 text-orange-500 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-lg">mark_email_unread</span></div><div><p class="font-bold text-sm text-primary truncate max-w-[150px]">${req.orgName}</p><p class="text-[11px] text-secondary mt-0.5">بانتظار موافقتك</p></div></div><button onclick="switchSpecTab('requests')" class="bg-white border shadow-sm text-primary text-xs px-3 py-1.5 rounded-lg font-bold hover:bg-surface transition-colors">مراجعة</button></div>`; }
-                            html += `<div class="p-4 border border-outline-variant/30 rounded-xl bg-white hover:border-primary transition-colors"><div class="flex justify-between items-start mb-2"><h5 class="font-bold text-sm text-on-surface truncate" title="${req.orgName}">${req.orgName}</h5>${badge}</div><p class="text-[11px] text-secondary leading-relaxed line-clamp-2">${req.orgDesc}</p>${acts}</div>`;
-                        } 
-                        else if(req.status === 'accepted') { 
-                            activeProjCount++; let badge = '<span class="bg-primary-fixed text-primary px-2 py-0.5 rounded text-[10px] font-bold">مقبول</span>'; 
-                            let acts = `<button onclick="openChatRoom('${req.chatId}', '${req.orgName}', 'spec')" class="w-full mt-3 bg-surface-container-high text-secondary text-xs py-2 rounded-lg hover:bg-outline-variant font-bold flex items-center justify-center gap-1"><span class="material-symbols-outlined text-sm">chat</span> فتح المحادثة</button>`; 
-                            homeProjHtml += `<div class="flex items-center justify-between p-4 border rounded-xl bg-white shadow-sm hover:border-primary transition-colors cursor-pointer" onclick="switchSpecTab('requests'); openChatRoom('${req.chatId}', '${req.orgName}', 'spec')"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center"><span class="material-symbols-outlined text-lg">rocket_launch</span></div><div><p class="font-bold text-sm text-primary truncate max-w-[140px]">${req.orgName}</p><p class="text-[11px] text-secondary mt-0.5 truncate max-w-[140px]">${req.orgDesc}</p></div></div><span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold whitespace-nowrap">قيد التنفيذ</span></div>`;
-                            html += `<div class="p-4 border border-outline-variant/30 rounded-xl bg-white hover:border-primary transition-colors"><div class="flex justify-between items-start mb-2"><h5 class="font-bold text-sm text-on-surface truncate" title="${req.orgName}">${req.orgName}</h5>${badge}</div><p class="text-[11px] text-secondary leading-relaxed line-clamp-2">${req.orgDesc}</p>${acts}</div>`;
-                        } else { let badge = '<span class="bg-red-50 text-red-500 px-2 py-0.5 rounded text-[10px] font-bold">مرفوض</span>'; html += `<div class="p-4 border border-outline-variant/30 rounded-xl bg-white opacity-60"><div class="flex justify-between items-start mb-2"><h5 class="font-bold text-sm text-on-surface truncate" title="${req.orgName}">${req.orgName}</h5>${badge}</div><p class="text-[11px] text-secondary leading-relaxed line-clamp-2">${req.orgDesc}</p></div>`; }
-                    }
-                    if(role === 'org' && req.orgId === uid) {
-                        let badge='', acts='';
-                        if(req.status === 'pending') { badge = '<span class="bg-slate-200 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold">بانتظار موافقة الأخصائي</span>'; } 
-                        else if(req.status === 'accepted') { badge = '<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold">مقبول</span>'; acts = `<button onclick="openChatRoom('${req.chatId}', '${req.specName}', 'org')" class="w-full mt-3 bg-blue-600 text-white text-xs py-2 rounded-lg hover:bg-blue-700 font-bold flex items-center justify-center gap-1"><span class="material-symbols-outlined text-sm">chat</span> مراسلة الأخصائي</button>`; } 
-                        else { badge = '<span class="bg-red-50 text-red-500 px-2 py-0.5 rounded text-[10px] font-bold">مرفوض</span>'; }
-                        html += `<div class="p-4 border border-slate-200 rounded-xl bg-white"><div class="flex justify-between items-center mb-1"><h5 class="font-bold text-sm text-slate-800 truncate">إلى: ${req.specName}</h5></div><div class="mt-2">${badge}</div>${acts}</div>`;
+            const isSpec = window.currAccountType === 'spec';
+            const listId = isSpec ? 'spec-requests-list' : 'org-requests-list';
+            const listEl = document.getElementById(listId);
+            if(!listEl) return;
+            
+            const q = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
+            onSnapshot(q, async (snap) => {
+                let chats = {};
+                snap.forEach(doc => {
+                    const m = doc.data();
+                    if(m.chatId && m.chatId.includes(u.uid)) {
+                        if(!chats[m.chatId] || (m.timestamp?.seconds > (chats[m.chatId].latest.timestamp?.seconds || 0))) {
+                            chats[m.chatId] = { latest: m, chatId: m.chatId };
+                        }
                     }
                 });
+                
+                listEl.innerHTML = '';
+                if(Object.keys(chats).length === 0) {
+                    listEl.innerHTML = '<div class="text-center p-4 text-secondary text-sm">لا توجد محادثات نشطة حالياً</div>';
+                    return;
+                }
 
-                if(role === 'spec') { 
-                    const list = document.getElementById('spec-requests-list'); if(list) list.innerHTML = html || '<div class="text-center p-4 text-secondary text-sm">لا توجد طلبات حالياً.</div>'; 
-                    const badge = document.getElementById('spec-noti-badge'); const homeBadge = document.getElementById('home-noti-badge');
-                    if(badge) { if(pendingCount>0) { badge.innerText = pendingCount; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); } }
-                    if(homeBadge) { if(pendingCount>0) { homeBadge.innerText = pendingCount; homeBadge.classList.remove('hidden'); } else { homeBadge.classList.add('hidden'); } }
-                    const statNew = document.getElementById('stat-new-requests'); const statActive = document.getElementById('stat-active-projects');
-                    if(statNew) statNew.innerText = pendingCount; if(statActive) statActive.innerText = activeProjCount;
-                    const homeReqList = document.getElementById('home-requests-list'); const homeProjList = document.getElementById('home-projects-list');
-                    if(homeReqList) homeReqList.innerHTML = homeReqHtml || '<div class="text-sm text-secondary text-center py-10 opacity-70">لا توجد طلبات جديدة حالياً.</div>';
-                    if(homeProjList) homeProjList.innerHTML = homeProjHtml || '<div class="text-sm text-secondary text-center py-10 opacity-70">لا توجد مشاريع قيد التنفيذ. اقبل بعض الطلبات لتبدأ!</div>';
-                } 
-                else if(role === 'org') { const list = document.getElementById('org-requests-list'); if(list) list.innerHTML = html || '<div class="text-center p-4 text-slate-500 text-sm">لم تقم بإرسال أي طلبات بعد.</div>'; }
+                for(const chatId of Object.keys(chats)) {
+                    const parts = chatId.split('_');
+                    const otherId = isSpec ? parts[2] : parts[1];
+                    const roleArg = isSpec ? 'spec' : 'org';
+                    
+                    let otherName = window.userNamesCache[otherId];
+                    if(!otherName) {
+                        try {
+                            const docRef = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', isSpec ? 'organizations' : 'specialists', otherId));
+                            if(docRef.exists()) {
+                                otherName = isSpec ? docRef.data().orgName : docRef.data().fullName;
+                                window.userNamesCache[otherId] = otherName;
+                            } else { otherName = 'مستخدم'; }
+                        } catch(e) { otherName = 'مستخدم'; }
+                    }
+
+                    const chatDiv = document.createElement('div');
+                    chatDiv.className = "p-3 bg-white border border-outline-variant rounded-xl cursor-pointer hover:border-primary transition-all shadow-sm mb-2";
+                    chatDiv.innerHTML = `<div class="font-bold text-primary text-sm">${otherName}</div><div class="text-xs text-secondary truncate">${chats[chatId].latest.isContract ? '📄 عقد اتفاق جديد' : (chats[chatId].latest.text || '')}</div>`;
+                    chatDiv.onclick = () => window.openChatRoom(chatId, otherName, roleArg);
+                    listEl.appendChild(chatDiv);
+                }
             });
         };
 
-        window.activeChatId = null; window.activeChatRole = null; window.chatUnsub = null;
-        
-        // --- نظام العقود المبسط والجديد المعتمد على الطرفين ---
-
-        window.openContractModal = () => { 
-            document.getElementById('cont_title').value = ''; 
-            document.getElementById('cont_duration').value = ''; 
-            document.getElementById('cont_value').value = ''; 
-            document.getElementById('cont_org_sig').value = ''; 
-            document.getElementById('contract-modal').classList.remove('hidden-view'); 
-            document.getElementById('contract-modal').classList.add('flex'); 
-        };
-
-        window.submitContract = async () => {
-            const title = document.getElementById('cont_title').value.trim();
-            const duration = document.getElementById('cont_duration').value.trim();
-            const value = document.getElementById('cont_value').value.trim();
-            const orgSig = document.getElementById('cont_org_sig').value.trim();
-            
-            if(!title || !duration || !value || !orgSig) return window.showToast('يرجى تعبئة جميع بيانات العقد وتوقيعه', true);
-            window.closeModal('contract-modal');
-            try { 
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { 
-                    chatId: window.activeChatId, senderId: auth.currentUser.uid, 
-                    isContract: true, text: "قام الطرف الأول بإرسال مسودة عقد",
-                    contractData: { title, duration, value, orgSig: orgSig, specSig: null, status: 'pending' }, 
-                    timestamp: serverTimestamp() 
-                }); 
-                window.showToast('تم إرسال العقد للأخصائي'); 
-            } catch(e) { window.showToast('خطأ في الإرسال', true); }
-        };
-
-        window.openSignModal = (msgId) => { 
-            document.getElementById('sign_msg_id').value = msgId; 
-            document.getElementById('cont_spec_sig').value = ''; 
-            document.getElementById('sign-modal').classList.remove('hidden-view'); 
-            document.getElementById('sign-modal').classList.add('flex'); 
-        };
-
-        window.confirmSignature = async () => {
-            const sig = document.getElementById('cont_spec_sig').value.trim();
-            const msgId = document.getElementById('sign_msg_id').value; 
-            if(!sig) return window.showToast('يرجى كتابة اسمك لتوقيع العقد', true);
-            
-            window.closeModal('sign-modal');
-            try { 
-                const mRef = doc(db, 'artifacts', appId, 'public', 'data', 'messages', msgId); 
-                const mSnap = await getDoc(mRef); 
-                if(mSnap.exists()) { 
-                    let d = mSnap.data(); 
-                    d.contractData.specSig = sig; 
-                    d.contractData.status = 'signed'; 
-                    await updateDoc(mRef, { contractData: d.contractData }); 
-                    window.showToast('🎉 تم اعتماد العقد وتوقيعه من الطرفين!'); 
-                } 
-            } catch(e) { window.showToast('خطأ في الاعتماد', true); }
-        };
-
+        window.chatUnsub = null;
         window.openChatRoom = (chatId, otherName, role) => {
-            window.activeChatId = chatId; window.activeChatRole = role;
+            if(window.chatUnsub) { window.chatUnsub(); window.chatUnsub = null; }
+
+            window.activeChatId = chatId; window.activeChatRole = role; 
             const prefix = role === 'spec' ? 'spec' : 'org';
             
             document.getElementById(`${prefix}-chat-empty`).classList.add('hidden'); 
@@ -1118,51 +999,67 @@
             document.getElementById(`${prefix}-chat-form`).classList.remove('hidden'); 
             document.getElementById(`${prefix}-chat-form`).classList.add('flex');
             
-            const nameEl = document.getElementById(`${prefix}-chat-${role==='spec'?'org':'spec'}-name`); if(nameEl) nameEl.innerText = otherName;
+            const nameEl = document.getElementById(`${prefix}-chat-${role==='spec'?'org':'spec'}-name`); 
+            if(nameEl) nameEl.innerText = otherName;
+            
             const msgsDiv = document.getElementById(`${prefix}-chat-messages`); 
             msgsDiv.innerHTML = '<div class="text-center text-xs text-gray-400 my-4">جاري فتح القناة الآمنة...</div>';
             
-            if(window.chatUnsub) window.chatUnsub(); 
-            const msgsRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
-            
-            window.chatUnsub = onSnapshot(msgsRef, (snap) => {
+            window.chatUnsub = onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), (snap) => {
                 const u = auth.currentUser; if(!u) return; let msgs = [];
-                snap.forEach(d => { const m = d.data(); if(m.chatId === chatId) msgs.push({...m, id: d.id}); }); 
+                snap.forEach(d => { const m = d.data(); m.id = d.id; if(m.chatId === chatId) msgs.push(m); }); 
                 msgs.sort((a,b) => (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0)); 
-                msgsDiv.innerHTML = '<div class="text-center text-xs text-gray-400 my-4 font-bold">تم فتح قناة التواصل، الرسائل مشفرة.</div>';
-                
+
+                if (msgs.length === 0) { msgsDiv.innerHTML = '<div class="text-center text-xs text-gray-400 my-4">لا توجد رسائل. ابدأ المحادثة الآن.</div>'; return; }
+
+                msgsDiv.innerHTML = '<div class="text-center text-xs text-gray-400 my-4 font-bold">تم الاتصال بالقناة المشفرة</div>';
                 msgs.forEach(m => {
-                    const isMe = m.senderId === u.uid;
+                    const isMe = m.senderId === u.uid; 
                     const justify = isMe ? 'justify-end' : 'justify-start';
-                    
                     if(m.isContract) {
-                        const c = m.contractData;
-                        const isSigned = c.status === 'signed';
-                        const statusBadge = isSigned ? '<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">verified</span> عقد معتمد من الطرفين</span>' : '<span class="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">pending_actions</span> بانتظار توقيع الطرف الثاني</span>';
-                        let specAction = (role === 'spec' && !isSigned) ? `<button onclick="openSignModal('${m.id}')" class="w-full mt-4 bg-primary text-white py-2 rounded-lg font-bold text-sm hover:bg-[#006d44] shadow-md">توقيع العقد واعتماده</button>` : '';
+                        const o = m.contractData;
+                        const isAccepted = o.status === 'signed';
+                        const statusBadge = isAccepted ? '<span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">verified</span> عقد معتمد</span>' : '<span class="bg-orange-100 text-orange-700 px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">pending_actions</span> بانتظار التوقيع</span>';
                         
+                        let specSigArea = '';
+                        if (isAccepted) {
+                            specSigArea = `<p class="font-[Manrope] text-lg text-green-700 font-bold">${o.specSig}</p>`;
+                        } else {
+                            // التعديل الرئيسي هنا: الاعتماد فقط على window.currAccountType لإظهار مربع التوقيع للأخصائي
+                            if (window.currAccountType === 'spec') {
+                                specSigArea = `
+                                    <div class="flex flex-col gap-1 w-full px-1">
+                                        <input type="text" id="inline_spec_sig_${m.id}" class="w-full px-2 py-1.5 border border-primary bg-white rounded text-center text-sm font-bold text-primary" placeholder="اكتب اسمك للقبول">
+                                        <button onclick="confirmInlineSignature('${m.id}')" class="bg-primary text-white text-xs py-1.5 rounded font-bold hover:bg-[#006d44]"><span class="material-symbols-outlined text-[12px] align-middle">draw</span> اعتماد التوقيع</button>
+                                    </div>
+                                `;
+                            } else {
+                                specSigArea = `<p class="font-[Manrope] text-sm text-orange-500 mt-2 font-bold animate-pulse">بانتظار الأخصائي...</p>`;
+                            }
+                        }
+
                         msgsDiv.innerHTML += `
                         <div class="flex justify-center mb-4 w-full">
-                            <div class="bg-white border-2 border-outline-variant shadow-lg rounded-2xl p-5 w-[90%] md:w-[80%]">
-                                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                                    <h4 class="font-bold text-primary text-lg flex items-center gap-2"><span class="material-symbols-outlined">description</span> عقد إلكتروني</h4>
+                            <div class="bg-white border-2 ${isAccepted ? 'border-green-400' : 'border-primary'} shadow-lg rounded-3xl p-6 w-[95%] md:w-[85%] overflow-hidden relative">
+                                <div class="flex justify-between items-center mb-4 border-b pb-3">
+                                    <h4 class="font-bold ${isAccepted ? 'text-green-700' : 'text-primary'} text-lg flex items-center gap-2"><span class="material-symbols-outlined">description</span> وثيقة عقد عمل</h4>
                                     ${statusBadge}
                                 </div>
-                                <div class="bg-surface-container-low p-3 rounded-xl mb-4 text-sm">
-                                    <div class="grid grid-cols-2 gap-2 mb-2"><div>المشروع: <strong>${c.title}</strong></div><div>المدة: <strong>${c.duration}</strong></div></div>
-                                    <div>القيمة: <strong>${c.value} ر.س</strong></div>
+                                <div class="bg-surface-container-lowest border p-4 rounded-xl mb-4 text-sm text-slate-700 space-y-2">
+                                    <div class="flex justify-between"><span class="font-bold">المشروع/المهمة:</span> <span>${o.title}</span></div>
+                                    <div class="flex justify-between"><span class="font-bold">المدة المتوقعة:</span> <span>${o.duration}</span></div>
+                                    <div class="flex justify-between"><span class="font-bold">القيمة المتفق عليها:</span> <span class="text-primary font-bold text-base">${o.value} ر.س</span></div>
                                 </div>
-                                <div class="mt-4 flex justify-between text-xs border-t pt-3">
-                                    <div class="text-center w-1/2 border-l">
-                                        <p class="text-gray-500 mb-1">الطرف الأول (المنشأة)</p>
-                                        <p class="font-bold text-primary text-lg font-[Manrope]">${c.orgSig}</p>
+                                <div class="grid grid-cols-2 gap-4 text-center text-sm">
+                                    <div class="bg-surface-container-low p-3 rounded-xl border border-outline-variant/30 flex flex-col items-center justify-center">
+                                        <p class="text-secondary font-bold mb-1 text-xs">توقيع المنشأة</p>
+                                        <p class="font-[Manrope] text-lg text-primary font-bold">${o.orgSig}</p>
                                     </div>
-                                    <div class="text-center w-1/2">
-                                        <p class="text-gray-500 mb-1">الطرف الثاني (الأخصائي)</p>
-                                        <p class="font-bold text-primary text-lg font-[Manrope]">${c.specSig || '<span class="text-gray-300">بانتظار التوقيع...</span>'}</p>
+                                    <div class="bg-surface-container-low p-3 rounded-xl border ${isAccepted ? 'border-green-200 bg-green-50' : 'border-orange-200 bg-orange-50'} flex flex-col items-center justify-center min-h-[80px]">
+                                        <p class="text-secondary font-bold mb-1 text-xs">توقيع الأخصائي</p>
+                                        ${specSigArea}
                                     </div>
                                 </div>
-                                ${specAction}
                             </div>
                         </div>`;
                     } else {
@@ -1171,13 +1068,99 @@
                     }
                 });
                 msgsDiv.scrollTop = msgsDiv.scrollHeight; 
-            });
+            }, (err) => console.error("Chat listener error:", err));
         };
 
-        window.updateReqStatus = async (reqId, status) => { try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'requests', reqId), { status: status }); window.showToast(status === 'accepted' ? 'تم القبول!' : 'تم الرفض'); } catch(e) { window.showToast('خطأ', true); } };
+        window.submitApp = async (orgName, btn) => { 
+            const u = auth.currentUser; if(!u) return;
+            btn.innerHTML='جاري التقديم...'; btn.disabled=true;
+            try {
+                const orgsRef = collection(db, 'artifacts', appId, 'public', 'data', 'organizations');
+                const q = await getDocs(orgsRef); let targetOrgId = null;
+                q.forEach(doc => { if(doc.data().orgName === orgName) targetOrgId = doc.id; });
+                if(targetOrgId) {
+                    const chatId = 'chat_' + targetOrgId + '_' + u.uid; 
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { 
+                        chatId: chatId, senderId: u.uid, text: 'مرحباً، أود التقديم للعمل معكم وقد أرفقت سيرتي الذاتية لتقييمها.', timestamp: serverTimestamp() 
+                    });
+                    
+                    const appsList = document.getElementById('applications-list');
+                    if(appsList) {
+                        if(appsList.innerHTML.includes('لم تقم بتقديم')) appsList.innerHTML = '';
+                        appsList.innerHTML += `<div class="flex items-center justify-between p-4 border border-outline-variant/50 rounded-xl bg-surface-container-lowest shadow-sm hover:border-primary transition-colors"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary"><span class="material-symbols-outlined text-lg">domain</span></div><div><p class="font-bold text-sm text-primary">${orgName}</p><p class="text-[11px] text-secondary mt-0.5">تم التقديم بنجاح</p></div></div><span class="bg-orange-100 text-orange-700 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm"><span class="material-symbols-outlined text-[14px]">hourglass_empty</span> قيد المراجعة ⌛</span></div>`;
+                    }
 
-        document.getElementById('spec-chat-form')?.addEventListener('submit', async (e) => { e.preventDefault(); if(!window.activeChatId || window.activeChatRole !== 'spec') return; const input = document.getElementById('spec-chat-input'); const text = input.value.trim(); if(!text) return; input.value = ''; try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { chatId: window.activeChatId, senderId: auth.currentUser.uid, text: text, type: 'text', timestamp: serverTimestamp() }); } catch(err) { window.showToast('لم يتم الإرسال', true); } });
-        document.getElementById('org-chat-form')?.addEventListener('submit', async (e) => { e.preventDefault(); if(!window.activeChatId || window.activeChatRole !== 'org') return; const input = document.getElementById('org-chat-input'); const text = input.value.trim(); if(!text) return; input.value = ''; try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { chatId: window.activeChatId, senderId: auth.currentUser.uid, text: text, type: 'text', timestamp: serverTimestamp() }); } catch(err) { window.showToast('لم يتم الإرسال', true); } });
+                    showToast('تم التقديم بنجاح إلى ' + orgName);
+                    btn.innerHTML='تم التقديم'; btn.classList.add('opacity-50','cursor-not-allowed');
+                } else {
+                     showToast('عذراً، لم يتم العثور على المنشأة المطلوبة', true);
+                     btn.innerHTML='تقديم السيرة الذاتية'; btn.disabled=false;
+                }
+            } catch(e) { showToast('حدث خطأ أثناء التقديم', true); btn.innerHTML='تقديم'; btn.disabled=false;}
+        };
+
+        window.startOrgChat = async (specId, specName) => {
+            const u = auth.currentUser; if(!u) return;
+            const chatId = 'chat_' + u.uid + '_' + specId;
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { 
+                    chatId: chatId, senderId: u.uid, text: 'مرحباً بك، تواصلنا معك بخصوص فرصة تعاون.', timestamp: serverTimestamp() 
+                });
+                showToast('تم فتح قناة تواصل مع ' + specName);
+                switchOrgTab('messages'); window.loadUserChats();
+                setTimeout(() => openChatRoom(chatId, specName, 'org'), 500);
+            } catch(e) {}
+        };
+
+        window.openContractModal = () => { document.getElementById('contract-modal').classList.remove('hidden-view'); document.getElementById('contract-modal').classList.add('flex'); };
+        
+        window.submitContract = async () => {
+            const title = document.getElementById('cont_title').value;
+            const duration = document.getElementById('cont_duration').value;
+            const value = document.getElementById('cont_value').value;
+            const sig = document.getElementById('cont_org_sig').value;
+
+            if(!title || !duration || !value || !sig) return showToast('يجب تعبئة جميع بيانات العقد وتوقيعه!', true);
+            closeModal('contract-modal');
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), {
+                    chatId: window.activeChatId,
+                    senderId: auth.currentUser.uid,
+                    text: 'عقد جديد',
+                    isContract: true,
+                    contractData: { title: title, value: value, duration: duration, orgSig: sig, specSig: null, status: 'pending' },
+                    timestamp: serverTimestamp()
+                });
+                document.getElementById('contract-form').reset();
+                showToast('تم إرسال العقد بانتظار توقيع الأخصائي');
+            } catch(e) { console.error(e); }
+        };
+
+        window.confirmInlineSignature = async (msgId) => {
+            const input = document.getElementById('inline_spec_sig_' + msgId);
+            if(!input) return;
+            const specSig = input.value.trim();
+            if(!specSig) return showToast('يجب كتابة اسمك لتوقيع العقد!', true);
+
+            input.disabled = true;
+            try {
+                const mRef = doc(db, 'artifacts', appId, 'public', 'data', 'messages', msgId);
+                const mSnap = await getDoc(mRef);
+                if(mSnap.exists()) {
+                    let data = mSnap.data();
+                    data.contractData.specSig = specSig;
+                    data.contractData.status = 'signed';
+                    await updateDoc(mRef, { contractData: data.contractData });
+                    showToast('تم اعتماد العقد وتوقيعه من الطرفين بنجاح!');
+                }
+            } catch(e) {
+                input.disabled = false;
+                showToast('حدث خطأ أثناء التوقيع', true);
+            }
+        };
+
+        document.getElementById('spec-chat-form')?.addEventListener('submit', async (e) => { e.preventDefault(); if(!window.activeChatId || window.activeChatRole !== 'spec') return; const input = document.getElementById('spec-chat-input'); const text = input.value.trim(); if(!text) return; input.value = ''; try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { chatId: window.activeChatId, senderId: auth.currentUser.uid, text: text, timestamp: serverTimestamp() }); } catch(err) {} });
+        document.getElementById('org-chat-form')?.addEventListener('submit', async (e) => { e.preventDefault(); if(!window.activeChatId || window.activeChatRole !== 'org') return; const input = document.getElementById('org-chat-input'); const text = input.value.trim(); if(!text) return; input.value = ''; try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), { chatId: window.activeChatId, senderId: auth.currentUser.uid, text: text, timestamp: serverTimestamp() }); } catch(err) {} });
 
         window.loadAdminData = async () => { 
             if(!auth.currentUser) return; const st = document.getElementById('admin-spec-body'), ot = document.getElementById('admin-org-body'); st.innerHTML = '<tr><td colspan="3" class="p-4 text-center">جاري...</td></tr>';
@@ -1188,23 +1171,44 @@
                 os.forEach(d => { const v=d.data(); const acts = v.status==='pending'?`<button onclick="updateRec('organizations','${d.id}','approved')" class="bg-primary text-white px-2 py-1 rounded mx-1">قبول</button>`:'-'; oh+=`<tr class="border-b"><td class="p-4">${v.orgName||'-'}</td><td class="p-4">${v.status==='approved'?'مفعل':(v.status==='rejected'?'مرفوض':'معلق')}</td><td class="p-4 text-center">${acts}</td></tr>`; }); ot.innerHTML = oh;
             } catch(e) {}
         };
-        window.updateRec = async (c,i,s) => { await updateDoc(doc(db,'artifacts',appId,'public','data',c,i),{status:s}); window.showToast('تم'); window.loadAdminData(); };
+        window.updateRec = async (c,i,s) => { await updateDoc(doc(db,'artifacts',appId,'public','data',c,i),{status:s}); showToast('تم'); window.loadAdminData(); };
 
-        window.specGlobalData = {};
+        window.filterSpecialists = () => { const q = document.getElementById('spec-search-input').value.toLowerCase(); document.querySelectorAll('.spec-card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? '' : 'none'); };
+        window.filterOrganizations = () => { const q = document.getElementById('org-search-input').value.toLowerCase(); document.querySelectorAll('.org-card').forEach(c => c.style.display = c.innerText.toLowerCase().includes(q) ? '' : 'none'); };
+
         window.loadOrgDirectory = async () => {
             const list = document.getElementById('org-specialists-list'); list.innerHTML = '<div class="col-span-full text-center p-4">جاري التحميل...</div>';
             try {
                 const ss = await getDocs(collection(db,'artifacts',appId,'public','data','specialists')); let h=''; window.specGlobalData = {};
                 ss.forEach(d => { 
-                    const v=d.data(); if(v.status==='approved'){
+                    const v=d.data(); if(v.status==='approved' && d.id !== auth.currentUser.uid){
                         window.specGlobalData[d.id] = v;
                         const picHtml = v.profilePic ? `<img src="${v.profilePic}" class="w-12 h-12 rounded-full object-cover mb-3 border">` : `<div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-3"><span class="material-symbols-outlined">person</span></div>`;
-                        h += `<div class="spec-card bg-white p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all flex flex-col h-full">${picHtml}<h4 class="font-bold text-slate-800 text-lg mb-1">${v.fullName||'أخصائي'}</h4><p class="text-sm text-slate-500 mb-4">${v.edu||'لم يحدد التخصص'}</p><div class="mt-auto flex gap-2"><button onclick="previewCV(true, window.specGlobalData['${d.id}'])" class="flex-1 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 text-xs transition-colors">الملف المهني</button><button onclick="window.submitApp('${v.fullName}', this)" class="flex-[2] py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 text-xs flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[14px]">send</span> طلب تواصل</button></div></div>`;
+                        h += `<div class="spec-card bg-white p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all flex flex-col h-full">${picHtml}<h4 class="font-bold text-slate-800 text-lg mb-1">${v.fullName||'أخصائي'}</h4><p class="text-sm text-slate-500 mb-4">${v.edu||'لم يحدد التخصص'}</p><div class="mt-auto flex gap-2"><button onclick="previewCV(true, window.specGlobalData['${d.id}'])" class="flex-1 py-2 bg-slate-100 text-slate-700 font-bold rounded-lg hover:bg-slate-200 text-xs transition-colors">الملف</button><button onclick="startOrgChat('${d.id}', '${v.fullName}')" class="flex-[2] py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 text-xs flex items-center justify-center gap-1 transition-colors"><span class="material-symbols-outlined text-[14px]">send</span> تواصل</button></div></div>`;
                     }
                 });
-                list.innerHTML = h || '<div class="col-span-full text-center p-4">لا يوجد أخصائيين معتمدين بعد.</div>';
+                list.innerHTML = h || '<div class="col-span-full text-center p-4 text-slate-500">لا يوجد كفاءات معتمدة حالياً</div>';
             } catch(e) { list.innerHTML = '<div class="col-span-full text-center p-4">حدث خطأ.</div>'; }
         };
+
+        window.loadSpecOrganizations = async () => {
+            const list = document.getElementById('organizations-list-container'); if(!list) return; list.innerHTML = '<div>جاري التحميل...</div>';
+            try {
+                const os = await getDocs(collection(db,'artifacts',appId,'public','data','organizations')); let h='';
+                os.forEach(d => {
+                    const v=d.data(); if(v.status === 'approved' && d.id !== auth.currentUser.uid) { 
+                        h += `<div class="org-card bg-white p-6 rounded-2xl border flex flex-col">
+                            <div class="flex items-center gap-4 mb-4"><div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary"><span class="material-symbols-outlined">domain</span></div><div><h4 class="font-bold text-primary">${v.orgName}</h4></div></div>
+                            <button class="w-full py-2 border-2 border-primary text-primary font-bold rounded-lg hover:bg-primary hover:text-white transition-colors" onclick="submitApp('${v.orgName}', this)">تقديم السيرة الذاتية</button>
+                        </div>`;
+                    }
+                });
+                list.innerHTML = h || '<div class="col-span-full text-center text-secondary">لا توجد منشآت معتمدة حالياً</div>';
+            } catch(e) {}
+        };
+        
+        const originalSwitchSpecTab = window.switchSpecTab;
+        window.switchSpecTab = (t) => { originalSwitchSpecTab(t); if(t === 'orgs') { window.loadSpecOrganizations(); } };
     </script>
 </body>
 </html>
